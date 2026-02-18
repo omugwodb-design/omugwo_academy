@@ -1,0 +1,8 @@
+{
+  "name": "Omugwo Academy",
+  "description": "A comprehensive platform providing sustainable postnatal care and education for mothers and families in Africa.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
