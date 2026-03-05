@@ -1,0 +1,1450 @@
+import { Block, Template } from "./types";
+import { BLOCK_DEFINITIONS } from "./registry";
+import { COURSE_SALES_TEMPLATES } from "./course-sales-templates";
+
+const id = () => Math.random().toString(36).substr(2, 9);
+
+// â”€â”€â”€ ALL TEMPLATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export const EXACT_REPLICA_TEMPLATES: Template[] = [
+    {
+        id: "omugwo-default-home",
+        name: "Omugwo Academy Home",
+        description: "The primary landing page for Omugwo Academy",
+        thumbnail: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=400",
+        category: "landing",
+        pageType: "homepage",
+        tags: ["official", "landing", "omugwo"],
+        blocks: [
+            {
+                id: id(),
+                type: "navigation",
+                label: "Header",
+                props: {
+                    brandName: "Omugwo Academy",
+                    ctaText: "Start Learning",
+                    ctaLink: "/courses",
+                    variant: "light",
+                    paddingY: "py-4",
+                    containerSize: "max-w-7xl",
+                    menuItems: [
+                        { label: "Home", href: "/" },
+                        { label: "About", href: "/about" },
+                        { label: "Courses", href: "/courses" },
+                        { label: "Community", href: "/community" },
+                        { label: "Webinars", href: "/webinars" },
+                        { label: "Contact", href: "/contact" }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "hero",
+                label: "Main Hero",
+                props: {
+                    variant: "left",
+                    fullHeight: true,
+                    title: "Modern Postnatal Education for African Families",
+                    titleHighlight: "African Families",
+                    subtitle: "Bridging tradition and science for a healthier motherhood journey. Expert-led courses, supportive community, and culturally relevant guidance.",
+                    ctaText: "Start Learning",
+                    ctaLink: "/courses",
+                    secondaryCtaText: "Watch Free Masterclass",
+                    secondaryCtaLink: "/webinars/free-masterclass",
+                    backgroundImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=1920",
+                    align: "left",
+                    showOverlay: true,
+                    overlayType: "gradient-right-light",
+                    overlayOpacity: 95,
+                    badgeText: "Omugwo Academy",
+                    badgeIcon: "Heart",
+                    showSocialProof: true,
+                    socialProofText: "15,000+ families supported",
+                    showRating: true,
+                    ratingStars: 5,
+                    paddingY: "py-32",
+                    containerSize: "max-w-7xl",
+                    socialProofAvatars: [
+                        { url: "https://i.pravatar.cc/100?img=11" },
+                        { url: "https://i.pravatar.cc/100?img=12" },
+                        { url: "https://i.pravatar.cc/100?img=13" },
+                        { url: "https://i.pravatar.cc/100?img=14" }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "content",
+                label: "The Challenge",
+                props: {
+                    badgeText: "The Challenge",
+                    badgeVariant: "warning",
+                    title: "Why Postnatal Care in Africa Needs Modernization",
+                    body: "The traditional \"Omugwo\" practice â€” where experienced mothers guide new parents â€” is fading as families become more nuclear and geographically dispersed.\n\nNew mothers are left navigating postpartum challenges alone, often without access to reliable information that respects their cultural context while meeting modern medical standards.\n\n**We're rebuilding the village â€” digitally.**",
+                    image: "https://images.unsplash.com/photo-1609220136736-443140cffec6?auto=format&fit=crop&q=80&w=800",
+                    imagePosition: "right",
+                    backgroundColor: "#f9fafb",
+                    paddingY: "py-24",
+                    containerSize: "max-w-7xl"
+                }
+            },
+            {
+                id: id(),
+                type: "features",
+                label: "Motherhood Journey",
+                props: {
+                    variant: "scroll",
+                    align: "left",
+                    title: "Motherhood is a Journey",
+                    subtitle: "And we're here to guide you through every stage with expert knowledge and compassionate support.",
+                    columns: "3",
+                    paddingY: "py-24",
+                    containerSize: "max-w-7xl",
+                    backgroundColor: "#ffffff",
+                    features: [
+                        { badge: "Stage 01", title: "Labour & Delivery", description: "Discover the wonders of childbirth and make informed decisions about your birth plan, pain management, and medical support.", icon: "baby" },
+                        { badge: "Stage 02", title: "Post-Delivery Care", description: "Your comprehensive guide to a smooth and supportive transition to parenthood, focusing on recovery and emotional wellbeing.", icon: "heart" },
+                        { badge: "Stage 03", title: "Baby's First Year", description: "Navigate the beautiful challenges of your baby's growth, from breastfeeding and sleep patterns to developmental milestones.", icon: "users" }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "course_grid",
+                label: "Courses Preview",
+                props: {
+                    badgeText: "Our Courses",
+                    title: "Expert-Led Learning Paths",
+                    subtitle: "Comprehensive courses designed by medical professionals, tailored for African families.",
+                    columns: "3",
+                    mode: "static",
+                    showViewAll: true,
+                    backgroundColor: "#f5f3ff",
+                    paddingY: "py-24",
+                    containerSize: "max-w-7xl",
+                    courses: [
+                        {
+                            title: "The Omugwo Masterclass for Moms",
+                            description: "Complete postnatal guide covering body recovery, mental health, cultural balance, marriage & intimacy, and infant care.",
+                            image: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800",
+                            price: "â‚¦49,000",
+                            lessons: 48,
+                            duration: "12 Hours",
+                            badge: "Most Popular",
+                            rating: 5,
+                            students: 12000
+                        },
+                        {
+                            title: "Partner Support Training",
+                            description: "Essential knowledge for fathers and partners to provide meaningful support during the postnatal period.",
+                            image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=800",
+                            price: "â‚¦29,000",
+                            lessons: 24,
+                            duration: "6 Hours",
+                            rating: 5,
+                            students: 5400
+                        },
+                        {
+                            title: "Essential Postnatal Care",
+                            description: "Core fundamentals every parent needs to know for a healthy postpartum journey.",
+                            image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=800",
+                            price: "â‚¦39,000",
+                            lessons: 32,
+                            duration: "8 Hours",
+                            rating: 5,
+                            students: 8200
+                        }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "content",
+                label: "Meet the Founder",
+                props: {
+                    badgeText: "Meet the Founder",
+                    title: "A Personal Journey, A Global Mission",
+                    body: "**Dr. Megor Ikuenobe** is a distinguished medical professional and early childhood development specialist on a mission to provide every child in Africa with a promising start.\n\nAs the founder of Lead Oak Women and Children Foundation, she has been a relentless advocate for education, healthcare, and empowerment in communities across Nigeria.\n\nOmugwo Academy was born from her vision to digitize the traditional support system, making expert postnatal guidance accessible to every African family.",
+                    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800",
+                    imagePosition: "left",
+                    imageEffect: "rotate-left",
+                    quoteText: "\"Every child deserves a promising start, and every mother deserves support.\"",
+                    ctaText: "Read Our Story",
+                    ctaLink: "/about",
+                    backgroundColor: "#ffffff",
+                    paddingY: "py-24",
+                    containerSize: "max-w-7xl"
+                }
+            },
+            {
+                id: id(),
+                type: "campaign_story",
+                label: "My Omugwo Story",
+                props: {
+                    badgeText: "Featured Campaign",
+                    title: "My ",
+                    titleHighlight: "Omugwo",
+                    titleSuffix: " Story",
+                    body1: "The \"My Omugwo Story\" campaign aims to highlight the transformative power of omugwo care by sharing real-life experiences of new moms, new dads, and close relatives who have benefited from this tradition. Through storytelling, we will showcase the diverse perspectives and profound impact of Omugwo on families worldwide.",
+                    body2: "Whether your journey was filled with challenges, triumphs, or a combination of both, we want to hear your story, the good, the bad and the ugly. We encourage you to embrace the opportunity to share your omugwo story and inspire others on their parenting journeys. Together we can celebrate the transformative power of Omugwo care.",
+                    listTitle: "How to Share Your Omugwo Story:",
+                    listSubtitle: "We offer three convenient ways to share your omugwo story:",
+                    listItems: "Video Submission / walk in video recording\nPodcast Feature\nWritten Article\nLive videos",
+                    ctaText: "SHARE YOUR STORY",
+                    ctaLink: "#",
+                    image1: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=400",
+                    image2: "https://images.unsplash.com/photo-1544126592-807ade215a0b?auto=format&fit=crop&q=80&w=400",
+                    image3: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400",
+                    image4: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=400",
+                    backgroundColor: "#ffffff",
+                    paddingY: "py-24",
+                    containerSize: "max-w-7xl"
+                }
+            },
+            {
+                id: id(),
+                type: "testimonials",
+                label: "Testimonials",
+                props: {
+                    variant: "cards",
+                    title: "Trusted by Thousands of Families",
+                    subtitle: "Real stories from real parents who transformed their postnatal experience with Omugwo Academy.",
+                    columns: "3",
+                    backgroundColor: "#111827",
+                    paddingY: "py-24",
+                    containerSize: "max-w-7xl",
+                    testimonials: [
+                        { name: "Adaeze Okonkwo", role: "First-time Mom, Lagos", content: "Omugwo Academy changed everything for me. The blend of traditional wisdom with modern medical advice gave me confidence I never knew I needed.", avatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=200", rating: 5 },
+                        { name: "Chukwuemeka Eze", role: "New Dad, Abuja", content: "As a father, I felt lost during my wife's postpartum period. The Dads Course equipped me with practical skills to support her meaningfully.", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200", rating: 5 },
+                        { name: "Folake Adeyemi", role: "Mom of 3, Ibadan", content: "Even after three children, I learned so much. The community support is incredible â€” it truly feels like having a village again.", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200", rating: 5 }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "hero_split",
+                label: "Podcast Section",
+                props: {
+                    title: "Beyond Birth with Dr. Megor",
+                    subtitle: "Join Dr. Megor as she delves into the depths of parenthood, exploring the joys, challenges, and transformative experiences that come with raising children. Each episode features insightful conversations with leading experts, experienced parents, and Dr. Megor herself.\n\nEmbrace the extraordinary journey of parenthood. Subscribe and Listen Today!",
+                    badgeText: "-PODCAST-",
+                    ctaText: "VIEW MORE",
+                    ctaLink: "/podcast",
+                    align: "left",
+                    backgroundImage: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=800",
+                    paddingY: "py-24",
+                    containerSize: "max-w-7xl",
+                    backgroundColor: "#f5f3ff",
+                    showOverlay: false
+                }
+            },
+            {
+                id: id(),
+                type: "faq",
+                label: "FAQ",
+                props: {
+                    variant: "accordion",
+                    title: "Commonly Asked Questions",
+                    paddingY: "py-24",
+                    containerSize: "max-w-3xl",
+                    faqs: [
+                        { question: "What is Omugwo?", answer: "Omugwo is a time-honored Nigerian postnatal care practice where a mother or mother-in-law comes to help care for a new mother and baby. At Omugwo Academy, we've modernized this tradition into comprehensive digital education that blends cultural wisdom with evidence-based medical guidance." },
+                        { question: "Who are the courses designed for?", answer: "Our courses are designed for expecting mothers, new mothers, fathers/partners, grandmothers, and anyone involved in postnatal care. We have specific courses tailored for each role in the support system." },
+                        { question: "Is the content medically verified?", answer: "Yes, all our content is developed and reviewed by Dr. Megor Ikuenobe and a team of medical professionals including pediatricians, OB-GYNs, mental health specialists, and certified lactation consultants." },
+                        { question: "How long do I have access to the courses?", answer: "Once enrolled, you have lifetime access to the course content, including all future updates. You can learn at your own pace and revisit materials whenever needed." },
+                        { question: "Is there a community I can join?", answer: "Yes! Every course enrollment includes access to our private community where you can connect with other parents, share experiences, ask questions, and receive support from peers and experts." }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "cta",
+                label: "Final Call to Action",
+                props: {
+                    title: "Ready to Transform Your Postpartum Journey?",
+                    subtitle: "Join thousands of African families who have discovered the power of informed, supported, and culturally relevant postnatal care.",
+                    primaryText: "Explore Courses",
+                    primaryHref: "/courses",
+                    secondaryText: "Book Consultation",
+                    secondaryHref: "/contact",
+                    variant: "gradient",
+                    align: "center",
+                    paddingY: "py-24",
+                    containerSize: "max-w-5xl"
+                }
+            },
+            {
+                id: id(),
+                type: "footer",
+                label: "Footer",
+                props: {
+                    brandName: "Omugwo Academy",
+                    variant: "dark",
+                    paddingY: "py-16",
+                    containerSize: "max-w-7xl",
+                    menuItems: [
+                        { label: "Home", href: "/" },
+                        { label: "About", href: "/about" },
+                        { label: "Courses", href: "/courses" },
+                        { label: "Community", href: "/community" },
+                        { label: "Webinars", href: "/webinars" },
+                        { label: "Contact", href: "/contact" },
+                        { label: "Privacy Policy", href: "/privacy" },
+                        { label: "Terms of Service", href: "/terms" }
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        id: "omugwo-about-page",
+        name: "About Page",
+        description: "About Omugwo Academy and our mission",
+        thumbnail: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+        category: "about",
+        pageType: "about",
+        tags: ["about", "mission", "team"],
+        blocks: [
+            {
+                id: id(),
+                type: "navigation",
+                label: "Header",
+                props: {
+                    brandName: "Omugwo Academy",
+                    ctaText: "Start Learning",
+                    ctaLink: "/courses",
+                    variant: "light",
+                    paddingY: "py-4",
+                    containerSize: "max-w-7xl",
+                    menuItems: [
+                        { label: "Home", href: "/" },
+                        { label: "About", href: "/about" },
+                        { label: "Courses", href: "/courses" },
+                        { label: "Community", href: "/community" },
+                        { label: "Webinars", href: "/webinars" },
+                        { label: "Contact", href: "/contact" }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "hero",
+                label: "About Hero",
+                props: {
+                    variant: "centered",
+                    fullHeight: false,
+                    title: "Our Story",
+                    titleHighlight: "Mission",
+                    subtitle: "Empowering African families with modern postnatal education that honors tradition while embracing science.",
+                    backgroundImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1920",
+                    align: "center",
+                    showOverlay: true,
+                    overlayType: "gradient",
+                    overlayOpacity: 80,
+                    paddingY: "py-24",
+                    containerSize: "max-w-4xl"
+                }
+            },
+            {
+                id: id(),
+                type: "content",
+                label: "Mission Statement",
+                props: {
+                    badgeText: "Our Mission",
+                    title: "Bridging Tradition and Science",
+                    body: "At Omugwo Academy, we believe every mother deserves access to quality postnatal care that respects cultural heritage while incorporating modern medical knowledge.\n\nOur mission is to digitize and modernize the traditional \"Omugwo\" practice, making expert guidance accessible to every African family through comprehensive online education, supportive community, and culturally relevant resources.",
+                    backgroundColor: "#f9fafb",
+                    paddingY: "py-24",
+                    containerSize: "max-w-4xl"
+                }
+            },
+            {
+                id: id(),
+                type: "team",
+                label: "Our Team",
+                props: {
+                    title: "Meet Our Experts",
+                    subtitle: "Led by medical professionals and cultural experts dedicated to transforming postnatal care in Africa.",
+                    columns: "3",
+                    paddingY: "py-24",
+                    containerSize: "max-w-7xl",
+                    teamMembers: [
+                        {
+                            name: "Dr. Megor Ikuenobe",
+                            role: "Founder & Medical Director",
+                            image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+                            bio: "Distinguished medical professional and early childhood development specialist with over 15 years of experience."
+                        },
+                        {
+                            name: "Dr. Amina Bello",
+                            role: "Head of Curriculum",
+                            image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400",
+                            bio: "Pediatrician and education specialist focused on culturally appropriate healthcare delivery."
+                        },
+                        {
+                            name: "Chika Okafor",
+                            role: "Community Director",
+                            image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=400",
+                            bio: "Community building expert passionate about creating supportive networks for new parents."
+                        }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "stats",
+                label: "Impact Stats",
+                props: {
+                    title: "Our Impact",
+                    subtitle: "Numbers that speak to our commitment and success",
+                    columns: "4",
+                    backgroundColor: "#e85d75",
+                    paddingY: "py-24",
+                    containerSize: "max-w-7xl",
+                    stats: [
+                        { number: "15,000+", label: "Families Supported" },
+                        { number: "50+", label: "Expert Instructors" },
+                        { number: "12", label: "Comprehensive Courses" },
+                        { number: "98%", label: "Satisfaction Rate" }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "footer",
+                label: "Footer",
+                props: {
+                    brandName: "Omugwo Academy",
+                    variant: "dark",
+                    paddingY: "py-16",
+                    containerSize: "max-w-7xl"
+                }
+            }
+        ]
+    },
+    {
+        id: "omugwo-courses-page",
+        name: "Courses Page",
+        description: "Browse all available courses",
+        thumbnail: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400",
+        category: "courses",
+        pageType: "courses",
+        tags: ["courses", "learning", "education"],
+        blocks: [
+            {
+                id: id(),
+                type: "navigation",
+                label: "Header",
+                props: {
+                    brandName: "Omugwo Academy",
+                    ctaText: "Start Learning",
+                    ctaLink: "/courses",
+                    variant: "light",
+                    paddingY: "py-4",
+                    containerSize: "max-w-7xl",
+                    menuItems: [
+                        { label: "Home", href: "/" },
+                        { label: "About", href: "/about" },
+                        { label: "Courses", href: "/courses" },
+                        { label: "Community", href: "/community" },
+                        { label: "Webinars", href: "/webinars" },
+                        { label: "Contact", href: "/contact" }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "course_grid",
+                label: "Courses Grid",
+                props: {
+                    title: "Our Courses",
+                    subtitle: "Choose the perfect course for your postpartum journey.",
+                    columns: "3",
+                    mode: "static",
+                    courses: [
+                        {
+                            title: "The Omugwo Masterclass for Moms",
+                            description: "Complete postnatal guide covering body recovery, mental health, cultural balance, marriage & intimacy, and infant care.",
+                            image: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800",
+                            duration: "12 Hours",
+                            lessons: 48,
+                            price: 49000,
+                            badge: "Most Popular"
+                        },
+                        {
+                            title: "Partner Support Training",
+                            description: "Essential knowledge for fathers and partners to provide meaningful support during the postnatal period.",
+                            image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&q=80&w=800",
+                            duration: "6 Hours",
+                            lessons: 24,
+                            price: 29000
+                        },
+                        {
+                            title: "Essential Postnatal Care",
+                            description: "Core fundamentals every parent needs to know for a healthy postpartum journey.",
+                            image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=800",
+                            duration: "8 Hours",
+                            lessons: 32,
+                            price: 39000
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    // â”€â”€â”€ COMMUNITY PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    {
+        id: "omugwo-community-page",
+        name: "Community Page",
+        description: "Join our thriving community of parents",
+        thumbnail: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=400",
+        category: "community",
+        pageType: "community",
+        tags: ["community", "social", "support"],
+        blocks: [
+            {
+                id: id(),
+                type: "navigation",
+                label: "Header",
+                props: {
+                    brandName: "Omugwo Academy",
+                    ctaText: "Join Community",
+                    ctaLink: "/community",
+                    variant: "light",
+                    paddingY: "py-4",
+                    containerSize: "max-w-7xl",
+                    menuItems: [
+                        { label: "Home", href: "/" },
+                        { label: "About", href: "/about" },
+                        { label: "Courses", href: "/courses" },
+                        { label: "Community", href: "/community" },
+                        { label: "Webinars", href: "/webinars" },
+                        { label: "Contact", href: "/contact" }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "hero",
+                label: "Community Hero",
+                props: {
+                    variant: "centered",
+                    fullHeight: false,
+                    title: "Join Our Thriving Community",
+                    subtitle: "Connect with thousands of parents on the same journey. Share experiences, get support, and build lasting friendships.",
+                    backgroundImage: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=1920",
+                    align: "center",
+                    showOverlay: true,
+                    overlayType: "gradient",
+                    overlayOpacity: 80,
+                    paddingY: "py-24",
+                    containerSize: "max-w-4xl"
+                }
+            },
+            {
+                id: id(),
+                type: "community_discussions",
+                label: "Community Spaces",
+                props: {
+                    title: "Community Spaces",
+                    subtitle: "Find your space and connect with like-minded parents.",
+                    mode: "static",
+                    posts: [
+                        {
+                            title: "New Moms",
+                            description: "5,420 members â€¢ 1,250 posts",
+                            image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=400"
+                        },
+                        {
+                            title: "Dads Lounge",
+                            description: "1,850 members â€¢ 420 posts",
+                            image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400"
+                        },
+                        {
+                            title: "Mental Health",
+                            description: "2,340 members â€¢ 680 posts",
+                            image: "https://images.unsplash.com/photo-1609220136736-443140cffec6?auto=format&fit=crop&q=80&w=400"
+                        }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "cta",
+                label: "Join CTA",
+                props: {
+                    title: "Ready to Join the Conversation?",
+                    subtitle: "Become part of our supportive community today.",
+                    primaryText: "Join Community",
+                    primaryHref: "/community",
+                    variant: "gradient",
+                    align: "center",
+                    paddingY: "py-24",
+                    containerSize: "max-w-5xl"
+                }
+            },
+            {
+                id: id(),
+                type: "footer",
+                label: "Footer",
+                props: {
+                    brandName: "Omugwo Academy",
+                    variant: "dark",
+                    paddingY: "py-16",
+                    containerSize: "max-w-7xl"
+                }
+            }
+        ]
+    },
+    // â”€â”€â”€ WEBINARS PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    {
+        id: "omugwo-webinars-page",
+        name: "Webinars Page",
+        description: "Join our live webinars and workshops",
+        thumbnail: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&q=80&w=400",
+        category: "webinars",
+        pageType: "webinars",
+        tags: ["webinars", "live", "workshops"],
+        blocks: [
+            {
+                id: id(),
+                type: "navigation",
+                label: "Header",
+                props: {
+                    brandName: "Omugwo Academy",
+                    ctaText: "View Webinars",
+                    ctaLink: "/webinars",
+                    variant: "light",
+                    paddingY: "py-4",
+                    containerSize: "max-w-7xl",
+                    menuItems: [
+                        { label: "Home", href: "/" },
+                        { label: "About", href: "/about" },
+                        { label: "Courses", href: "/courses" },
+                        { label: "Community", href: "/community" },
+                        { label: "Webinars", href: "/webinars" },
+                        { label: "Contact", href: "/contact" }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "hero",
+                label: "Webinars Hero",
+                props: {
+                    variant: "centered",
+                    fullHeight: false,
+                    title: "Live Webinars & Workshops",
+                    subtitle: "Learn directly from experts in real-time. Join interactive sessions covering all aspects of postpartum care.",
+                    backgroundImage: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&q=80&w=1920",
+                    align: "center",
+                    showOverlay: true,
+                    overlayType: "gradient",
+                    overlayOpacity: 80,
+                    paddingY: "py-24",
+                    containerSize: "max-w-4xl"
+                }
+            },
+            {
+                id: id(),
+                type: "webinar_grid",
+                label: "Upcoming Webinars",
+                props: {
+                    title: "Upcoming Webinars",
+                    subtitle: "Join our interactive webinars and learn directly from experts",
+                    columns: "3",
+                    webinars: [
+                        {
+                            title: "Free Masterclass: The Modern Omugwo Framework",
+                            description: "Discover how to blend traditional postnatal wisdom with modern medical care. Learn the 5 pillars of successful postpartum recovery.",
+                            image: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800",
+                            date: "Feb 25, 2025",
+                            time: "3:00 PM WAT",
+                            duration: "60 minutes",
+                            price: "Free",
+                            instructor: "Dr. Megor Ikuenobe",
+                            type: "live"
+                        },
+                        {
+                            title: "Breastfeeding Success Workshop",
+                            description: "A comprehensive workshop covering latching techniques, common challenges, and how to maintain milk supply.",
+                            image: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&q=80&w=800",
+                            date: "Mar 1, 2025",
+                            time: "10:00 AM WAT",
+                            duration: "90 minutes",
+                            price: "â‚¦5,000",
+                            instructor: "Nurse Tolani Adewale",
+                            type: "live"
+                        },
+                        {
+                            title: "Live Q&A: Postpartum Mental Health",
+                            description: "An open discussion about postpartum mental health with our clinical psychologist. Ask your questions live.",
+                            image: "https://images.unsplash.com/photo-1609220136736-443140cffec6?auto=format&fit=crop&q=80&w=800",
+                            date: "Mar 5, 2025",
+                            time: "5:00 PM WAT",
+                            duration: "60 minutes",
+                            price: "Free",
+                            instructor: "Dr. Amara Obi",
+                            type: "live"
+                        }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "cta",
+                label: "Instructor CTA",
+                props: {
+                    title: "Want to Teach a Webinar?",
+                    subtitle: "Share your expertise with our community of parents.",
+                    primaryText: "Become an Instructor",
+                    primaryHref: "#",
+                    variant: "gradient",
+                    align: "center",
+                    paddingY: "py-24",
+                    containerSize: "max-w-5xl"
+                }
+            },
+            {
+                id: id(),
+                type: "footer",
+                label: "Footer",
+                props: {
+                    brandName: "Omugwo Academy",
+                    variant: "dark",
+                    paddingY: "py-16",
+                    containerSize: "max-w-7xl"
+                }
+            }
+        ]
+    },
+    // â”€â”€â”€ CONTACT PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    {
+        id: "omugwo-contact-page",
+        name: "Contact Page",
+        description: "Get in touch with us",
+        thumbnail: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400",
+        category: "contact",
+        pageType: "contact",
+        tags: ["contact", "support", "help"],
+        blocks: [
+            {
+                id: id(),
+                type: "navigation",
+                label: "Header",
+                props: {
+                    brandName: "Omugwo Academy",
+                    ctaText: "Contact Us",
+                    ctaLink: "/contact",
+                    variant: "light",
+                    paddingY: "py-4",
+                    containerSize: "max-w-7xl",
+                    menuItems: [
+                        { label: "Home", href: "/" },
+                        { label: "About", href: "/about" },
+                        { label: "Courses", href: "/courses" },
+                        { label: "Community", href: "/community" },
+                        { label: "Webinars", href: "/webinars" },
+                        { label: "Contact", href: "/contact" }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "hero",
+                label: "Contact Hero",
+                props: {
+                    variant: "centered",
+                    fullHeight: false,
+                    title: "Get in Touch",
+                    titleHighlight: "We're Here to Help",
+                    subtitle: "Have questions? Need support? Want to learn more about our programs? We're here to help you on your journey.",
+                    backgroundImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1920",
+                    align: "center",
+                    showOverlay: true,
+                    overlayType: "gradient",
+                    overlayOpacity: 80,
+                    paddingY: "py-24",
+                    containerSize: "max-w-4xl"
+                }
+            },
+            {
+                id: id(),
+                type: "contact_form",
+                label: "Contact Form",
+                props: {
+                    title: "Send Us a Message",
+                    subtitle: "Fill out the form below and we'll get back to you within 24 hours.",
+                    backgroundColor: "#ffffff",
+                    paddingY: "py-24",
+                    containerSize: "max-w-4xl",
+                    fields: [
+                        { name: "name", label: "Full Name", type: "text", required: true },
+                        { name: "email", label: "Email Address", type: "email", required: true },
+                        { name: "phone", label: "Phone Number", type: "tel", required: false },
+                        { name: "subject", label: "Subject", type: "select", options: ["General Inquiry", "Course Information", "Technical Support", "Partnership", "Other"], required: true },
+                        { name: "message", label: "Message", type: "textarea", required: true }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "contact_info",
+                label: "Contact Information",
+                props: {
+                    title: "Other Ways to Reach Us",
+                    subtitle: "Choose the method that works best for you",
+                    columns: "3",
+                    backgroundColor: "#f9fafb",
+                    paddingY: "py-24",
+                    containerSize: "max-w-7xl",
+                    contactMethods: [
+                        { icon: "mail", title: "Email", description: "Send us an email and we'll respond within 24 hours", contact: "support@omugwoacademy.com", link: "mailto:support@omugwoacademy.com" },
+                        { icon: "phone", title: "Phone", description: "Call us Monday-Friday, 9am-5pm WAT", contact: "+234 800 123 4567", link: "tel:+2348001234567" },
+                        { icon: "map-pin", title: "Office", description: "Visit our Lagos office for in-person consultations", contact: "Ikoyi, Lagos, Nigeria", link: "#" }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "cta",
+                label: "Emergency CTA",
+                props: {
+                    title: "Need Immediate Help?",
+                    subtitle: "For urgent mental health concerns, please contact our 24/7 support line",
+                    primaryText: "Call Support Line",
+                    primaryHref: "tel:+2348001234567",
+                    secondaryText: "Email Us",
+                    secondaryHref: "mailto:support@omugwoacademy.com",
+                    variant: "gradient",
+                    align: "center",
+                    paddingY: "py-24",
+                    containerSize: "max-w-5xl"
+                }
+            },
+            {
+                id: id(),
+                type: "footer",
+                label: "Footer",
+                props: {
+                    brandName: "Omugwo Academy",
+                    variant: "dark",
+                    paddingY: "py-16",
+                    containerSize: "max-w-7xl"
+                }
+            }
+        ]
+    }
+];
+
+// â”€â”€â”€ MAIN TEMPLATES EXPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export const TEMPLATES: Template[] = [
+  ...EXACT_REPLICA_TEMPLATES,
+  ...COURSE_SALES_TEMPLATES
+];
+                }
+            },
+            {
+                id: id(),
+                type: "pricing_table",
+                label: "Investment",
+                props: {
+                    title: "Join the Masterclass",
+                    subtitle: "Lifetime access to all modules and community."
+                }
+            },
+            {
+                id: id(),
+                type: "testimonials",
+                label: "Success Stories",
+                props: {
+                    title: "Join 5,000+ Successful Students",
+                    columns: "2"
+                }
+            },
+            {
+                id: id(),
+                type: "faq",
+                label: "Questions?",
+                props: {
+                    title: "Frequently Asked Questions"
+                }
+            },
+            {
+                id: id(),
+                type: "footer",
+                label: "Footer",
+                props: BLOCK_DEFINITIONS.footer.defaultProps
+            }
+        ]
+    },
+    {
+        id: "omugwo-moms-sales-v1",
+        name: "Moms Masterclass Sales Page",
+        description: "Conversion-focused sales page for the Omugwo Masterclass for Moms",
+        thumbnail: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&q=80&w=400",
+        category: "course_sales",
+        pageType: "course_sales",
+        tags: ["moms", "sales", "conversion", "course"],
+        blocks: [
+            {
+                id: id(),
+                type: "navigation",
+                label: "Navigation",
+                props: BLOCK_DEFINITIONS.navigation.defaultProps
+            },
+            {
+                id: id(),
+                type: "hero_split",
+                label: "Emotional Headline",
+                props: {
+                    title: "You Donâ€™t Have to Navigate Postpartum Alone",
+                    subtitle: "A complete, culturally grounded and medically sound roadmap to help you recover, feel supported, and enjoy the first year of motherhood with confidence.",
+                    ctaText: "Enroll Now",
+                    ctaLink: "#pricing",
+                    align: "left",
+                    backgroundImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=1600",
+                    showOverlay: true,
+                    overlayOpacity: 45,
+                    paddingY: "py-24",
+                    containerSize: "max-w-7xl"
+                }
+            },
+            {
+                id: id(),
+                type: "content",
+                label: "Problem Amplification",
+                props: {
+                    title: "Postpartum can feel overwhelming â€” especially when youâ€™re expected to just â€˜figure it outâ€™",
+                    body: "Your body is healing. Your emotions are shifting. Your relationships are changing. And suddenly everyone has advice â€” but not everyone has answers.\n\nThis is where new mothers often suffer quietly: exhaustion, anxiety, pain, confusion, isolation â€” and the pressure to look like everything is fine.\n\nYou deserve support that is practical, culturally relevant, and evidence-based.",
+                    image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=1200",
+                    imagePosition: "right",
+                    backgroundColor: "#f9fafb",
+                    paddingY: "py-20",
+                    containerSize: "max-w-7xl",
+                    ctaText: "See the Curriculum",
+                    ctaLink: "#curriculum"
+                }
+            },
+            {
+                id: id(),
+                type: "content",
+                label: "Introduce Omugwo Framework",
+                props: {
+                    title: "Introducing the Omugwo Framework",
+                    body: "A structured 5-part framework that blends traditional postnatal wisdom with modern medical guidance â€” built to support your recovery and protect your peace.\n\nInside this masterclass youâ€™ll learn what to focus on week-by-week, whatâ€™s normal vs. what needs attention, and how to build a sustainable recovery plan you can actually follow.",
+                    image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&q=80&w=1200",
+                    imagePosition: "left",
+                    paddingY: "py-20",
+                    containerSize: "max-w-7xl",
+                    ctaText: "Join the Masterclass",
+                    ctaLink: "#pricing"
+                }
+            },
+            {
+                id: id(),
+                type: "course_curriculum",
+                label: "Curriculum Breakdown",
+                props: {
+                    title: "Curriculum Breakdown",
+                    subtitle: "5 modules that cover the real postpartum journey â€” body, mind, culture, marriage, and baby.",
+                    modules: [
+                        {
+                            title: "Module 1: Body Recovery",
+                            description: "Healing, rest, nourishment, pelvic floor care, pain management, and how to rebuild strength safely.",
+                            duration: "2h 15m",
+                            lessons: "Introduction to Postpartum Recovery|8:30|video,Understanding Your Body's Changes|12:45|video,Safe Exercise Guidelines|15:20|video,Nutrition for Recovery|10:15|video,Pelvic Floor Care|14:30|video,Pain Management Strategies|9:45|video,Module Quiz|5:00|quiz"
+                        },
+                        {
+                            title: "Module 2: Mental Health",
+                            description: "Mood changes, anxiety, overwhelm, baby blues vs. postpartum depression, and practical emotional support systems.",
+                            duration: "1h 45m",
+                            lessons: "Recognizing Baby Blues vs PPD|10:30|video,Building Your Support System|12:00|video,Self-Care Strategies|8:45|video,Managing Anxiety|11:15|video,When to Seek Help|7:30|video,Module Assessment|5:00|quiz"
+                        },
+                        {
+                            title: "Module 3: Cultural Balance",
+                            description: "How to honor traditions without losing your autonomy â€” boundaries, family dynamics, and cultural pressure.",
+                            duration: "1h 30m",
+                            lessons: "Understanding Cultural Expectations|9:15|video,Setting Healthy Boundaries|11:30|video,Communicating with Family|10:45|video,Balancing Tradition and Autonomy|8:30|video,Module Quiz|5:00|quiz"
+                        },
+                        {
+                            title: "Module 4: Marriage & Intimacy",
+                            description: "Communication after birth, partner support, intimacy timelines, and rebuilding connection without guilt.",
+                            duration: "1h 20m",
+                            lessons: "Communication After Birth|10:00|video,Partner Support Strategies|9:30|video,Intimacy Timelines|8:45|video,Rebuilding Connection|11:15|video,Module Assessment|5:00|quiz"
+                        },
+                        {
+                            title: "Module 5: Infant Care",
+                            description: "Feeding, sleep, newborn care basics, common concerns, and how to feel confident caring for your baby.",
+                            duration: "2h 00m",
+                            lessons: "Feeding Basics|12:30|video,Understanding Baby Sleep|10:45|video,Newborn Care Essentials|13:15|video,Common Concerns Addressed|9:30|video,Building Confidence|8:00|video,Final Assessment|6:00|quiz"
+                        }
+                    ],
+                    showProgress: false
+                }
+            },
+            {
+                id: id(),
+                type: "features",
+                label: "Bonuses",
+                props: {
+                    variant: "icons-top",
+                    title: "Bonuses Included",
+                    subtitle: "Practical tools to help you apply what you learn â€” immediately.",
+                    columns: "3",
+                    paddingY: "py-20",
+                    containerSize: "max-w-7xl",
+                    backgroundColor: "#ffffff",
+                    features: [
+                        {
+                            icon: "book",
+                            title: "Checklists",
+                            description: "Simple postpartum checklists you can use daily to stay calm and organized."
+                        },
+                        {
+                            icon: "target",
+                            title: "Recovery Planner",
+                            description: "A guided planner to help you create a recovery plan that fits your real life."
+                        },
+                        {
+                            icon: "users",
+                            title: "Private Community Access",
+                            description: "Support from other mothers on the journey â€” plus encouragement and accountability."
+                        }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "content",
+                label: "Guarantee",
+                props: {
+                    title: "Your Guarantee",
+                    body: "Try the masterclass risk-free. If you donâ€™t feel more confident and supported after going through the core lessons, weâ€™ll make it right.\n\nWe want you to invest in your recovery with peace of mind.",
+                    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=1200",
+                    imagePosition: "right",
+                    backgroundColor: "#f9fafb",
+                    paddingY: "py-20",
+                    containerSize: "max-w-7xl",
+                    ctaText: "See Pricing",
+                    ctaLink: "#pricing"
+                }
+            },
+            {
+                id: id(),
+                type: "pricing_table",
+                label: "Pricing Options",
+                props: {
+                    title: "Pricing Options",
+                    subtitle: "Choose the payment option that works best for you.",
+                    plans: [
+                        {
+                            name: "One-time Payment",
+                            price: "â‚¦49,000",
+                            originalPrice: "â‚¦75,000",
+                            period: "one-time",
+                            description: "Pay once and get lifetime access to the full masterclass.",
+                            features: "All 5 modules,Bonuses: checklists + planner,Private community access,Lifetime access,Certificate of completion",
+                            ctaText: "Enroll (One-time)",
+                            ctaLink: "/checkout/moms-course",
+                            highlighted: true,
+                            badge: "Best Value"
+                        },
+                        {
+                            name: "Installments",
+                            price: "â‚¦17,000",
+                            originalPrice: "",
+                            period: "x3 payments",
+                            description: "Split your payment into 3 easy installments.",
+                            features: "All 5 modules,Bonuses included,Private community access,Lifetime access",
+                            ctaText: "Enroll (Installments)",
+                            ctaLink: "/checkout/moms-course",
+                            highlighted: false,
+                            badge: "Flexible"
+                        }
+                    ],
+                    paddingY: "py-20",
+                    containerSize: "max-w-7xl"
+                }
+            },
+            {
+                id: id(),
+                type: "faq",
+                label: "FAQs",
+                props: {
+                    title: "Frequently Asked Questions",
+                    subtitle: "Everything you need to know before you enroll.",
+                    paddingY: "py-20",
+                    containerSize: "max-w-7xl",
+                    items: [
+                        {
+                            question: "Is this course medically verified?",
+                            answer: "Yes. The framework is built to be culturally grounded and informed by modern evidence-based care."
+                        },
+                        {
+                            question: "How long will I have access?",
+                            answer: "Lifetime access â€” including future updates."
+                        },
+                        {
+                            question: "Can I join if I'm currently pregnant?",
+                            answer: "Yes. Many mothers join during pregnancy to prepare for postpartum recovery and newborn care."
+                        }
+                    ]
+                }
+            },
+            {
+                id: id(),
+                type: "cta",
+                label: "Final CTA",
+                props: {
+                    title: "You deserve support â€” not stress",
+                    subtitle: "Enroll today and begin your postpartum journey with confidence and clarity.",
+                    primaryText: "Enroll Now",
+                    primaryHref: "#pricing",
+                    secondaryText: "View Curriculum",
+                    secondaryHref: "#curriculum",
+                    variant: "gradient",
+                    align: "center",
+                    paddingY: "py-20",
+                    containerSize: "max-w-4xl"
+                }
+            },
+            {
+                id: id(),
+                type: "footer",
+                label: "Footer",
+                props: BLOCK_DEFINITIONS.footer.defaultProps
+            }
+        ]
+    },
+    {
+        id: "community-landing-v1",
+        name: "Community Hub",
+        description: "Engagement-focused page for community onboarding",
+        thumbnail: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=400",
+        category: "community",
+        pageType: "community_landing",
+        tags: ["community", "engagement"],
+        blocks: [
+            {
+                id: id(),
+                type: "navigation",
+                label: "Navigation",
+                props: BLOCK_DEFINITIONS.navigation.defaultProps
+            },
+            {
+                id: id(),
+                type: "hero",
+                label: "Community Hero",
+                props: {
+                    title: "Find Your Village",
+                    subtitle: "Connect with thousands of African parents on the same journey as you.",
+                    ctaText: "Join the Community",
+                    align: "center",
+                    backgroundImage: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=1920"
+                }
+            },
+            {
+                id: id(),
+                type: "stats",
+                label: "Growth Stats",
+                props: {
+                    variant: "primary"
+                }
+            },
+            {
+                id: id(),
+                type: "cta",
+                label: "Join Now",
+                props: {
+                    title: "Limited Spots Available for March Cohort",
+                    primaryText: "Secure Your Spot",
+                    variant: "outline"
+                }
+            },
+            {
+                id: id(),
+                type: "footer",
+                label: "Footer",
+                props: BLOCK_DEFINITIONS.footer.defaultProps
+            }
+        ]
+    },
+    {
+        id: "saas-landing-v1",
+        name: "SaaS Launchpad",
+        description: "A sleek, dark-mode focused landing page for SaaS products.",
+        thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=400",
+        category: "landing",
+        pageType: "homepage",
+        tags: ["saas", "tech", "dark"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "TechApp", variant: "dark", ctaText: "Get Started" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "Automate Your Workflow", subtitle: "The ultimate tool for modern teams to collaborate and deliver faster than ever.", ctaText: "Start Free Trial", variant: "dark", align: "center", backgroundImage: "" } },
+            { id: id(), type: "logo_cloud", label: "Trusted By", props: { title: "Trusted by innovative teams worldwide" } },
+            { id: id(), type: "features", label: "Features", props: { title: "Powerful Features", columns: "3" } },
+            { id: id(), type: "pricing_table", label: "Pricing", props: { title: "Simple, transparent pricing" } },
+            { id: id(), type: "cta", label: "Final CTA", props: { title: "Ready to supercharge your team?", primaryText: "Get Started Today", variant: "solid", align: "center" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "TechApp", variant: "dark" } }
+        ]
+    },
+    {
+        id: "agency-portfolio-v1",
+        name: "Creative Agency",
+        description: "Showcase your best work with this bold portfolio template.",
+        thumbnail: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=400",
+        category: "landing",
+        pageType: "homepage",
+        tags: ["agency", "portfolio", "creative"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "Studio X", variant: "transparent", ctaText: "Let's Talk" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "We build digital experiences that inspire.", subtitle: "Award-winning design and development agency based in New York.", ctaText: "View Our Work", align: "left", backgroundImage: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1920", overlayOpacity: 40 } },
+            { id: id(), type: "gallery", label: "Recent Work", props: { title: "Our Selected Projects", columns: "3" } },
+            { id: id(), type: "team", label: "The Team", props: { title: "Meet the Creatives" } },
+            { id: id(), type: "testimonials", label: "Testimonials", props: { title: "Client Stories", variant: "spotlight" } },
+            { id: id(), type: "contact", label: "Contact Us", props: { title: "Let's Create Something Together" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "Studio X", variant: "dark" } }
+        ]
+    },
+    {
+        id: "ecommerce-product-v1",
+        name: "Product Launch",
+        description: "Single product launch template designed to convert.",
+        thumbnail: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=400",
+        category: "landing",
+        pageType: "homepage",
+        tags: ["ecommerce", "product", "launch"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "AudioPro", variant: "light", ctaText: "Buy Now" } },
+            { id: id(), type: "hero_split", label: "Product Hero", props: { title: "Experience Pure Sound", subtitle: "Next-generation noise-canceling wireless headphones.", ctaText: "Pre-order Now", backgroundImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=1200" } },
+            { id: id(), type: "features", label: "Highlights", props: { title: "Crafted for Audiophiles", columns: "2" } },
+            { id: id(), type: "video", label: "Product Video", props: { title: "See it in action", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ" } },
+            { id: id(), type: "stats", label: "Specs", props: { title: "Technical Specifications", variant: "dark" } },
+            { id: id(), type: "faq", label: "FAQ", props: { title: "Common Questions" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "AudioPro", variant: "light" } }
+        ]
+    },
+    {
+        id: "coaching-mentor-v1",
+        name: "Life Coach & Mentor",
+        description: "Build your personal coaching brand and attract clients.",
+        thumbnail: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=400",
+        category: "landing",
+        pageType: "about",
+        tags: ["coach", "mentor", "personal"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "Sarah Jenkins Coaching", variant: "light", ctaText: "Book Strategy Call" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "Unlock Your Full Potential", subtitle: "I help ambitious professionals break through barriers and achieve their career goals.", ctaText: "Book Your Strategy Session", align: "center", backgroundImage: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1920", showOverlay: true } },
+            { id: id(), type: "content", label: "About Me", props: { title: "Hi, I'm Sarah", imagePosition: "left" } },
+            { id: id(), type: "features", label: "Services", props: { title: "How We Can Work Together" } },
+            { id: id(), type: "testimonials", label: "Success Stories", props: { title: "Client Transformations", variant: "carousel" } },
+            { id: id(), type: "newsletter", label: "Newsletter", props: { title: "Join My Weekly Insights" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "Sarah Jenkins", variant: "light" } }
+        ]
+    },
+    {
+        id: "event-webinar-v1",
+        name: "Virtual Summit",
+        description: "Maximize registrations for your next virtual event or webinar.",
+        thumbnail: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&q=80&w=400",
+        category: "webinar",
+        pageType: "webinar_registration",
+        tags: ["event", "webinar", "summit"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "Global Tech Summit 2026", variant: "dark", ctaText: "Save Your Seat" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "The Future of AI & Tech", subtitle: "Join 10,000+ industry leaders for a 3-day virtual summit.", ctaText: "Register for Free", variant: "dark", align: "center", backgroundImage: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&q=80&w=1920" } },
+            { id: id(), type: "countdown", label: "Countdown", props: { title: "Event Starts In" } },
+            { id: id(), type: "team", label: "Speakers", props: { title: "Keynote Speakers" } },
+            { id: id(), type: "features", label: "Agenda", props: { title: "Event Schedule" } },
+            { id: id(), type: "cta", label: "Register", props: { title: "Don't Miss Out", primaryText: "Claim Your Ticket", variant: "gradient", align: "center" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "Tech Summit", variant: "dark" } }
+        ]
+    },
+    {
+        id: "nonprofit-charity-v1",
+        name: "Impact & Charity",
+        description: "Drive donations and awareness for your cause.",
+        thumbnail: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=400",
+        category: "landing",
+        pageType: "homepage",
+        tags: ["charity", "nonprofit", "cause"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "Hope Foundation", variant: "transparent", ctaText: "Donate Now" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "Clean Water for Every Child", subtitle: "Together, we can end the global water crisis and bring hope to communities in need.", ctaText: "Make a Donation", align: "center", backgroundImage: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=1920", showOverlay: true } },
+            { id: id(), type: "stats", label: "Impact Stats", props: { title: "Our Impact So Far", variant: "primary" } },
+            { id: id(), type: "content", label: "Our Mission", props: { title: "Why Water?", imagePosition: "right" } },
+            { id: id(), type: "gallery", label: "Field Stories", props: { title: "Voices from the Field", columns: "4" } },
+            { id: id(), type: "cta", label: "Donate CTA", props: { title: "Change a Life Today", primaryText: "Donate Right Now", variant: "solid", align: "center" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "Hope Foundation", variant: "dark" } }
+        ]
+    },
+    {
+        id: "media-podcast-v1",
+        name: "Podcast Creator",
+        description: "A centralized hub to grow your podcast listeners.",
+        thumbnail: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&q=80&w=400",
+        category: "landing",
+        pageType: "podcast",
+        tags: ["podcast", "media", "audio"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "The Daily Tech", variant: "dark", ctaText: "Listen Now" } },
+            { id: id(), type: "hero_split", label: "Hero", props: { title: "Deciphering the Tech World", subtitle: "New episodes every Tuesday and Thursday breaking down the latest in AI and Silicon Valley.", ctaText: "Subscribe on Spotify", backgroundImage: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&q=80&w=1200" } },
+            { id: id(), type: "logo_cloud", label: "Platforms", props: { title: "Listen everywhere you get your podcasts" } },
+            { id: id(), type: "dynamic_blog", label: "Recent Episodes", props: { title: "Latest Episodes" } },
+            { id: id(), type: "newsletter", label: "Fan Club", props: { title: "Join the Inner Circle" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "Daily Tech Media", variant: "dark" } }
+        ]
+    },
+    {
+        id: "local-restaurant-v1",
+        name: "Fine Dining & Cafe",
+        description: "An elegant template for restaurants, cafes, and local eateries.",
+        thumbnail: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=400",
+        category: "landing",
+        pageType: "homepage",
+        tags: ["restaurant", "food", "local"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "Gourmet Haven", variant: "transparent", ctaText: "Reserve a Table" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "Taste the Extraordinary", subtitle: "A culinary journey inspired by local ingredients and global flavors.", ctaText: "View Menu", align: "center", backgroundImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1920", showOverlay: true, overlayOpacity: 60 } },
+            { id: id(), type: "content", label: "Our Story", props: { title: "Crafted with Passion", imagePosition: "left" } },
+            { id: id(), type: "gallery", label: "Dishes", props: { title: "Signature Dishes", columns: "3" } },
+            { id: id(), type: "testimonials", label: "Reviews", props: { title: "What Our Guests Say", variant: "minimal" } },
+            { id: id(), type: "contact", label: "Location", props: { title: "Visit Us" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "Gourmet Haven", variant: "dark" } }
+        ]
+    },
+    {
+        id: "creator-newsletter-v1",
+        name: "Newsletter Growth",
+        description: "Convert readers into subscribers with a focused newsletter entry.",
+        thumbnail: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&q=80&w=400",
+        category: "landing",
+        pageType: "blog",
+        tags: ["newsletter", "creator", "writing"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "Weekly Digest", variant: "light", ctaText: "Subscribe" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "Actionable Advice for Founders", subtitle: "Join 50,000+ readers getting raw, unfiltered insights delivered every Sunday.", ctaText: "Read Latest Issue", variant: "light", align: "center" } },
+            { id: id(), type: "newsletter", label: "Opt-in", props: { title: "Subscribe Now" } },
+            { id: id(), type: "testimonials", label: "Social Proof", props: { title: "Loved by readers", variant: "carousel" } },
+            { id: id(), type: "dynamic_blog", label: "Archives", props: { title: "Past Issues" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "Weekly Digest", variant: "light" } }
+        ]
+    },
+    {
+        id: "personal-brand-v1",
+        name: "Professional Resume",
+        description: "Establish your online presence with a clean personal brand template.",
+        thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
+        category: "landing",
+        pageType: "homepage",
+        tags: ["personal", "freelance", "resume"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "Alex Mercer", variant: "light", ctaText: "Hire Me" } },
+            { id: id(), type: "hero_split", label: "Hero", props: { title: "Designer & Frontend Developer", subtitle: "I build accessible, responsive user interfaces that deliver exceptional digital experiences.", ctaText: "View My Portfolio", backgroundImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1200" } },
+            { id: id(), type: "stats", label: "Experience", props: { title: "By The Numbers", variant: "light" } },
+            { id: id(), type: "features", label: "Career Path", props: { title: "My Journey" } },
+            { id: id(), type: "gallery", label: "Portfolio", props: { title: "Selected Works", columns: "2" } },
+            { id: id(), type: "contact", label: "Contact", props: { title: "Get In Touch" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "Alex Mercer", variant: "light" } }
+        ]
+    },
+    {
+        id: "course-sales-minimal-v1",
+        name: "Minimalist Sales Page",
+        description: "A clean, modern sales page focused completely on copy and conversion.",
+        thumbnail: "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&q=80&w=400",
+        category: "course_sales",
+        pageType: "course_sales",
+        tags: ["sales", "minimal", "course"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "The Minimalist Course", variant: "transparent", ctaText: "Enroll Now" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "Focus On What Matters", subtitle: "Clear, concise, and actionable advice without the fluff.", ctaText: "Get Access Now", align: "center", variant: "light" } },
+            { id: id(), type: "content", label: "The Problem", props: { title: "You're overwhelmed.", imagePosition: "right" } },
+            { id: id(), type: "features", label: "The Solution", props: { title: "Here's what you will learn", columns: "2" } },
+            { id: id(), type: "testimonials", label: "Testimonials", props: { title: "Don't just take my word for it", variant: "spotlight" } },
+            { id: id(), type: "pricing_table", label: "Pricing", props: { title: "Simple Pricing" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "The Minimalist", variant: "light" } }
+        ]
+    },
+    {
+        id: "course-sales-masterclass-v1",
+        name: "Video Masterclass",
+        description: "Perfect for high-ticket video courses and intensive bootcamps.",
+        thumbnail: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400",
+        category: "course_sales",
+        pageType: "course_sales",
+        tags: ["masterclass", "video", "premium"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "Masterclass Pro", variant: "dark", ctaText: "Join Masterclass" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "The Ultimate Masterclass", subtitle: "Learn from the top 1% of industry experts in this exclusive 8-week program.", ctaText: "Secure Your Spot", variant: "dark", align: "center", backgroundImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1920" } },
+            { id: id(), type: "video", label: "Promo Video", props: { title: "Watch the Trailer", variant: "inline" } },
+            { id: id(), type: "stats", label: "Course Stats", props: { title: "By the numbers", variant: "dark" } },
+            { id: id(), type: "features", label: "Curriculum", props: { title: "8 Weeks to Mastery", columns: "3" } },
+            { id: id(), type: "team", label: "Instructors", props: { title: "Your Mentors" } },
+            { id: id(), type: "pricing_table", label: "Tuition", props: { title: "Enrollment Options" } },
+            { id: id(), type: "faq", label: "FAQ", props: { title: "Common Questions" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "Masterclass Pro", variant: "dark" } }
+        ]
+    },
+    {
+        id: "course-sales-expert-v1",
+        name: "Expert Authority",
+        description: "Build immense trust with a personal brand focused sales page.",
+        thumbnail: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=400",
+        category: "course_sales",
+        pageType: "course_sales",
+        tags: ["expert", "authority", "brand"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "Expert Academy", variant: "light", ctaText: "Start Learning" } },
+            { id: id(), type: "hero_split", label: "Hero", props: { title: "Learn My Exact Framework", subtitle: "Copy the exact strategies I used to generate millions in revenue.", ctaText: "Get The Framework", backgroundImage: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1200" } },
+            { id: id(), type: "logo_cloud", label: "As Seen In", props: { title: "Featured In" } },
+            { id: id(), type: "content", label: "My Story", props: { title: "Hi, I'm the Expert", imagePosition: "left" } },
+            { id: id(), type: "gallery", label: "Results", props: { title: "Student Results", columns: "4" } },
+            { id: id(), type: "pricing_table", label: "Pricing", props: { title: "Ready to step up?" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "Expert Academy", variant: "light" } }
+        ]
+    },
+    {
+        id: "course-sales-community-v1",
+        name: "Cohort & Community",
+        description: "Designed for cohort-based courses running at specific dates.",
+        thumbnail: "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&q=80&w=400",
+        category: "course_sales",
+        pageType: "course_sales",
+        tags: ["cohort", "community", "live"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "The Cohort", variant: "dark", ctaText: "Apply Now" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "Join the Next Cohort", subtitle: "A 4-week live, community-driven learning experience starting soon.", ctaText: "Apply For Fall Cohort", variant: "dark", align: "center", backgroundImage: "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&q=80&w=1920" } },
+            { id: id(), type: "countdown", label: "Deadline", props: { title: "Applications Close In" } },
+            { id: id(), type: "features", label: "Why Join", props: { title: "Not your average course", columns: "3" } },
+            { id: id(), type: "testimonials", label: "Alumni", props: { title: "Meet our alumni", variant: "carousel" } },
+            { id: id(), type: "pricing_table", label: "Deposit", props: { title: "Secure Your Seat" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "The Cohort", variant: "dark" } }
+        ]
+    },
+    {
+        id: "course-sales-bundle-v1",
+        name: "Mega Bundle Offer",
+        description: "Maximize average order value with a huge resource bundle.",
+        thumbnail: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=400",
+        category: "course_sales",
+        pageType: "course_sales",
+        tags: ["bundle", "offer", "discount"],
+        blocks: [
+            { id: id(), type: "navigation", label: "Header", props: { brandName: "Ultimate Bundle", variant: "light", ctaText: "Claim Offer" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "The Ultimate Creator Bundle", subtitle: "Get 15+ courses, templates, and workshops for 90% off. 48 hours only.", ctaText: "Claim The Bundle â€” $99", align: "center", backgroundImage: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=1920" } },
+            { id: id(), type: "features", label: "What's Included", props: { title: "Everything you get", columns: "4" } },
+            { id: id(), type: "stats", label: "Value", props: { title: "Total Value: $2,497" } },
+            { id: id(), type: "cta", label: "Buy Button", props: { title: "Don't Miss This", primaryText: "Buy Now for $99", variant: "gradient", align: "center" } },
+            { id: id(), type: "testimonials", label: "Reviews", props: { title: "5-Star Reviews" } },
+            { id: id(), type: "footer", label: "Footer", props: { brandName: "Ultimate Bundle", variant: "light" } }
+        ]
+    },
+    ]
+    }
+];
+
+// â”€â”€â”€ MAIN TEMPLATES EXPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export const TEMPLATES: Template[] = [
+  ...EXACT_REPLICA_TEMPLATES,
+  ...COURSE_SALES_TEMPLATES
+];

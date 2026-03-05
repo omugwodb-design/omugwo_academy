@@ -1,0 +1,81 @@
+import React from "react";
+import { cn } from "../../../lib/utils";
+import { BlockComponentProps, PropSchema } from "../types";
+import { Mail } from "lucide-react";
+import { animationSchemaFields } from "./animation-wrapper";
+
+export const newsletterBlockSchema: PropSchema[] = [
+  { name: "title", label: "Title", type: "text", group: "Content" },
+  { name: "subtitle", label: "Subtitle", type: "textarea", group: "Content" },
+  { name: "buttonText", label: "Button Text", type: "text", group: "Content" },
+  { name: "placeholder", label: "Placeholder", type: "text", group: "Content" },
+  { name: "variant", label: "Variant", type: "select", options: [
+    { label: "Light", value: "light" }, { label: "Primary", value: "primary" }, { label: "Dark", value: "dark" },
+  ], group: "Style" },
+  { name: "layout", label: "Layout", type: "select", options: [
+    { label: "Centered", value: "centered" }, { label: "Split (Horizontal)", value: "split" },
+  ], group: "Layout" },
+  ...animationSchemaFields,
+];
+
+export const NewsletterBlock: React.FC<BlockComponentProps> = ({ block, onChange, selected }) => {
+  const {
+    title = "Get Free Postnatal Tips Weekly",
+    subtitle = "Join 15,000+ parents receiving expert advice, resources, and community updates every Thursday.",
+    buttonText = "Subscribe",
+    placeholder = "Enter your email",
+    variant = "primary",
+    layout = "split",
+  } = block.props;
+
+  const handleChange = (key: string, value: any) => {
+    onChange(block.id, { ...block.props, [key]: value });
+  };
+
+  const bg = variant === "primary" ? "bg-primary-600" : variant === "dark" ? "bg-gray-900" : "bg-gray-50";
+  const text = variant === "light" ? "text-gray-900" : "text-white";
+  const sub = variant === "light" ? "text-gray-600" : "text-white/80";
+
+  return (
+    <section className={cn(layout === "split" ? "py-12" : "py-20", "px-6", bg)}>
+      <div className={cn("mx-auto", layout === "split" ? "max-w-7xl flex flex-col md:flex-row items-center justify-between gap-6" : "max-w-2xl text-center")}>
+        {layout === "centered" && <Mail className={cn("w-12 h-12 mx-auto mb-4", variant === "light" ? "text-primary-600" : "text-white/80")} />}
+        <div className={layout === "split" ? "flex-1" : ""}>
+          <h2
+            className={cn(layout === "split" ? "text-2xl" : "text-3xl", "font-bold mb-2", text)}
+            contentEditable={selected}
+            suppressContentEditableWarning
+            onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}
+          >
+            {title}
+          </h2>
+          <p
+            className={cn("text-base", layout === "centered" && "mb-8 text-lg", sub)}
+            contentEditable={selected}
+            suppressContentEditableWarning
+            onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}
+          >
+            {subtitle}
+          </p>
+        </div>
+        <form className={cn("flex gap-3", layout === "split" ? "w-full md:w-auto" : "max-w-md mx-auto w-full")} onSubmit={(e) => e.preventDefault()}>
+          <input
+            type="email"
+            placeholder={placeholder}
+            className={cn("flex-1 px-4 py-3 rounded-xl border outline-none transition-all", variant === "light" ? "border-gray-200 focus:ring-2 focus:ring-primary-500" : "bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:ring-2 focus:ring-white/30")}
+            onChange={() => {}}
+          />
+          <button className={cn("px-6 py-3 font-bold rounded-xl transition-colors whitespace-nowrap", variant === "light" ? "bg-primary-600 text-white hover:bg-primary-700" : "bg-white text-primary-700 hover:bg-gray-100")}>
+            <span
+              contentEditable={selected}
+              suppressContentEditableWarning
+              onBlur={(e) => handleChange("buttonText", e.currentTarget.textContent || "")}
+            >
+              {buttonText}
+            </span>
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+};

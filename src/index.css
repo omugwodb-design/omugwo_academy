@@ -1,0 +1,134 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply antialiased text-gray-900 bg-white dark:text-gray-100 dark:bg-gray-950;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 text-white px-8 py-4 rounded-full font-bold text-sm uppercase tracking-wider shadow-lg shadow-primary-200 hover:bg-primary-700 hover:-translate-y-0.5 transition-all duration-300;
+  }
+  
+  .btn-secondary {
+    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-8 py-4 rounded-full font-bold text-sm uppercase tracking-wider border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 transition-all duration-300;
+  }
+  
+  .btn-ghost {
+    @apply text-primary-600 font-bold text-sm uppercase tracking-wider hover:text-primary-700 transition-colors;
+  }
+  
+  .card {
+    @apply bg-white dark:bg-gray-900 rounded-4xl shadow-card border border-gray-100 dark:border-gray-800 overflow-hidden;
+  }
+  
+  .card-hover {
+    @apply hover:-translate-y-1 hover:shadow-glow transition-all duration-500;
+  }
+  
+  .section-padding {
+    @apply py-20 md:py-32 px-4 md:px-8;
+  }
+  
+  .container-custom {
+    @apply max-w-7xl mx-auto;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent;
+  }
+  
+  .input-field {
+    @apply w-full px-5 py-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-400 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-900/30 outline-none transition-all duration-300;
+  }
+  
+  .badge {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-200 rounded-full text-xs font-bold uppercase tracking-wider ring-1 ring-black/5 dark:ring-white/10;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .animate-delay-100 {
+    animation-delay: 100ms;
+  }
+  
+  .animate-delay-200 {
+    animation-delay: 200ms;
+  }
+  
+  .animate-delay-300 {
+    animation-delay: 300ms;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c4b5fd;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0b1220;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4c1d95;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a78bfa;
+}
+
+/* Video player custom styles */
+.video-player {
+  @apply rounded-3xl overflow-hidden shadow-2xl;
+}
+
+/* Progress bar styles */
+.progress-bar {
+  @apply h-2 bg-gray-200 rounded-full overflow-hidden;
+}
+
+.progress-bar-fill {
+  @apply h-full bg-gradient-to-r from-primary-500 to-primary-400 rounded-full transition-all duration-500;
+}
+
+.cl-internal-1dauvpw,
+.cl-internal-b3al4t,
+.cl-devMode,
+.cl-badge,
+div[class*="cl-internal"] > div > a[href*="clerk.com"] {
+  display: none !important;
+}
