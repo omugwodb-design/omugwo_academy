@@ -4,8 +4,7 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { MediaUpload } from '../../components/ui/MediaUpload';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import MDEditor from '@uiw/react-md-editor';
 
 interface LessonEditorProps {
   lesson: any;
@@ -53,18 +52,6 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({ lesson, onSave, onCl
 
   const removeResource = (index: number) => {
     setResources(resources.filter((_, i) => i !== index));
-  };
-
-  const quillModules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'color': [] }, { 'background': [] }],
-      ['link', 'image', 'video'],
-      ['blockquote', 'code-block'],
-      ['clean']
-    ],
   };
 
   return (
@@ -188,16 +175,14 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({ lesson, onSave, onCl
                 Lesson Content
               </label>
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
-                <ReactQuill
-                  theme="snow"
+                <MDEditor
                   value={content}
-                  onChange={setContent}
-                  modules={quillModules}
-                  className="min-h-[300px]"
+                  onChange={(v) => setContent(v || '')}
+                  height={320}
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Rich text editor with support for images, videos, code blocks, and formatting
+                Markdown editor with preview
               </p>
             </div>
           )}
@@ -215,12 +200,10 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({ lesson, onSave, onCl
                   Quiz Content
                 </label>
                 <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
-                  <ReactQuill
-                    theme="snow"
+                  <MDEditor
                     value={content}
-                    onChange={setContent}
-                    modules={quillModules}
-                    className="min-h-[200px]"
+                    onChange={(v) => setContent(v || '')}
+                    height={240}
                   />
                 </div>
               </div>
