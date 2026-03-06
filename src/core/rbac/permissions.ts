@@ -1,4 +1,4 @@
-// â”€â”€â”€ Role-Based Access Control System â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Role-Based Access Control System 
 
 export type SystemRole =
   | 'super_admin'
@@ -70,7 +70,7 @@ export type Permission =
   | 'analytics.community'
   | 'analytics.export';
 
-// â”€â”€â”€ Role â†’ Permission Mapping â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Role â†’ Permission Mapping 
 export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
   super_admin: [
     'courses.create', 'courses.edit', 'courses.delete', 'courses.publish', 'courses.view_analytics',
@@ -125,7 +125,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
   ],
 };
 
-// â”€â”€â”€ Permission Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Permission Helpers 
 export function hasPermission(role: SystemRole, permission: Permission): boolean {
   return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
 }
@@ -142,7 +142,7 @@ export function getPermissionsForRole(role: SystemRole): Permission[] {
   return ROLE_PERMISSIONS[role] || [];
 }
 
-// â”€â”€â”€ Role Metadata â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Role Metadata 
 export const ROLE_METADATA: Record<SystemRole, { label: string; description: string; color: string; }> = {
   super_admin: { label: 'Super Admin', description: 'Full system access with all permissions', color: '#dc2626' },
   admin: { label: 'Admin', description: 'Platform administration without destructive actions', color: '#f59e0b' },
@@ -153,7 +153,7 @@ export const ROLE_METADATA: Record<SystemRole, { label: string; description: str
   marketing_admin: { label: 'Marketing Admin', description: 'Site builder, content, and campaign management', color: '#f97316' },
 };
 
-// â”€â”€â”€ Permission Groups (for UI display) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Permission Groups (for UI display) 
 export const PERMISSION_GROUPS = [
   { id: 'courses', label: 'Courses', permissions: ['courses.create', 'courses.edit', 'courses.delete', 'courses.publish', 'courses.view_analytics'] },
   { id: 'users', label: 'Users', permissions: ['users.view', 'users.edit', 'users.delete', 'users.manage_roles', 'users.impersonate'] },

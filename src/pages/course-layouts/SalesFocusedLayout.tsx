@@ -2,8 +2,24 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { COURSE_DATA } from './shared';
 import { CheckCircle2, TrendingUp, Users, Clock, ShieldCheck, ArrowRight } from 'lucide-react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useCartStore } from '../../stores/cartStore';
 
 export const SalesFocusedLayout: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { courseId } = useParams<{ courseId?: string }>();
+  const addCourse = useCartStore((s) => s.addCourse);
+
+  const searchParams = new URLSearchParams(location.search);
+  const builderCourseId = searchParams.get('courseId');
+  const actualCourseId = courseId || builderCourseId || undefined;
+
+  const goToCheckout = () => {
+    if (actualCourseId) addCourse(actualCourseId);
+    navigate(actualCourseId ? `/checkout/${actualCourseId}` : '/checkout');
+  };
+
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-rose-200">
       {/* Urgency Banner */}
@@ -22,7 +38,10 @@ export const SalesFocusedLayout: React.FC = () => {
               {COURSE_DATA.subtitle}
             </p>
             <div className="flex flex-col gap-4">
-              <button className="w-full sm:w-auto px-10 py-5 bg-rose-600 text-white font-black text-xl rounded-xl shadow-[0_10px_40px_-10px_rgba(225,29,72,0.5)] hover:bg-rose-700 hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+              <button
+                className="w-full sm:w-auto px-10 py-5 bg-rose-600 text-white font-black text-xl rounded-xl shadow-[0_10px_40px_-10px_rgba(225,29,72,0.5)] hover:bg-rose-700 hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
+                onClick={goToCheckout}
+              >
                 ENROLL NOW - {COURSE_DATA.price} <ArrowRight className="w-6 h-6" />
               </button>
               <div className="flex items-center justify-center sm:justify-start gap-4 text-sm font-bold text-slate-500">
@@ -111,7 +130,10 @@ export const SalesFocusedLayout: React.FC = () => {
               <span className="text-3xl text-slate-400 line-through decoration-rose-500">{COURSE_DATA.originalPrice}</span>
               <span className="text-6xl font-black text-slate-900">{COURSE_DATA.price}</span>
             </div>
-            <button className="w-full py-6 bg-rose-600 hover:bg-rose-700 text-white text-2xl font-black rounded-2xl shadow-xl transition-transform hover:scale-105 mb-6">
+            <button
+              className="w-full py-6 bg-rose-600 hover:bg-rose-700 text-white text-2xl font-black rounded-2xl shadow-xl transition-transform hover:scale-105 mb-6"
+              onClick={goToCheckout}
+            >
               YES! I WANT IN
             </button>
             <p className="text-slate-500 font-medium">Secure, 1-click checkout. 30-day money-back guarantee.</p>

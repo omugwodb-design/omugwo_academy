@@ -1,4 +1,4 @@
-// â”€â”€â”€ Enterprise LMS Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Enterprise LMS Types 
 
 export type LessonType = 'video' | 'text' | 'pdf' | 'quiz' | 'assignment' | 'reflection' | 'live_session';
 
@@ -12,7 +12,7 @@ export type AssignmentStatus = 'pending' | 'submitted' | 'graded' | 'returned';
 
 export type EnrollmentStatus = 'active' | 'paused' | 'completed' | 'expired' | 'refunded';
 
-// â”€â”€â”€ Course Structure â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Course Structure 
 export interface Course {
   id: string;
   title: string;
@@ -90,7 +90,7 @@ export interface Resource {
   size?: number;
 }
 
-// â”€â”€â”€ Drip Content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Drip Content 
 export interface DripConfig {
   type: DripType;
   schedule?: DripScheduleItem[];
@@ -103,7 +103,7 @@ export interface DripScheduleItem {
   daysAfterEnrollment?: number;
 }
 
-// â”€â”€â”€ Assessments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Assessments 
 export interface Quiz {
   id: string;
   title: string;
@@ -181,7 +181,7 @@ export interface AssignmentSubmission {
   gradedAt?: string;
 }
 
-// â”€â”€â”€ Cohorts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Cohorts 
 export interface Cohort {
   id: string;
   courseId: string;
@@ -216,7 +216,7 @@ export interface LiveSession {
   isCompleted: boolean;
 }
 
-// â”€â”€â”€ Progress Tracking â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Progress Tracking 
 export interface UserProgress {
   userId: string;
   courseId: string;
@@ -232,7 +232,7 @@ export interface UserProgress {
   completedAt?: string;
 }
 
-// â”€â”€â”€ Certificates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Certificates 
 export interface Certificate {
   id: string;
   userId: string;
@@ -251,7 +251,7 @@ export interface Certificate {
   };
 }
 
-// â”€â”€â”€ Instructor Tools â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Instructor Tools 
 export interface InstructorDashboard {
   totalStudents: number;
   activeStudents: number;

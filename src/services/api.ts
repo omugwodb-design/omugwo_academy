@@ -367,10 +367,10 @@ export const communityApi = {
     return data;
   },
 
-  async createPost(post: { space_id: string; user_id: string; title?: string; content: string; is_anonymous?: boolean }) {
+  async createPost(post: { space_id: string; user_id: string; title?: string; content: string }) {
     const { data, error } = await supabase
       .from('community_posts')
-      .insert(post)
+      .insert({ ...post, is_anonymous: false })
       .select()
       .single();
     
@@ -411,10 +411,10 @@ export const communityApi = {
     return data;
   },
 
-  async createComment(comment: { post_id: string; user_id: string; content: string; is_anonymous?: boolean }) {
+  async createComment(comment: { post_id: string; user_id: string; content: string }) {
     const { data, error } = await supabase
       .from('community_comments')
-      .insert(comment)
+      .insert({ ...comment, is_anonymous: false })
       .select()
       .single();
     

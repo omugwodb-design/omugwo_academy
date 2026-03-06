@@ -1,7 +1,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Loader2, Save, Eye, UploadCloud, Undo2, Redo2, History } from 'lucide-react';
+import { Loader2, Save, Eye, UploadCloud, Undo2, Redo2, History, RotateCcw } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 import { Canvas } from './canvas';
@@ -14,6 +14,7 @@ import type { GlobalStyles, SitePage } from './types';
 import { TEMPLATES } from './templates';
 import { toast } from 'react-hot-toast';
 import { VersionHistoryModal } from './version-history-modal';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 type BuilderMode = 'website' | 'course' | 'community';
 
@@ -41,6 +42,36 @@ const storeToDbPatch = (page: SitePage) => ({
   seo_image: page.seoImage || null,
 });
 
+const defaultTemplateForSlug = (slug: string) => {
+  if (slug === '' || slug === '/') return 'omugwo-default-home';
+  if (slug === 'about') return 'omugwo-about-page';
+  if (slug === 'courses') return 'omugwo-courses-page';
+  if (slug === 'community') return 'omugwo-community-page';
+  if (slug === 'webinars') return 'omugwo-webinars-page';
+  if (slug === 'contact') return 'omugwo-contact-page';
+  if (slug === 'login') return 'omugwo-login-page';
+  if (slug === 'register') return 'omugwo-register-page';
+  if (slug === 'forgot-password') return 'omugwo-forgot-password-page';
+  return 'omugwo-default-home';
+};
+
+const normalizeBlocksForPersist = (blocks: any[]) => {
+  const dedupedById = Array.from(
+    new Map((blocks || []).map((b: any) => [b.id, b])).values()
+  );
+
+  // Enforce max 1 newsletter block (duplication often happens with different ids/props)
+  let newsletterKept = false;
+  const normalized = dedupedById.filter((b: any) => {
+    if (b?.type !== 'newsletter') return true;
+    if (newsletterKept) return false;
+    newsletterKept = true;
+    return true;
+  });
+
+  return normalized;
+};
+
 export const SiteBuilder: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -48,21 +79,23 @@ export const SiteBuilder: React.FC = () => {
 
   const {
     pages,
-    currentPageId,
     setPages,
+    currentPageId,
     switchPage,
     getCurrentPage,
-    globalStyles,
-    setGlobalStyles,
-    isDirty,
-    markClean,
-    setIsSaving,
+    applyTemplate,
+    publishCurrentPage,
     undo,
     redo,
     canUndo,
     canRedo,
-    getHistory,
-    getHistoryIndex,
+    markClean,
+    isDirty,
+    isSaving,
+    setIsSaving,
+    globalStyles,
+    setGlobalStyles,
+    setBuilderMode: setStoreBuilderMode,
   } = useEditorStore();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -70,6 +103,7 @@ export const SiteBuilder: React.FC = () => {
   const [builderMode, setBuilderMode] = useState<BuilderMode>('website');
   const [courseId, setCourseId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showRestoreDefaultConfirm, setShowRestoreDefaultConfirm] = useState(false);
 
   const canEdit = useMemo(() => {
     const role = user?.role as unknown as string | undefined;
@@ -85,17 +119,20 @@ export const SiteBuilder: React.FC = () => {
     
     if (qMode) {
       setBuilderMode(qMode);
+      setStoreBuilderMode(qMode);
       setCourseId(qMode === 'course' ? (entityId || qCourseId || null) : null);
       return;
     }
 
     if (type === 'course_sales') {
       setBuilderMode('course');
+      setStoreBuilderMode('course');
       setCourseId(qCourseId || null);
       return;
     }
 
     setBuilderMode('website');
+    setStoreBuilderMode('website');
     setCourseId(null);
   }, [location.search]);
 
@@ -211,31 +248,7 @@ export const SiteBuilder: React.FC = () => {
             
             let fetchedRows = data || [];
             console.log('Site Builder - Fetched pages:', fetchedRows.length, fetchedRows);
-            
-            // Force update all existing pages with new exact replica templates
-            for (const row of fetchedRows) {
-              console.log('Site Builder - Updating page with exact replica template:', row.slug);
-              
-              // Find the correct template based on page slug
-              let templateId = 'omugwo-default-home'; // default
-              if (row.slug === 'about') templateId = 'omugwo-about-page';
-              else if (row.slug === 'courses') templateId = 'omugwo-courses-page';
-              else if (row.slug === 'community') templateId = 'omugwo-community-page';
-              else if (row.slug === 'webinars') templateId = 'omugwo-webinars-page';
-              else if (row.slug === 'contact') templateId = 'omugwo-contact-page';
-              
-              const template = TEMPLATES.find((t) => t.id === templateId);
-              if (template) {
-                row.draft_blocks = template.blocks;
-                // Update the database
-                await supabase
-                  .from('site_pages')
-                  .update({ draft_blocks: template.blocks })
-                  .eq('id', row.id);
-                console.log('Site Builder - Updated page with exact replica template:', row.slug);
-              }
-            }
-            
+
             // Check for missing comprehensive pages and create them if needed
             const requiredPages = [
               { templateId: 'omugwo-default-home', slug: '', pageType: 'homepage', title: 'Home', isHome: true },
@@ -243,7 +256,10 @@ export const SiteBuilder: React.FC = () => {
               { templateId: 'omugwo-courses-page', slug: 'courses', pageType: 'courses', title: 'Courses' },
               { templateId: 'omugwo-community-page', slug: 'community', pageType: 'community', title: 'Community' },
               { templateId: 'omugwo-webinars-page', slug: 'webinars', pageType: 'webinars', title: 'Webinars' },
-              { templateId: 'omugwo-contact-page', slug: 'contact', pageType: 'contact', title: 'Contact' }
+              { templateId: 'omugwo-contact-page', slug: 'contact', pageType: 'contact', title: 'Contact' },
+              { templateId: 'omugwo-login-page', slug: 'login', pageType: 'login', title: 'Login' },
+              { templateId: 'omugwo-register-page', slug: 'register', pageType: 'register', title: 'Register' },
+              { templateId: 'omugwo-forgot-password-page', slug: 'forgot-password', pageType: 'forgot_password', title: 'Forgot Password' }
             ];
             
             const existingSlugs = fetchedRows.map(row => row.slug);
@@ -290,6 +306,7 @@ export const SiteBuilder: React.FC = () => {
         }
 
         const mapped = pageRows.map(dbToStorePage);
+
         setPages(mapped);
         if (mapped[0]) {
           switchPage(mapped[0].id);
@@ -308,6 +325,78 @@ export const SiteBuilder: React.FC = () => {
     load();
   }, [builderMode, courseId]);
 
+  const handleRestoreDefault = async () => {
+    const page = getCurrentPage();
+    if (!page) return;
+    if (!canEdit) {
+      toast.error('You do not have permission to edit pages.');
+      return;
+    }
+
+    setShowRestoreDefaultConfirm(true);
+  };
+
+  const confirmRestoreDefault = async () => {
+    const page = getCurrentPage();
+    if (!page) return;
+
+    try {
+      setIsSaving(true);
+
+      let targetBlocks: any[] | null = null;
+      const { data: baseline, error: baselineErr } = await supabase
+        .from('site_page_versions')
+        .select('blocks')
+        .eq('page_id', page.id)
+        .eq('change_description', 'Original published')
+        .order('version', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (baselineErr) throw baselineErr;
+
+      if (baseline?.blocks && Array.isArray(baseline.blocks) && baseline.blocks.length > 0) {
+        targetBlocks = baseline.blocks as any[];
+      } else {
+        const templateId = defaultTemplateForSlug(page.slug);
+        const tpl = TEMPLATES.find((t) => t.id === templateId);
+        targetBlocks = (tpl?.blocks || []) as any[];
+      }
+
+      const { error: deleteVersionsErr } = await supabase
+        .from('site_page_versions')
+        .delete()
+        .eq('page_id', page.id);
+      if (deleteVersionsErr) throw deleteVersionsErr;
+
+      const { error: pageErr } = await supabase
+        .from('site_pages')
+        .update({
+          draft_blocks: targetBlocks as any,
+          version: 1,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', page.id);
+      if (pageErr) throw pageErr;
+
+      setPages(
+        pages.map((p) =>
+          p.id === page.id
+            ? { ...p, draftBlocks: targetBlocks as any, version: 1 }
+            : p
+        )
+      );
+
+      applyTemplate(targetBlocks as any);
+      toast.success('Restored to default');
+      setShowRestoreDefaultConfirm(false);
+    } catch (err: any) {
+      console.error('Restore default error:', err);
+      toast.error(err?.message || 'Failed to restore');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleSave = async () => {
     const page = getCurrentPage();
     if (!page) return;
@@ -318,13 +407,16 @@ export const SiteBuilder: React.FC = () => {
 
     try {
       setIsSaving(true);
+
+      const dedupedDraftBlocks = normalizeBlocksForPersist(page.draftBlocks || []);
+
       const { error: configErr } = await supabase
         .from('site_config')
         .update({ global_styles: globalStyles as any })
         .eq('id', siteId);
       if (configErr) throw configErr;
 
-      const patch = storeToDbPatch(page);
+      const patch = storeToDbPatch({ ...page, draftBlocks: dedupedDraftBlocks } as any);
       const { error: pageErr } = await supabase
         .from('site_pages')
         .update(patch as any)
@@ -336,7 +428,7 @@ export const SiteBuilder: React.FC = () => {
       await supabase.from('site_page_versions').insert({
         page_id: page.id,
         version: newVersion,
-        blocks: page.draftBlocks,
+        blocks: dedupedDraftBlocks,
         change_description: 'Draft saved',
       });
 
@@ -367,13 +459,15 @@ export const SiteBuilder: React.FC = () => {
 
     try {
       setIsSaving(true);
+
+      const dedupedDraftBlocks = normalizeBlocksForPersist(page.draftBlocks || []);
       
       // Update both draft_blocks AND published_blocks in the database
       const { error: pageErr } = await supabase
         .from('site_pages')
         .update({
-          draft_blocks: page.draftBlocks,
-          published_blocks: page.draftBlocks, // THIS IS CRITICAL - updates what users see
+          draft_blocks: dedupedDraftBlocks,
+          published_blocks: dedupedDraftBlocks, // THIS IS CRITICAL - updates what users see
           status: 'PUBLISHED',
           updated_at: new Date().toISOString(),
         })
@@ -385,7 +479,7 @@ export const SiteBuilder: React.FC = () => {
       await supabase.from('site_page_versions').insert({
         page_id: page.id,
         version: page.version + 1,
-        blocks: page.draftBlocks,
+        blocks: dedupedDraftBlocks,
         change_description: 'Published changes',
       });
 
@@ -395,7 +489,7 @@ export const SiteBuilder: React.FC = () => {
           p.id === page.id
             ? {
                 ...p,
-                publishedBlocks: [...page.draftBlocks],
+                publishedBlocks: [...dedupedDraftBlocks],
                 status: 'PUBLISHED',
                 version: p.version + 1,
               }
@@ -436,7 +530,7 @@ export const SiteBuilder: React.FC = () => {
 
   return (
     <div className="h-[calc(100vh-0px)] w-full flex flex-col bg-white dark:bg-gray-950">
-      <div className="h-14 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 shrink-0">
+      <div className="h-14 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 shrink-0 relative z-[9999] pointer-events-auto">
         <div className="min-w-0">
           <p className="text-sm font-black text-gray-900 dark:text-white truncate">
             {builderMode === 'course' ? 'Course Sales Page Builder' : 'Website Builder'}
@@ -465,6 +559,13 @@ export const SiteBuilder: React.FC = () => {
               title="Redo (Ctrl+Y)"
             >
               <Redo2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleRestoreDefault}
+              className="p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              title="Restore to Default"
+            >
+              <RotateCcw className="w-4 h-4" />
             </button>
             <button
               onClick={() => setShowHistory(true)}
@@ -526,6 +627,18 @@ export const SiteBuilder: React.FC = () => {
           onClose={() => setShowHistory(false)}
         />
       )}
+
+      <ConfirmDialog
+        open={showRestoreDefaultConfirm}
+        title="Restore this page to default?"
+        description="This will replace your current draft content for this page."
+        confirmText="Restore"
+        cancelText="Cancel"
+        isLoading={isSaving}
+        danger
+        onCancel={() => setShowRestoreDefaultConfirm(false)}
+        onConfirm={confirmRestoreDefault}
+      />
     </div>
   );
 };

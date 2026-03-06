@@ -11,27 +11,7 @@ import { Badge } from '../components/ui/Badge';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { Avatar } from '../components/ui/Avatar';
 import { useAuthStore } from '../stores/authStore';
-
-const enrolledCourses = [
-  {
-    id: 'moms-course',
-    title: "The Omugwo Masterclass for Moms",
-    progress: 65,
-    nextLesson: "Module 3: Cultural Balance",
-    image: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=400",
-    totalLessons: 48,
-    completedLessons: 31,
-  },
-  {
-    id: 'essential',
-    title: "Essential Postnatal Care",
-    progress: 30,
-    nextLesson: "Module 2: Feeding & Nutrition",
-    image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=400",
-    totalLessons: 32,
-    completedLessons: 10,
-  },
-];
+import { supabase } from '../lib/supabase';
 
 const upcomingEvents = [
   {
@@ -66,12 +46,173 @@ import { useNavigate } from 'react-router-dom';
 export const Dashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const [enrolledCourses, setEnrolledCourses] = React.useState<any[]>([]);
+  const [dashboardStats, setDashboardStats] = React.useState({
+    coursesEnrolled: 0,
+    lessonsDone: 0,
+    hoursLearned: 0,
+    badgesEarned: 0
+  });
+  const [dynamicAchievements, setDynamicAchievements] = React.useState<any[]>([]);
+  const [dynamicEvents, setDynamicEvents] = React.useState<any[]>([]);
+  const [dynamicActivity, setDynamicActivity] = React.useState<any[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     if (user && (user.role === 'admin' || user.role === 'super_admin')) {
       navigate('/admin', { replace: true });
     }
   }, [user, navigate]);
+
+  React.useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!user?.id) return;
+      setIsLoading(true);
+      try {
+        // Fetch enrollments
+        const { data: enrollments, error } = await supabase
+          .from('enrollments')
+          .select('*, course:courses(*)')
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        // Fetch lesson progress
+        const { data: progress } = await supabase
+          .from('lesson_progress')
+          .select('id, lesson_id, is_completed, watch_time_seconds, completed_at, lessons(title)')
+          .eq('user_id', user.id);
+
+        // Fetch badges
+        const { data: userBadges } = await supabase
+          .from('user_badges')
+          .select('*, badge:badges(*)')
+          .eq('user_id', user.id);
+
+        // Calculate Stats
+        const coursesEnrolled = enrollments?.length || 0;
+        const lessonsDone = progress?.filter(p => p.is_completed)?.length || 0;
+        const totalWatchTimeSeconds = progress?.reduce((acc, p) => acc + (p.watch_time_seconds || 0), 0) || 0;
+        const hoursLearned = +(totalWatchTimeSeconds / 3600).toFixed(1);
+        const badgesEarned = userBadges?.length || 0;
+
+        setDashboardStats({
+          coursesEnrolled,
+          lessonsDone,
+          hoursLearned,
+          badgesEarned
+        });
+
+        // Set enrolled courses with progress
+        const coursesWithProgress = await Promise.all((enrollments || []).map(async (enr) => {
+          const course = enr.course;
+          if (!course) return null;
+
+          const { data: modules } = await supabase
+            .from('modules')
+            .select('id, lessons(id)')
+            .eq('course_id', course.id);
+
+          const totalLessons = modules?.reduce((acc, mod) => acc + (mod.lessons?.length || 0), 0) || 0;
+
+          let completedCount = 0;
+          if (modules && progress) {
+            const lessonIds = modules.flatMap(m => m.lessons.map((l: any) => l.id));
+            completedCount = progress.filter(p => p.is_completed && lessonIds.includes(p.lesson_id)).length;
+          }
+
+          const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
+          return {
+            id: course.id,
+            title: course.title,
+            progress: progressPct,
+            nextLesson: "Continue Learning",
+            image: course.thumbnail_url || "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=400",
+            totalLessons,
+            completedLessons: completedCount,
+            slug: course.slug
+          };
+        }));
+
+        setEnrolledCourses(coursesWithProgress.filter(Boolean));
+
+        // Format achievements
+        const formattedAchievements = [
+          { name: "First Steps", description: "Complete your first lesson", earned: lessonsDone > 0 },
+          { name: "Week 1 Champion", description: "Complete 7 lessons", earned: lessonsDone >= 7 },
+          { name: "Course Graduate", description: "Complete a full course", earned: coursesWithProgress.some(c => c && c.progress === 100) },
+        ];
+        // Add badges from db
+        if (userBadges) {
+          userBadges.forEach(ub => {
+            if (ub.badge) {
+              formattedAchievements.push({
+                name: ub.badge.name,
+                description: ub.badge.description || "Earned badge",
+                earned: true
+              });
+            }
+          });
+        }
+        setDynamicAchievements(formattedAchievements);
+
+        // Fetch recent events
+        const nowIso = new Date().toISOString();
+        const { data: events } = await supabase
+          .from('webinars')
+          .select('*')
+          .gte('scheduled_at', nowIso)
+          .order('scheduled_at', { ascending: true })
+          .limit(3);
+
+        if (events) {
+          setDynamicEvents(events.map(e => ({
+            id: e.id,
+            title: e.title,
+            date: e.scheduled_at
+              ? new Date(e.scheduled_at).toLocaleString('en-US', { weekday: 'long', hour: 'numeric', minute: 'numeric', hour12: true })
+              : '',
+            type: e.type === 'community' ? 'community' : 'webinar'
+          })));
+        }
+
+        // Format activity log
+        const activities = [];
+        if (progress) {
+          const completedProgress = progress.filter(p => p.is_completed && p.completed_at);
+          completedProgress.sort((a, b) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime());
+          completedProgress.slice(0, 3).forEach(p => {
+            activities.push({
+              action: "Completed lesson",
+              item: (Array.isArray(p.lessons) ? p.lessons[0]?.title : (p.lessons as any)?.title) || 'A lesson',
+              time: new Date(p.completed_at).toLocaleDateString(),
+              timestamp: new Date(p.completed_at).getTime()
+            });
+          });
+        }
+        if (userBadges) {
+          userBadges.slice(0, 2).forEach(ub => {
+            activities.push({
+              action: "Earned badge",
+              item: ub.badge?.name || 'A badge',
+              time: ub.earned_at ? new Date(ub.earned_at).toLocaleDateString() : 'Recently',
+              timestamp: ub.earned_at ? new Date(ub.earned_at).getTime() : 0
+            });
+          });
+        }
+        activities.sort((a, b) => b.timestamp - a.timestamp);
+        setDynamicActivity(activities.slice(0, 4));
+
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user?.id]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pt-20 pb-12 transition-colors duration-300">
@@ -120,48 +261,58 @@ export const Dashboard: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                {enrolledCourses.map((course) => (
-                  <Card key={course.id} hover className="p-0 overflow-hidden bg-white/70 dark:bg-gray-900/50 backdrop-blur-md border border-gray-100 dark:border-gray-800/60 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-gray-200 dark:hover:border-gray-700/60 group">
-                    <div className="flex flex-col sm:flex-row">
-                      <div className="relative w-full sm:w-48 h-36">
-                        <img
-                          src={course.image}
-                          alt={course.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent sm:hidden" />
-                      </div>
-                      <div className="p-5 flex-1 flex flex-col justify-between">
-                        <div>
-                          <h3 className="font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{course.title}</h3>
-                          <p className="text-sm font-medium text-primary-600 dark:text-primary-400 mb-3 bg-primary-50 dark:bg-primary-500/10 inline-block px-2.5 py-1 rounded-md">
-                            Next: {course.nextLesson}
-                          </p>
-                        </div>
-                        <div className="flex items-center justify-between gap-6">
-                          <div className="flex-1">
-                            <div className="flex justify-between text-xs font-semibold mb-1.5">
-                              <span className="text-gray-700 dark:text-gray-300">Progress</span>
-                              <span className="text-primary-600 dark:text-primary-400">{course.progress}%</span>
-                            </div>
-                            <ProgressBar value={course.progress} size="sm" />
-                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2 font-medium">
-                              {course.completedLessons} of {course.totalLessons} lessons completed
-                            </p>
+                {isLoading ? (
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-36 bg-gray-200 dark:bg-gray-800 rounded-xl" />
+                    <div className="h-36 bg-gray-200 dark:bg-gray-800 rounded-xl" />
+                  </div>
+                ) : enrolledCourses.length > 0 ? (
+                  enrolledCourses.map((course) => (
+                    <Link key={course.id} to={`/courses/${course.slug || course.id}/learn`} className="block">
+                      <Card hover className="p-0 overflow-hidden bg-white/70 dark:bg-gray-900/50 backdrop-blur-md border border-gray-100 dark:border-gray-800/60 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-gray-200 dark:hover:border-gray-700/60 group">
+                        <div className="flex flex-col sm:flex-row">
+                          <div className="relative w-full sm:w-48 h-36">
+                            <img
+                              src={course.image}
+                              alt={course.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent sm:hidden" />
                           </div>
-                          <Link to={`/learn/${course.id}`}>
-                            <Button size="sm" className="shadow-md bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 hidden sm:flex">
-                              Resume
-                            </Button>
-                            <Button size="sm" className="shadow-md bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 sm:hidden">
-                              <Play className="w-4 h-4 ml-1" />
-                            </Button>
-                          </Link>
+                          <div className="p-5 flex-1 flex flex-col justify-between">
+                            <div>
+                              <h3 className="font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{course.title}</h3>
+                              <p className="text-sm font-medium text-primary-600 dark:text-primary-400 mb-3 bg-primary-50 dark:bg-primary-500/10 inline-block px-2.5 py-1 rounded-md">
+                                Next: {course.nextLesson}
+                              </p>
+                            </div>
+                            <div className="flex items-center justify-between gap-6">
+                              <div className="flex-1">
+                                <div className="flex justify-between text-xs font-semibold mb-1.5">
+                                  <span className="text-gray-700 dark:text-gray-300">Progress</span>
+                                  <span className="text-primary-600 dark:text-primary-400">{course.progress}%</span>
+                                </div>
+                                <ProgressBar value={course.progress} size="sm" />
+                                <p className="text-xs text-gray-500 dark:text-gray-500 mt-2 font-medium">
+                                  {course.completedLessons} of {course.totalLessons} lessons completed
+                                </p>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      </Card>
+                    </Link>
+                  ))
+                ) : (
+                  <Card className="p-8 text-center bg-white/70 dark:bg-gray-900/50">
+                    <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">No courses yet</h3>
+                    <p className="text-gray-500 mb-6">Browse our catalog to start your learning journey.</p>
+                    <Link to="/courses">
+                      <Button>Explore Courses</Button>
+                    </Link>
                   </Card>
-                ))}
+                )}
               </div>
             </motion.div>
 
@@ -173,10 +324,10 @@ export const Dashboard: React.FC = () => {
             >
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
                 {[
-                  { label: 'Courses Enrolled', value: '2', icon: BookOpen, color: 'from-blue-500 to-indigo-600', text: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-500/20' },
-                  { label: 'Lessons Done', value: '41', icon: CheckCircle, color: 'from-green-400 to-emerald-600', text: 'text-green-600 dark:text-green-400', bg: 'bg-green-100 dark:bg-green-500/20' },
-                  { label: 'Hours Learned', value: '12.5', icon: Clock, color: 'from-amber-400 to-orange-500', text: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-100 dark:bg-orange-500/20' },
-                  { label: 'Badges Earned', value: '2', icon: Award, color: 'from-purple-500 to-pink-600', text: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-500/20' },
+                  { label: 'Courses Enrolled', value: dashboardStats.coursesEnrolled.toString(), icon: BookOpen, color: 'from-blue-500 to-indigo-600', text: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-500/20' },
+                  { label: 'Lessons Done', value: dashboardStats.lessonsDone.toString(), icon: CheckCircle, color: 'from-green-400 to-emerald-600', text: 'text-green-600 dark:text-green-400', bg: 'bg-green-100 dark:bg-green-500/20' },
+                  { label: 'Hours Learned', value: dashboardStats.hoursLearned.toString(), icon: Clock, color: 'from-amber-400 to-orange-500', text: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-100 dark:bg-orange-500/20' },
+                  { label: 'Badges Earned', value: dashboardStats.badgesEarned.toString(), icon: Award, color: 'from-purple-500 to-pink-600', text: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-500/20' },
                 ].map((stat) => (
                   <Card key={stat.label} className="p-5 flex flex-col justify-between relative overflow-hidden group bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl border-gray-100/50 dark:border-gray-800/80 hover:-translate-y-1 transition duration-300 shadow-sm hover:shadow-xl">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br opacity-5 rounded-bl-full group-hover:scale-150 transition duration-500" />
@@ -201,7 +352,7 @@ export const Dashboard: React.FC = () => {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight mt-8">Achievements & Badges</h2>
               <Card className="p-6 bg-white/60 dark:bg-gray-900/40 backdrop-blur-xl border border-gray-100 dark:border-gray-800/60 shadow-sm">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {achievements.map((achievement) => (
+                  {dynamicAchievements.map((achievement) => (
                     <div
                       key={achievement.name}
                       className={`text-center p-4 rounded-2xl border transition-all duration-300 ${achievement.earned ? 'bg-gradient-to-b from-primary-50 to-white dark:from-primary-900/20 dark:to-gray-900/50 border-primary-100 dark:border-primary-800/30' : 'bg-gray-50/50 dark:bg-gray-800/30 border-dashed border-gray-200 dark:border-gray-700/50 grayscale opacity-70'
@@ -236,7 +387,7 @@ export const Dashboard: React.FC = () => {
                   <Calendar className="w-5 h-5 text-gray-400" />
                 </div>
                 <div className="space-y-5">
-                  {upcomingEvents.map((event) => (
+                  {dynamicEvents.map((event) => (
                     <div key={event.id} className="flex items-start gap-4 group">
                       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 ${event.type === 'webinar' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400'
                         }`}>
@@ -269,11 +420,11 @@ export const Dashboard: React.FC = () => {
                   <Bell className="w-5 h-5 text-gray-400" />
                 </div>
                 <div className="space-y-5">
-                  {recentActivity.map((activity, index) => (
+                  {dynamicActivity.map((activity, index) => (
                     <div key={index} className="flex items-start gap-4">
                       <div className="mt-1 relative flex items-center justify-center">
                         <div className="w-3 h-3 bg-primary-500 rounded-full shadow-sm shadow-primary-500/40 z-10" />
-                        {index !== recentActivity.length - 1 && (
+                        {index !== dynamicActivity.length - 1 && (
                           <div className="absolute top-3 w-px h-10 bg-gray-200 dark:bg-gray-800" />
                         )}
                       </div>

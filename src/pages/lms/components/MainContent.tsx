@@ -76,8 +76,16 @@ export const MainContent: React.FC<MainContentProps> = ({
       case 'pdf':
          return (
            <PdfLesson 
-             url={currentLesson.content?.pdf_url || currentLesson.pdf_url}
+             url={
+               currentLesson.content?.pdf_url ||
+               currentLesson.content?.pdfUrl ||
+               currentLesson.content?.url ||
+               currentLesson.pdf_url ||
+               currentLesson.pdfUrl ||
+               ''
+             }
              title={currentLesson.title}
+             allowDownload={currentLesson.content?.allowDownload !== false}
            />
          );
       case 'quiz':
@@ -100,7 +108,7 @@ export const MainContent: React.FC<MainContentProps> = ({
       default:
         return (
           <TextLesson 
-            content={typeof currentLesson.content === 'string' ? currentLesson.content : currentLesson.description}
+            content={typeof currentLesson.content === 'object' ? currentLesson.content?.body || currentLesson.content?.prompt : currentLesson.content || currentLesson.description}
           />
         );
     }

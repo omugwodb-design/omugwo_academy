@@ -1,14 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useCommunityData } from './useCommunityData';
+import { supabase } from '../../lib/supabase';
 import {
   MessageSquare, Users, Heart, ThumbsUp, Bookmark, Share2, Flag,
   Send, Image, Paperclip, Video, Hash, Bell, Search, Plus, Star,
   Shield, Award, Trophy, Crown, ChevronDown, ChevronRight, MoreHorizontal,
-  Eye, EyeOff, Pin, Lock, Globe, UserPlus, Calendar, MapPin, Clock,
+  EyeOff, Pin, Lock, Globe, UserPlus, Calendar, MapPin, Clock,
   TrendingUp, Flame, Filter, ArrowUp, MessageCircle, CheckCircle
 } from 'lucide-react';
 
@@ -28,12 +29,17 @@ const SPACE_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>
 
 const SpaceIcon: React.FC<{ value?: string; className?: string }> = ({ value, className }) => {
   const normalized = (value || '').trim();
-  const Icon = normalized ? SPACE_ICON_MAP[normalized] || SPACE_ICON_MAP[normalized.toLowerCase()] : undefined;
+  let Icon = undefined;
+  if (normalized) {
+    const keys = Object.keys(SPACE_ICON_MAP);
+    const key = keys.find(k => k.toLowerCase() === normalized.toLowerCase());
+    if (key) Icon = SPACE_ICON_MAP[key];
+  }
   if (Icon) return <Icon className={className} />;
   return <span className={className}>{normalized || ''}</span>;
 };
 
-// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Types 
 interface Space {
   id: string;
   name: string;
@@ -91,95 +97,49 @@ interface Badge {
   earnedAt?: string;
 }
 
-// â”€â”€â”€ Mock Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const SPACES: Space[] = [
-  { id: '1', name: 'New Moms', description: 'Support and advice for first-time mothers', icon: '👶', memberCount: 8420, postCount: 12500, visibility: 'public', moderationLevel: 'semi', color: '#e85d75' },
-  { id: '2', name: 'Dads Lounge', description: 'A safe space for fathers to connect and share', icon: '👨', memberCount: 3200, postCount: 4800, visibility: 'public', moderationLevel: 'open', color: '#3b82f6' },
-  { id: '3', name: 'Mental Health', description: 'Postpartum mental health support and resources', icon: '🧠', memberCount: 5600, postCount: 7200, visibility: 'public', moderationLevel: 'strict', color: '#8b5cf6' },
-  { id: '4', name: 'Marriage & Intimacy', description: 'Navigating relationships after baby', icon: '💑', memberCount: 4100, postCount: 3900, visibility: 'public', moderationLevel: 'semi', color: '#f59e0b' },
-  { id: '5', name: 'Expert Q&A', description: 'Ask verified professionals your questions', icon: '🩺', memberCount: 12000, postCount: 8900, visibility: 'public', moderationLevel: 'strict', color: '#059669' },
-  { id: '6', name: 'Masterclass Cohort', description: 'Private group for current cohort students', icon: '🎓', memberCount: 250, postCount: 1200, visibility: 'private', moderationLevel: 'open', color: '#dc2626' },
-];
-
-const POSTS: Post[] = [
-  {
-    id: '1', spaceId: '1',
-    author: { name: 'Adaeze O.', avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=100', role: 'Mom of 1', badge: 'Community Star' },
-    content: "Just finished Module 3 of the Masterclass and I'm blown away by the breastfeeding section. The traditional techniques combined with modern research is exactly what I needed. Anyone else finding the night feeding tips helpful? 🌙",
-    tags: ['breastfeeding', 'masterclass', 'tips'],
-    isAnonymous: false, isPinned: false, likes: 47, comments: 12, isLiked: false, isBookmarked: false,
-    createdAt: '2 hours ago',
-    replies: [
-      { id: 'r1', author: { name: 'Dr. Megor I.', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100', role: 'Founder', isExpert: true }, content: "So glad you're finding it helpful, Adaeze! The night feeding module was developed with input from 3 lactation consultants. Don't hesitate to reach out if you need personalized guidance.", likes: 23, isLiked: false, isBestAnswer: true, createdAt: '1 hour ago' },
-      { id: 'r2', author: { name: 'Ngozi A.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100', role: 'Mom of 3' }, content: "Yes! The side-lying position tip was a game changer for me. My baby latches so much better now.", likes: 8, isLiked: false, isBestAnswer: false, createdAt: '45 min ago' },
-    ],
-  },
-  {
-    id: '2', spaceId: '3',
-    author: { name: 'Anonymous', avatar: '', role: '', },
-    content: "I've been struggling with postpartum anxiety for 3 weeks now. Some days I feel like I can't breathe. Is this normal? I'm scared to tell my family because they'll think I'm ungrateful for my baby. 😢",
-    tags: ['anxiety', 'support', 'anonymous'],
-    isAnonymous: true, isPinned: false, likes: 89, comments: 34, isLiked: true, isBookmarked: true,
-    createdAt: '5 hours ago',
-    replies: [
-      { id: 'r3', author: { name: 'Dr. Chioma N.', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=100', role: 'Clinical Psychologist', isExpert: true }, content: "What you're experiencing is more common than you think — about 1 in 5 new mothers experience postpartum anxiety. You are NOT ungrateful. This is a medical condition, not a character flaw. Please reach out to a healthcare provider. You can also DM me for a free 15-minute consultation. 💛", likes: 56, isLiked: false, isBestAnswer: true, createdAt: '4 hours ago' },
-    ],
-  },
-  {
-    id: '3', spaceId: '2',
-    author: { name: 'Emeka C.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100', role: 'Dad of 2', badge: 'Dad Advocate' },
-    content: "Completed the Partner Support Training today! 🎉 Honestly, I wish I had this before our first child. The module on 'reading your partner's unspoken needs' hit different. Fellas, this course is worth every naira.",
-    tags: ['partner-training', 'completed', 'review'],
-    isAnonymous: false, isPinned: true, likes: 124, comments: 28, isLiked: false, isBookmarked: false,
-    createdAt: '1 day ago',
-  },
-];
-
-const LEADERBOARD = [
-  { rank: 1, name: 'Adaeze O.', points: 2450, badge: 'Community Star', avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=100' },
-  { rank: 2, name: 'Emeka C.', points: 2180, badge: 'Dad Advocate', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100' },
-  { rank: 3, name: 'Ngozi A.', points: 1920, badge: 'Mentor Mom', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100' },
-  { rank: 4, name: 'Folake M.', points: 1750, badge: 'Helper', avatar: '' },
-  { rank: 5, name: 'Chidi O.', points: 1680, badge: 'Rising Star', avatar: '' },
-];
-
-const EVENTS: CommunityEvent[] = [
-  { id: '1', title: 'Monthly Mom Meetup', date: 'Mar 20, 2025', time: '4:00 PM WAT', location: 'Zoom', attendees: 85, isRsvped: false },
-  { id: '2', title: 'Expert AMA: Infant Sleep', date: 'Mar 25, 2025', time: '7:00 PM WAT', location: 'Community Live', attendees: 120, isRsvped: true },
-  { id: '3', title: 'Dad\'s Night Out (Virtual)', date: 'Mar 28, 2025', time: '8:00 PM WAT', location: 'Zoom', attendees: 42, isRsvped: false },
-];
-
-const BADGES: Badge[] = [
-  { id: '1', name: 'New Mom', icon: '👶', description: 'Joined the community' },
-  { id: '2', name: 'Dad Advocate', icon: '💪', description: 'Active in Dads Lounge' },
-  { id: '3', name: 'Mental Health Champion', icon: '🧠', description: 'Supported 10+ members' },
-  { id: '4', name: 'Community Star', icon: '⭐', description: '1000+ points earned' },
-  { id: '5', name: 'Course Completer', icon: '🎓', description: 'Completed a course' },
-  { id: '6', name: 'Helpful Answer', icon: '✅', description: '10+ best answers' },
-];
-
-// â”€â”€â”€ Community App Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Community App Component 
 export const CommunityApp: React.FC = () => {
   const { postId } = useParams();
+  const [searchParams] = useSearchParams();
   const community = useCommunityData();
   const [activeSpace, setActiveSpace] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'feed' | 'spaces' | 'events' | 'leaderboard' | 'badges'>('feed');
+  const [activeTab, setActiveTab] = useState<'feed' | 'spaces' | 'events' | 'leaderboard' | 'badges'>(() => {
+    if (window.location.pathname.includes('/events')) return 'events';
+    if (window.location.pathname.includes('/spaces')) return 'spaces';
+    return 'feed';
+  });
   const [newPostContent, setNewPostContent] = useState('');
-  const [isAnonymous, setIsAnonymous] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending'>('recent');
   const [isPosting, setIsPosting] = useState(false);
+  const [onlineCount, setOnlineCount] = useState(0);
+  const [onlineProfiles, setOnlineProfiles] = useState<any[]>([]);
 
-  // Use Supabase data if available, fall back to mock data
-  const liveSpaces = community.spaces.length > 0 ? community.spaces : SPACES;
-  const livePosts = community.posts.length > 0 ? community.posts.map((p: any) => ({
+  useEffect(() => {
+    const tab = (searchParams.get('tab') || '').toLowerCase();
+    if (tab === 'events') setActiveTab('events');
+    if (tab === 'spaces') setActiveTab('spaces');
+    if (tab === 'leaderboard') setActiveTab('leaderboard');
+    if (tab === 'badges') setActiveTab('badges');
+    if (tab === 'feed') setActiveTab('feed');
+  }, [searchParams]);
+
+  const liveSpaces = community.spaces || [];
+  const livePosts = (community.posts || []).map((p: any) => ({
     id: p.id,
     spaceId: p.space_id,
-    author: p.author ? { name: p.author.full_name || 'Anonymous', avatar: p.author.avatar_url || '', role: p.author.role || '', isExpert: p.author.role === 'instructor' } : { name: 'Anonymous', avatar: '', role: '' },
+    author: p.author
+      ? {
+          name: p.author.full_name || 'Member',
+          avatar: p.author.avatar_url || '',
+          role: p.author.role || '',
+          isExpert: p.author.role === 'instructor',
+        }
+      : { name: 'Member', avatar: '', role: '' },
     content: p.content,
     images: p.images || [],
     tags: p.tags || [],
-    isAnonymous: p.is_anonymous || false,
+    isAnonymous: !!p.is_anonymous,
     isPinned: p.is_pinned || false,
     likes: p.likesCount || 0,
     comments: p.commentsCount || 0,
@@ -187,14 +147,83 @@ export const CommunityApp: React.FC = () => {
     isBookmarked: false,
     createdAt: p.created_at ? new Date(p.created_at).toLocaleDateString() : '',
     replies: [],
-  })) : POSTS;
-  const liveEvents = community.events.length > 0 ? community.events.map((e: any) => ({
-    id: e.id, title: e.title, date: e.date, time: e.time, location: e.location, attendees: e.attendees || 0, isRsvped: false,
-  })) : EVENTS;
-  const liveLeaderboard = community.leaderboard.length > 0 ? community.leaderboard.map((l: any, i: number) => ({
+  }));
+  const liveEvents = (community.events || []).map((e: any) => ({
+    id: e.id,
+    title: e.title,
+    date: e.date,
+    time: e.time,
+    location: e.location,
+    attendees: e.attendees || 0,
+    isRsvped: community.userRsvps?.eventIds?.includes(e.id) || false,
+  }));
+  const liveLeaderboard = (community.leaderboard || []).map((l: any, i: number) => ({
     rank: i + 1, name: l.user?.full_name || 'User', points: l.total_points || 0, badge: '', avatar: l.user?.avatar_url || '',
-  })) : LEADERBOARD;
-  const liveBadges = community.badges.length > 0 ? community.badges : BADGES;
+  }));
+  const liveBadges = community.badges || [];
+
+  useEffect(() => {
+    if (!community.user?.id) {
+      setOnlineCount(0);
+      setOnlineProfiles([]);
+      return;
+    }
+
+    const channel = supabase.channel('community-online', {
+      config: {
+        presence: { key: community.user.id },
+      },
+    });
+
+    const updateFromPresence = async () => {
+      const state = channel.presenceState();
+      const ids = Object.keys(state || {});
+      setOnlineCount(ids.length);
+
+      if (ids.length === 0) {
+        setOnlineProfiles([]);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url, role')
+        .in('id', ids.slice(0, 25));
+
+      setOnlineProfiles((data || []).slice(0, 6));
+    };
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        updateFromPresence().catch(() => {});
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({ online_at: new Date().toISOString() });
+          updateFromPresence().catch(() => {});
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [community.user?.id]);
+
+  const trendingTopics = useMemo(() => {
+    const counts = new Map<string, number>();
+    (livePosts || []).forEach((p: any) => {
+      const tags = Array.isArray(p.tags) ? p.tags : [];
+      tags.forEach((t: any) => {
+        const key = String(t || '').trim().toLowerCase();
+        if (!key) return;
+        counts.set(key, (counts.get(key) || 0) + 1);
+      });
+    });
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([tag]) => tag);
+  }, [livePosts]);
 
   // Load posts by space when space changes
   useEffect(() => {
@@ -211,11 +240,11 @@ export const CommunityApp: React.FC = () => {
     if (!spaceId) return;
     setIsPosting(true);
     try {
-      await community.submitPost(spaceId, newPostContent, isAnonymous);
+      await community.submitPost(spaceId, newPostContent);
       setNewPostContent('');
       toast.success('Post created!');
-    } catch (err) {
-      toast.error('Failed to create post. Please sign in.');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to create post.');
     } finally {
       setIsPosting(false);
     }
@@ -319,7 +348,7 @@ export const CommunityApp: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid lg:grid-cols-4 gap-6">
-          {/* â”€â”€â”€ Sidebar: Spaces â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/*  Sidebar: Spaces  */}
           <div className="lg:col-span-1 space-y-4">
             <div className="bg-white dark:bg-gray-950 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
               <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">Spaces</h3>
@@ -354,13 +383,13 @@ export const CommunityApp: React.FC = () => {
               <ul className="space-y-2 text-xs text-gray-600 dark:text-gray-300">
                 <li className="flex items-start gap-2"><CheckCircle className="w-3 h-3 text-green-500 mt-0.5 shrink-0" />Be respectful and supportive</li>
                 <li className="flex items-start gap-2"><CheckCircle className="w-3 h-3 text-green-500 mt-0.5 shrink-0" />No medical advice without credentials</li>
-                <li className="flex items-start gap-2"><CheckCircle className="w-3 h-3 text-green-500 mt-0.5 shrink-0" />Anonymous posting is available</li>
+                <li className="flex items-start gap-2"><CheckCircle className="w-3 h-3 text-green-500 mt-0.5 shrink-0" />Posts are tied to your profile</li>
                 <li className="flex items-start gap-2"><CheckCircle className="w-3 h-3 text-green-500 mt-0.5 shrink-0" />Report harmful content</li>
               </ul>
             </div>
           </div>
 
-          {/* â”€â”€â”€ Main Content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/*  Main Content  */}
           <div className="lg:col-span-2 space-y-4">
             {/* Feed Tab */}
             {activeTab === 'feed' && (
@@ -380,14 +409,6 @@ export const CommunityApp: React.FC = () => {
                       <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg text-gray-500 dark:text-gray-300"><Video className="w-4 h-4" /></button>
                       <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg text-gray-500 dark:text-gray-300"><Paperclip className="w-4 h-4" /></button>
                       <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg text-gray-500 dark:text-gray-300"><Hash className="w-4 h-4" /></button>
-                      <div className="h-4 w-px bg-gray-200 dark:bg-gray-800 mx-1" />
-                      <button
-                        onClick={() => setIsAnonymous(!isAnonymous)}
-                        className={cn("flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors", isAnonymous ? "bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300" : "hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-300")}
-                      >
-                        {isAnonymous ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                        {isAnonymous ? 'Anonymous' : 'Public'}
-                      </button>
                     </div>
                     <button
                       onClick={handleCreatePost}
@@ -447,9 +468,25 @@ export const CommunityApp: React.FC = () => {
                           <span className="flex items-center gap-1"><Shield className="w-3 h-3" />{space.moderationLevel || space.moderation_level || 'open'}</span>
                         </div>
                       </div>
-                      <button className="px-4 py-2 bg-primary-600 text-white text-sm font-bold rounded-xl hover:bg-primary-700 transition-colors">
-                        Join
-                      </button>
+                      {community.userSpaces?.spaceIds?.includes(space.id) ? (
+                        <button className="px-4 py-2 bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-200 text-sm font-bold rounded-xl">
+                          Joined
+                        </button>
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            try {
+                              if (!community.user?.id) throw new Error('Not signed in');
+                              await community.joinSpace(space.id);
+                            } catch {
+                              toast.error('Please sign in to join');
+                            }
+                          }}
+                          className="px-4 py-2 bg-primary-600 text-white text-sm font-bold rounded-xl hover:bg-primary-700 transition-colors"
+                        >
+                          Join
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -549,13 +586,13 @@ export const CommunityApp: React.FC = () => {
             )}
           </div>
 
-          {/* â”€â”€â”€ Right Sidebar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/*  Right Sidebar  */}
           <div className="lg:col-span-1 space-y-4 hidden lg:block">
             {/* Trending Tags */}
             <div className="bg-white dark:bg-gray-950 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
               <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">Trending Topics</h3>
               <div className="flex flex-wrap gap-2">
-                {['breastfeeding', 'sleep-training', 'postpartum', 'mental-health', 'nutrition', 'partner-support', 'self-care', 'baby-milestones'].map(tag => (
+                {trendingTopics.map(tag => (
                   <span key={tag} className="px-3 py-1 bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 text-xs font-medium rounded-full hover:bg-primary-50 dark:hover:bg-primary-500/10 hover:text-primary-600 cursor-pointer transition-colors">
                     #{tag}
                   </span>
@@ -566,7 +603,7 @@ export const CommunityApp: React.FC = () => {
             {/* Upcoming Events */}
             <div className="bg-white dark:bg-gray-950 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
               <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">Upcoming Events</h3>
-              {EVENTS.slice(0, 2).map(event => (
+              {liveEvents.slice(0, 2).map((event: any) => (
                 <div key={event.id} className="flex items-start gap-3 mb-3 last:mb-0">
                   <div className="w-10 h-10 bg-primary-50 dark:bg-primary-500/10 rounded-xl flex items-center justify-center text-primary-600 shrink-0">
                     <Calendar className="w-4 h-4" />
@@ -583,17 +620,32 @@ export const CommunityApp: React.FC = () => {
             <div className="bg-white dark:bg-gray-950 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
               <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">
                 <span className="w-2 h-2 bg-green-500 rounded-full inline-block mr-2" />
-                342 Online Now
+                {onlineCount} Online Now
               </h3>
               <div className="flex -space-x-2">
-                {[1,2,3,4,5].map(i => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-500/10 border-2 border-white dark:border-gray-950 flex items-center justify-center text-xs font-bold text-primary-600">
-                    {String.fromCharCode(64 + i)}
+                {onlineProfiles.map((p: any) => (
+                  <div
+                    key={p.id}
+                    className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-500/10 border-2 border-white dark:border-gray-950 overflow-hidden flex items-center justify-center text-xs font-bold text-primary-600"
+                    title={p.full_name || ''}
+                  >
+                    {p.avatar_url ? (
+                      <img src={p.avatar_url} alt={p.full_name || ''} className="w-full h-full object-cover" />
+                    ) : (
+                      (p.full_name || 'U')
+                        .split(' ')
+                        .filter(Boolean)
+                        .slice(0, 2)
+                        .map((n: string) => n[0])
+                        .join('')
+                    )}
                   </div>
                 ))}
-                <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-900 border-2 border-white dark:border-gray-950 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-300">
-                  +337
-                </div>
+                {onlineCount > onlineProfiles.length && (
+                  <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-900 border-2 border-white dark:border-gray-950 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-300">
+                    +{Math.max(0, onlineCount - onlineProfiles.length)}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -603,12 +655,12 @@ export const CommunityApp: React.FC = () => {
   );
 };
 
-// â”€â”€â”€ Post Card Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Post Card Component 
 const PostCard: React.FC<{ post: Post; deepLinkPostId?: string }> = ({ post, deepLinkPostId }) => {
   const [showReplies, setShowReplies] = useState(false);
   const [liked, setLiked] = useState(post.isLiked);
   const [bookmarked, setBookmarked] = useState(post.isBookmarked);
-
+@@
   useEffect(() => {
     if (deepLinkPostId && deepLinkPostId === post.id) {
       setShowReplies(true);
@@ -622,11 +674,6 @@ const PostCard: React.FC<{ post: Post; deepLinkPostId?: string }> = ({ post, dee
       id={`community-post-${post.id}`}
       className="bg-white dark:bg-gray-950 rounded-2xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800"
     >
-      {post.isPinned && (
-        <div className="px-4 py-2 bg-yellow-50 dark:bg-yellow-500/10 border-b border-yellow-100 dark:border-yellow-500/20 flex items-center gap-2 text-xs font-semibold text-yellow-700 dark:text-yellow-300">
-          <Pin className="w-3 h-3" />Pinned Post
-        </div>
-      )}
       <div className="p-4">
         {/* Author */}
         <div className="flex items-center gap-3 mb-3">
@@ -634,26 +681,35 @@ const PostCard: React.FC<{ post: Post; deepLinkPostId?: string }> = ({ post, dee
             <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-500/10 flex items-center justify-center">
               <EyeOff className="w-5 h-5 text-purple-500" />
             </div>
-          ) : (
+          ) : post.author?.avatar ? (
             <img src={post.author.avatar} alt={post.author.name} className="w-10 h-10 rounded-full object-cover" />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-500/10 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-sm">
+              {(post.author?.name || 'Member')
+                .split(' ')
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((n: string) => n[0])
+                .join('')}
+            </div>
           )}
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
-                {post.isAnonymous ? 'Anonymous' : post.author.name}
+                {post.isAnonymous ? 'Anonymous' : post.author?.name || 'Member'}
               </span>
-              {post.author.isExpert && (
+              {post.author?.isExpert && (
                 <span className="px-2 py-0.5 bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-300 text-[10px] font-bold rounded-full flex items-center gap-1">
                   <CheckCircle className="w-3 h-3" />Expert
                 </span>
               )}
-              {post.author.badge && (
+              {post.author?.badge && (
                 <span className="px-2 py-0.5 bg-primary-100 dark:bg-primary-500/10 text-primary-700 dark:text-primary-300 text-[10px] font-bold rounded-full">
                   {post.author.badge}
                 </span>
               )}
             </div>
-            <span className="text-xs text-gray-400">{post.isAnonymous ? '' : post.author.role + ' • '}{post.createdAt}</span>
+            <span className="text-xs text-gray-400">{post.isAnonymous ? '' : `${post.author?.role || 'Member'} • `}{post.createdAt}</span>
           </div>
           <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg"><MoreHorizontal className="w-4 h-4 text-gray-400" /></button>
         </div>
@@ -699,7 +755,18 @@ const PostCard: React.FC<{ post: Post; deepLinkPostId?: string }> = ({ post, dee
                   <span className="text-[10px] font-bold text-green-700 dark:text-green-300 flex items-center gap-1 mb-2"><CheckCircle className="w-3 h-3" />Best Answer</span>
                 )}
                 <div className="flex items-center gap-2 mb-2">
-                  <img src={reply.author.avatar} alt={reply.author.name} className="w-7 h-7 rounded-full object-cover" />
+                  {reply.author?.avatar ? (
+                    <img src={reply.author.avatar} alt={reply.author.name} className="w-7 h-7 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-primary-100 dark:bg-primary-500/10 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-[10px]">
+                      {(reply.author?.name || 'U')
+                        .split(' ')
+                        .filter(Boolean)
+                        .slice(0, 2)
+                        .map((n: string) => n[0])
+                        .join('')}
+                    </div>
+                  )}
                   <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{reply.author.name}</span>
                   {reply.author.isExpert && <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-300 text-[9px] font-bold rounded-full">Expert</span>}
                   <span className="text-xs text-gray-400">{reply.createdAt}</span>

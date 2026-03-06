@@ -1,6 +1,6 @@
 import { LucideIcon } from "lucide-react";
 
-// â”€â”€â”€ Block Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Block Types 
 export type BlockType =
   // Layout
   | "hero"
@@ -16,11 +16,29 @@ export type BlockType =
   | "course_grid"
   | "course_curriculum"
   | "course_overview"
+  | "pricing"
   | "pricing_table"
   | "instructor_bio"
   | "countdown"
   | "enrollment_cta"
   | "progress_preview"
+  // Showcase Course Layouts (exact replicas)
+  | "interactive_course_hero"
+  | "cinematic_course_hero"
+  | "minimalist_course_hero"
+  | "luxury_course_hero"
+  | "interactive_course_features"
+  | "interactive_course_modules"
+  | "cinematic_course_body"
+  | "minimalist_course_philosophy"
+  | "minimalist_course_curriculum"
+  | "luxury_course_experience"
+  | "luxury_course_curriculum"
+  | "luxury_course_investment"
+  | "interactive_course_page"
+  | "cinematic_course_page"
+  | "minimalist_course_page"
+  | "luxury_course_page"
   // Webinar Blocks
   | "webinar_registration"
   | "webinar_countdown"
@@ -67,7 +85,7 @@ export type BlockType =
   | "dynamic_community"
   | "dynamic_user_count";
 
-// â”€â”€â”€ Block Definition â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Block Definition 
 export interface Block {
   id: string;
   type: BlockType;
@@ -101,7 +119,7 @@ export type BlockCategory =
   | "structural"
   | "dynamic";
 
-// â”€â”€â”€ Property Schema â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Property Schema 
 export interface PropSchema {
   name: string;
   label: string;
@@ -133,7 +151,7 @@ export interface PropSchema {
   group?: string;
 }
 
-// â”€â”€â”€ Global Styles / Theme â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Global Styles / Theme 
 export interface GlobalStyles {
   fontFamily: string;
   headingFont: string;
@@ -146,7 +164,7 @@ export interface GlobalStyles {
   [key: string]: any;
 }
 
-// â”€â”€â”€ Page System â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Page System 
 export type PageStatus = "DRAFT" | "PUBLISHED";
 
 export type PageType =
@@ -167,6 +185,9 @@ export type PageType =
   | "thank_you"
   | "checkout"
   | "404"
+  | "login"
+  | "register"
+  | "forgot_password"
   | "custom";
 
 export interface SitePage {
@@ -196,7 +217,7 @@ export interface PageVersion {
   label?: string;
 }
 
-// â”€â”€â”€ Site Configuration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Site Configuration 
 export interface SiteConfig {
   id: string;
   name: string;
@@ -207,7 +228,7 @@ export interface SiteConfig {
   updatedAt?: string;
 }
 
-// â”€â”€â”€ Template System â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Template System 
 export interface Template {
   id: string;
   name: string;
@@ -228,11 +249,12 @@ export type TemplateCategory =
   | "content"
   | "landing"
   | "about"
+  | "auth"
   | "courses"
   | "contact"
   | "blank";
 
-// â”€â”€â”€ Permissions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Permissions 
 export type BuilderRole =
   | "super_admin"
   | "marketing_admin"

@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useEditorStore } from './editor-store';
 import { toast } from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 interface VersionHistoryModalProps {
   pageId: string;
@@ -23,6 +24,8 @@ export const VersionHistoryModal: React.FC<VersionHistoryModalProps> = ({ pageId
   const [versions, setVersions] = useState<PageVersion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
+  const [pendingRestore, setPendingRestore] = useState<PageVersion | null>(null);
+  const [isRestoring, setIsRestoring] = useState(false);
   const { getCurrentPage, setPages, pages } = useEditorStore();
 
   useEffect(() => {
@@ -49,11 +52,15 @@ export const VersionHistoryModal: React.FC<VersionHistoryModalProps> = ({ pageId
   };
 
   const restoreVersion = async (version: PageVersion) => {
-    if (!confirm(`Restore to version ${version.version}? This will replace your current draft.`)) {
-      return;
-    }
+    setPendingRestore(version);
+  };
+
+  const confirmRestoreVersion = async () => {
+    const version = pendingRestore;
+    if (!version) return;
 
     try {
+      setIsRestoring(true);
       const currentPage = getCurrentPage();
       if (!currentPage) return;
 
@@ -95,6 +102,9 @@ export const VersionHistoryModal: React.FC<VersionHistoryModalProps> = ({ pageId
     } catch (err: any) {
       console.error('Error restoring version:', err);
       toast.error('Failed to restore version');
+    } finally {
+      setIsRestoring(false);
+      setPendingRestore(null);
     }
   };
 
@@ -245,6 +255,18 @@ export const VersionHistoryModal: React.FC<VersionHistoryModalProps> = ({ pageId
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!pendingRestore}
+        title={pendingRestore ? `Restore to version ${pendingRestore.version}?` : 'Restore version?'}
+        description="This will replace your current draft for this page."
+        confirmText="Restore"
+        cancelText="Cancel"
+        isLoading={isRestoring}
+        danger
+        onCancel={() => setPendingRestore(null)}
+        onConfirm={confirmRestoreVersion}
+      />
     </div>
   );
 };

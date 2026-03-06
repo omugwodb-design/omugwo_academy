@@ -12,6 +12,9 @@ interface EditorState {
   pages: SitePage[];
   currentPageId: string;
 
+  // Builder Mode
+  builderMode: 'website' | 'course' | 'community';
+
   // Blocks (derived from current page)
   selectedBlockId: string | null;
 
@@ -67,6 +70,9 @@ interface EditorState {
   setLeftPanel: (panel: EditorState["leftPanel"]) => void;
   toggleLeftPanel: () => void;
   toggleRightPanel: () => void;
+
+  // Mode
+  setBuilderMode: (mode: EditorState['builderMode']) => void;
 
   // Global Styles
   setGlobalStyles: (styles: GlobalStyles) => void;
@@ -143,6 +149,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
       }
     ],
     currentPageId: "home",
+    builderMode: 'website',
     selectedBlockId: null,
     historyMap: { home: [DEFAULT_HOME_BLOCKS] },
     historyIndexMap: { home: 0 },
@@ -161,7 +168,11 @@ export const useEditorStore = create<EditorState>((set, get) => {
     },
     getBlocks: () => {
       const page = get().getCurrentPage();
-      return page?.draftBlocks || [];
+      const blocks = page?.draftBlocks || [];
+      if (get().builderMode === 'course') {
+        return blocks.filter((b) => b.type !== 'navigation' && b.type !== 'footer');
+      }
+      return blocks;
     },
     getHistory: () => {
       const { historyMap, currentPageId } = get();
@@ -305,6 +316,11 @@ export const useEditorStore = create<EditorState>((set, get) => {
     addBlock: (type, defaultProps, label) => {
       const blocks = get().getBlocks();
       const { selectedBlockId } = get();
+
+      if (type === 'newsletter' && blocks.some((b) => b.type === 'newsletter')) {
+        return;
+      }
+
       const newBlock: Block = {
         id: generateId(),
         type: type as any,
@@ -342,6 +358,11 @@ export const useEditorStore = create<EditorState>((set, get) => {
       if (idx === -1) return;
 
       const original = blocks[idx];
+
+      if (original.type === 'newsletter' && blocks.some((b) => b.type === 'newsletter' && b.id !== original.id)) {
+        return;
+      }
+
       const duplicate: Block = {
         ...original,
         id: generateId(),
@@ -426,11 +447,12 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
     // UI
     setDevice: (device) => set({ device }),
-    setLeftPanel: (panel) => set({ leftPanel: panel, showLeftPanel: true }),
+    setLeftPanel: (leftPanel) => set({ leftPanel }),
     toggleLeftPanel: () =>
       set((state) => ({ showLeftPanel: !state.showLeftPanel })),
     toggleRightPanel: () =>
       set((state) => ({ showRightPanel: !state.showRightPanel })),
+    setBuilderMode: (builderMode) => set({ builderMode }),
 
     // Global Styles
     setGlobalStyles: (styles) => set({ globalStyles: styles, isDirty: true }),

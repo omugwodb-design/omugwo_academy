@@ -3,8 +3,24 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { Play, Star, Clock, BookOpen, ChevronRight, Award, CheckCircle2 } from 'lucide-react';
 import { COURSE_DATA } from './shared';
 import { Button } from '../../components/ui/Button';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useCartStore } from '../../stores/cartStore';
 
 export const CinematicCoursePage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { courseId } = useParams<{ courseId?: string }>();
+  const addCourse = useCartStore((s) => s.addCourse);
+
+  const searchParams = new URLSearchParams(location.search);
+  const builderCourseId = searchParams.get('courseId');
+  const actualCourseId = courseId || builderCourseId || undefined;
+
+  const goToCheckout = () => {
+    if (actualCourseId) addCourse(actualCourseId);
+    navigate(actualCourseId ? `/checkout/${actualCourseId}` : '/checkout');
+  };
+
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 1000], [0, 200]);
   const opacity = useTransform(scrollY, [0, 500], [1, 0]);
@@ -38,7 +54,11 @@ export const CinematicCoursePage: React.FC = () => {
               {COURSE_DATA.subtitle}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white border-0 px-10 h-14 text-lg rounded-full shadow-[0_0_40px_rgba(220,38,38,0.3)]">
+              <Button
+                size="lg"
+                className="bg-red-600 hover:bg-red-700 text-white border-0 px-10 h-14 text-lg rounded-full shadow-[0_0_40px_rgba(220,38,38,0.3)]"
+                onClick={goToCheckout}
+              >
                 Enroll Now — {COURSE_DATA.price}
               </Button>
               <Button size="lg" variant="outline" className="border-white/20 hover:bg-white/5 text-white h-14 px-8 rounded-full backdrop-blur-md">
@@ -144,7 +164,7 @@ export const CinematicCoursePage: React.FC = () => {
                 </div>
               </div>
 
-              <Button className="w-full h-14 bg-white text-black hover:bg-gray-200 text-lg font-bold rounded-xl mb-4">
+              <Button className="w-full h-14 bg-white text-black hover:bg-gray-200 text-lg font-bold rounded-xl mb-4" onClick={goToCheckout}>
                 Enroll Now
               </Button>
               <p className="text-xs text-center text-gray-500">30-day money-back guarantee. Full lifetime access.</p>

@@ -3,6 +3,8 @@ import { cn } from "../../../lib/utils";
 import { BlockComponentProps, PropSchema } from "../types";
 import { Heart, ArrowRight, Play } from "lucide-react";
 import { AnimationWrapper, animationSchemaFields, getAnimationConfig } from "./animation-wrapper";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useCartStore } from "../../../stores/cartStore";
 
 export const heroEnhancedBlockSchema: PropSchema[] = [
   { name: "title", label: "Title", type: "text", group: "Content" },
@@ -20,6 +22,15 @@ export const heroEnhancedBlockSchema: PropSchema[] = [
 ];
 
 export const HeroEnhancedBlock: React.FC<BlockComponentProps> = ({ block, onChange, selected }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { courseId } = useParams<{ courseId?: string }>();
+  const addCourse = useCartStore((s) => s.addCourse);
+
+  const searchParams = new URLSearchParams(location.search);
+  const builderCourseId = searchParams.get('courseId');
+  const actualCourseId = courseId || builderCourseId || undefined;
+
   const {
     title = "Modern Postnatal Education for",
     highlightText = "African Families",
@@ -36,6 +47,32 @@ export const HeroEnhancedBlock: React.FC<BlockComponentProps> = ({ block, onChan
 
   const handleChange = (key: string, value: any) => {
     onChange(block.id, { ...block.props, [key]: value });
+  };
+
+  const resolveSmartHref = (href: string) => {
+    const raw = String(href || '');
+    if (!raw) return raw;
+    if (actualCourseId) {
+      if (raw.includes('{courseId}')) return raw.replace('{courseId}', actualCourseId);
+      if (raw === '/checkout' || raw === '/checkout/') return `/checkout/${actualCourseId}`;
+    }
+    return raw;
+  };
+
+  const handleSmartNav = (e: React.MouseEvent, href: string) => {
+    const target = resolveSmartHref(href);
+    if (selected) {
+      e.preventDefault();
+      return;
+    }
+    if (!target) return;
+    if (target.startsWith('/')) {
+      e.preventDefault();
+      if (actualCourseId && (target.startsWith(`/checkout/${actualCourseId}`) || target === '/checkout' || target === '/checkout/')) {
+        addCourse(actualCourseId);
+      }
+      navigate(target);
+    }
   };
 
   return (
@@ -122,7 +159,7 @@ export const HeroEnhancedBlock: React.FC<BlockComponentProps> = ({ block, onChan
           <div className="flex flex-wrap gap-4">
             {/* Primary CTA with Glow */}
             <a
-              href={ctaLink}
+              href={resolveSmartHref(ctaLink)}
               className="group inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-white transition-all duration-300"
               style={{
                 background: 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)',
@@ -136,6 +173,7 @@ export const HeroEnhancedBlock: React.FC<BlockComponentProps> = ({ block, onChan
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = '0 4px 14px rgba(124, 58, 237, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1)';
               }}
+              onClick={(e) => handleSmartNav(e, ctaLink)}
             >
               <span
                 contentEditable={selected}
@@ -149,7 +187,7 @@ export const HeroEnhancedBlock: React.FC<BlockComponentProps> = ({ block, onChan
 
             {/* Secondary CTA - Lighter */}
             <a
-              href={secondaryCtaLink}
+              href={resolveSmartHref(secondaryCtaLink)}
               className="group inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold bg-white text-purple-600 border-2 border-purple-200 hover:border-purple-300 transition-all duration-300"
               style={{
                 boxShadow: '0 2px 8px rgba(124, 58, 237, 0.1)',
@@ -162,6 +200,7 @@ export const HeroEnhancedBlock: React.FC<BlockComponentProps> = ({ block, onChan
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = '0 2px 8px rgba(124, 58, 237, 0.1)';
               }}
+              onClick={(e) => handleSmartNav(e, secondaryCtaLink)}
             >
               <Play className="w-5 h-5 fill-purple-600 text-purple-600" />
               <span

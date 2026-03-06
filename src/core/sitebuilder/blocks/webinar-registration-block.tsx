@@ -67,7 +67,7 @@ export const WebinarRegistrationBlock: React.FC<BlockComponentProps> = ({ block,
         const { data, error } = await supabase
           .from("webinars")
           .select(
-            "id, title, description, scheduled_at, duration_minutes, banner_url, max_attendees, capacity, slug"
+            "id, title, description, scheduled_at, duration_minutes, banner_url, max_attendees, slug"
           )
           .gte("scheduled_at", nowIso)
           .order("scheduled_at", { ascending: true })
@@ -102,11 +102,7 @@ export const WebinarRegistrationBlock: React.FC<BlockComponentProps> = ({ block,
               : "",
           backgroundImage: w.banner_url || null,
           spotsLeft:
-            typeof w.capacity === "number"
-              ? w.capacity
-              : typeof w.max_attendees === "number"
-                ? w.max_attendees
-                : 0,
+            typeof w.max_attendees === "number" ? w.max_attendees : 0,
         });
       } catch (e) {
         console.error("Failed to load dynamic webinar", e);
@@ -230,7 +226,7 @@ export const WebinarRegistrationBlock: React.FC<BlockComponentProps> = ({ block,
             </div>
 
             <div className="bg-white rounded-2xl p-8 shadow-2xl">
-              <h3 className="text-xl font-black text-gray-900 mb-2">Register Now â€” It's Free!</h3>
+              <h3 className="text-xl font-black text-gray-900 mb-2">Register Now   It's Free!</h3>
               <p className="text-sm text-gray-500 mb-6">
                 <Users className="w-4 h-4 inline mr-1" />
                 Only <span className="font-bold text-red-600">{computedSpotsLeft} spots</span> remaining

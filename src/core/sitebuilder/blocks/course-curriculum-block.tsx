@@ -50,6 +50,62 @@ interface Module {
   lessons: Lesson[];
 }
 
+const parseLessons = (raw: any): Lesson[] => {
+  if (!raw) return [];
+
+  if (Array.isArray(raw)) {
+    return raw
+      .map((l: any) => {
+        if (typeof l === "string") {
+          const title = l.trim();
+          if (!title) return null;
+          return {
+            title,
+            duration: "",
+            type: "video" as const,
+            linkedLessonId: null,
+            isLocked: false,
+            isCompleted: false,
+          };
+        }
+
+        const title = typeof l?.title === "string" ? l.title : "";
+        if (!title.trim()) return null;
+
+        return {
+          title,
+          duration: typeof l?.duration === "string" ? l.duration : "",
+          type:
+            l?.type === "text" || l?.type === "quiz" || l?.type === "assignment"
+              ? l.type
+              : ("video" as const),
+          linkedLessonId: l?.linkedLessonId ?? null,
+          isLocked: Boolean(l?.isLocked),
+          isCompleted: Boolean(l?.isCompleted),
+        };
+      })
+      .filter(Boolean) as Lesson[];
+  }
+
+  if (typeof raw === "string") {
+    // Some templates store lessons as a comma separated string
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((title) => ({
+        title,
+        duration: "",
+        type: "video" as const,
+        linkedLessonId: null,
+        isLocked: false,
+        isCompleted: false,
+      }));
+  }
+
+  return [];
+};
+
 export const CourseCurriculumBlock: React.FC<BlockComponentProps> = ({ block, onChange, selected }) => {
   const { courseId } = useParams<{ courseId?: string }>();
   const location = useLocation();

@@ -1,97 +1,124 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Users, MessageCircle, Heart, Share2, MoreHorizontal, 
+import { toast } from 'react-hot-toast';
+import {
+  Users, MessageCircle, Heart, Share2, MoreHorizontal,
   Plus, Search, Bell, TrendingUp, Calendar, Award,
-  Baby, Stethoscope, HeartHandshake, Brain, Sparkles
+  Baby, Stethoscope, HeartHandshake, Brain, Sparkles, Send, Lock
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Avatar } from '../components/ui/Avatar';
 import { Input } from '../components/ui/Input';
+import { useCommunityData } from './community/useCommunityData';
 
-const spaces = [
-  { id: 'new-moms', name: 'New Moms', icon: Baby, members: 5420, posts: 1250, color: 'bg-pink-500' },
-  { id: 'expecting', name: 'Expecting Moms', icon: Heart, members: 3180, posts: 890, color: 'bg-purple-500' },
-  { id: 'dads', name: 'Dads Lounge', icon: Users, members: 1850, posts: 420, color: 'bg-blue-500' },
-  { id: 'mental-health', name: 'Mental Health', icon: Brain, members: 2340, posts: 680, color: 'bg-green-500' },
-  { id: 'marriage', name: 'Marriage & Intimacy', icon: HeartHandshake, members: 1920, posts: 510, color: 'bg-red-500' },
-  { id: 'expert', name: 'Expert Corner', icon: Stethoscope, members: 4100, posts: 320, color: 'bg-yellow-500' },
-];
+// Dynamic icon mapping
+const SPACE_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  MessageSquare: MessageCircle,
+  Users: Users,
+  Heart: Heart,
+  Brain: Brain,
+  HeartHandshake: HeartHandshake,
+  Stethoscope: Stethoscope,
+  Baby: Baby,
+  Sparkles: Sparkles,
+};
 
-const posts = [
-  {
-    id: 1,
-    author: { name: 'Adaeze O.', avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=100' },
-    space: 'New Moms',
-    content: "Just completed my first week postpartum and I can't believe how much the nutrition module helped! The pepper soup recipe Dr. Megor shared has been amazing for my recovery. Anyone else tried it?",
-    likes: 48,
-    comments: 12,
-    time: '2 hours ago',
-    isLiked: false,
-  },
-  {
-    id: 2,
-    author: { name: 'Anonymous', avatar: null },
-    space: 'Mental Health',
-    content: "I've been feeling really overwhelmed lately. My baby is 3 weeks old and I can't stop crying. Is this normal? I'm scared to tell my family because they'll think I'm ungrateful.",
-    likes: 89,
-    comments: 34,
-    time: '4 hours ago',
-    isLiked: true,
-    isAnonymous: true,
-  },
-  {
-    id: 3,
-    author: { name: 'Dr. Megor', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=100', isExpert: true },
-    space: 'Expert Corner',
-    content: "🌟 Quick tip for today: If your baby is cluster feeding in the evenings, this is completely normal! It's their way of building your milk supply. Stay hydrated, rest when you can, and remember - this phase passes. You're doing amazing! 💪",
-    likes: 156,
-    comments: 28,
-    time: '6 hours ago',
-    isLiked: false,
-  },
-  {
-    id: 4,
-    author: { name: 'Chukwuemeka E.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100' },
-    space: 'Dads Lounge',
-    content: "Fellow dads, how do you handle it when your wife says she doesn't need help but clearly does? I want to support her but don't want to overstep. The partner course helped but real-life application is tricky!",
-    likes: 67,
-    comments: 45,
-    time: '8 hours ago',
-    isLiked: false,
-  },
-];
-
-const upcomingEvents = [
-  { id: 1, title: 'Live Q&A with Dr. Megor', date: 'Tomorrow, 3:00 PM', attendees: 234 },
-  { id: 2, title: 'New Moms Support Circle', date: 'Friday, 5:00 PM', attendees: 89 },
-  { id: 3, title: 'Breastfeeding Workshop', date: 'Saturday, 10:00 AM', attendees: 156 },
-];
-
-const topContributors = [
-  { name: 'Ngozi A.', points: 2450, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100', badge: '🏆' },
-  { name: 'Folake M.', points: 2180, avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=100', badge: '⭐' },
-  { name: 'Amaka O.', points: 1920, avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=100', badge: '💎' },
-];
+const SpaceIcon: React.FC<{ value?: string; className?: string }> = ({ value, className }) => {
+  const normalized = (value || '').trim();
+  const Icon = normalized ? SPACE_ICON_MAP[normalized] || SPACE_ICON_MAP[normalized.toLowerCase()] : undefined;
+  if (Icon) return <Icon className={className} />;
+  return <span className={className}>{normalized ? normalized.charAt(0).toUpperCase() : ''}</span>;
+};
 
 export const Community: React.FC = () => {
+  const community = useCommunityData();
   const [activeSpace, setActiveSpace] = useState<string | null>(null);
-  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set([2]));
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const toggleLike = (postId: number) => {
-    setLikedPosts(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
+  // Post creation state
+  const [isCreatingPost, setIsCreatingPost] = useState(false);
+  const [newPostContent, setNewPostContent] = useState('');
+
+  // Expanded post for comments
+  const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
+  const [newCommentContent, setNewCommentContent] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (activeSpace) {
+      community.loadPostsBySpace(activeSpace);
+    } else {
+      community.loadPostsBySpace(); // Load all
+    }
+  }, [activeSpace, community.loadPostsBySpace]);
+
+  const handleCreatePost = async () => {
+    if (!newPostContent.trim()) return;
+    const spaceId = activeSpace || (community.spaces[0] && community.spaces[0].id);
+    if (!spaceId) {
+      toast.error('Please select a space to post in.');
+      return;
+    }
+
+    try {
+      await community.submitPost(spaceId, newPostContent);
+      setNewPostContent('');
+      setIsCreatingPost(false);
+      toast.success('Post created successfully!');
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to create post.');
+    }
+  };
+
+  const handleToggleLike = async (postId: string) => {
+    try {
+      await community.togglePostLike(postId);
+    } catch (error) {
+      toast.error('Failed to like post.');
+    }
+  };
+
+  const handleToggleComments = (postId: string) => {
+    setExpandedComments(prev => {
+      const next = new Set(prev);
+      if (next.has(postId)) {
+        next.delete(postId);
       } else {
-        newSet.add(postId);
+        next.add(postId);
       }
-      return newSet;
+      return next;
     });
   };
+
+  const handlePostComment = async (postId: string) => {
+    const content = newCommentContent[postId];
+    if (!content?.trim()) return;
+
+    try {
+      await community.submitComment(postId, content);
+      setNewCommentContent(prev => ({ ...prev, [postId]: '' }));
+      toast.success('Comment added!');
+      // Ideally we should refresh the post replies, but useCommunityData updates via realtime or we can mock it here
+      // For full real-time we'd rely on Supabase subscriptions which useCommunityData has
+    } catch (error) {
+      toast.error('Failed to post comment.');
+    }
+  };
+
+  // Filter posts based on search query
+  const filteredPosts = useMemo(() => {
+    let postsToFilter = community.posts;
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      postsToFilter = postsToFilter.filter(p =>
+        p.content?.toLowerCase().includes(lowerQuery) ||
+        p.author?.full_name?.toLowerCase().includes(lowerQuery)
+      );
+    }
+    return postsToFilter;
+  }, [community.posts, searchQuery]);
 
   return (
     <div className="pt-20 bg-gray-50 min-h-screen">
@@ -107,7 +134,7 @@ export const Community: React.FC = () => {
               <h1 className="text-3xl font-black text-gray-900 mb-2">Community</h1>
               <p className="text-gray-600">Connect, share, and find support in our global village</p>
             </div>
-            <Button leftIcon={<Plus className="w-4 h-4" />}>
+            <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setIsCreatingPost(true)}>
               Create Post
             </Button>
           </div>
@@ -122,22 +149,41 @@ export const Community: React.FC = () => {
                 Spaces
               </h3>
               <div className="space-y-2">
-                {spaces.map((space) => (
+                <button
+                  onClick={() => setActiveSpace(null)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${activeSpace === null
+                      ? 'bg-primary-50 border border-primary-200'
+                      : 'hover:bg-gray-50'
+                    }`}
+                >
+                  <div className={`w-10 h-10 bg-gray-500 rounded-xl flex items-center justify-center text-white`}>
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div className="text-left flex-1">
+                    <p className="font-semibold text-gray-900 text-sm">All Spaces</p>
+                  </div>
+                </button>
+                {community.spaces.map((space: any) => (
                   <button
                     key={space.id}
-                    onClick={() => setActiveSpace(activeSpace === space.id ? null : space.id)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                      activeSpace === space.id
+                    onClick={() => setActiveSpace(space.id)}
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${activeSpace === space.id
                         ? 'bg-primary-50 border border-primary-200'
                         : 'hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
-                    <div className={`w-10 h-10 ${space.color} rounded-xl flex items-center justify-center text-white`}>
-                      <space.icon className="w-5 h-5" />
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
+                      style={{ backgroundColor: space.color || '#9333ea' }}
+                    >
+                      <SpaceIcon value={space.icon} className="w-5 h-5" />
                     </div>
                     <div className="text-left flex-1">
-                      <p className="font-semibold text-gray-900 text-sm">{space.name}</p>
-                      <p className="text-xs text-gray-500">{space.members.toLocaleString()} members</p>
+                      <p className="font-semibold text-gray-900 text-sm flex items-center gap-1">
+                        {space.name}
+                        {space.visibility === 'private' && <Lock className="w-3 h-3 text-gray-400" />}
+                      </p>
+                      <p className="text-xs text-gray-500">{(space.memberCount || space.members?.[0]?.count || 0).toLocaleString()} members</p>
                     </div>
                   </button>
                 ))}
@@ -151,18 +197,27 @@ export const Community: React.FC = () => {
                 Top Contributors
               </h3>
               <div className="space-y-3">
-                {topContributors.map((user, idx) => (
-                  <div key={user.name} className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-gray-400 w-5">{idx + 1}</span>
-                    <Avatar src={user.avatar} name={user.name} size="sm" />
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900 text-sm flex items-center gap-1">
-                        {user.name} {user.badge}
-                      </p>
-                      <p className="text-xs text-gray-500">{user.points.toLocaleString()} points</p>
-                    </div>
-                  </div>
-                ))}
+                {community.leaderboard.length > 0 ? (
+                  community.leaderboard.slice(0, 5).map((entry: any, idx: number) => {
+                    const avatar = entry.user?.avatar_url || entry.avatar;
+                    const name = entry.user?.full_name || entry.name || 'Anonymous';
+                    const points = entry.total_points || entry.points || 0;
+                    return (
+                      <div key={idx} className="flex items-center gap-3">
+                        <span className="text-lg font-bold text-gray-400 w-5">{idx + 1}</span>
+                        <Avatar src={avatar} name={name} size="sm" />
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 text-sm flex items-center gap-1">
+                            {name}
+                          </p>
+                          <p className="text-xs text-gray-500">{points.toLocaleString()} points</p>
+                        </div>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <p className="text-sm text-gray-500 text-center py-2">No contributors yet.</p>
+                )}
               </div>
             </Card>
           </div>
@@ -174,6 +229,8 @@ export const Community: React.FC = () => {
               <div className="flex-1">
                 <Input
                   placeholder="Search posts..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   leftIcon={<Search className="w-5 h-5" />}
                   className="bg-white"
                 />
@@ -184,77 +241,154 @@ export const Community: React.FC = () => {
             </div>
 
             {/* Create Post Card */}
-            <Card className="p-4">
-              <div className="flex items-center gap-3">
-                <Avatar name="You" size="md" />
-                <button className="flex-1 text-left px-4 py-3 bg-gray-100 rounded-xl text-gray-500 hover:bg-gray-200 transition-colors">
-                  Share something with the community...
-                </button>
-              </div>
-            </Card>
+            {(isCreatingPost || activeSpace) && (
+              <Card className="p-4">
+                <div className="flex items-start gap-3">
+                  <Avatar src={community.user?.user_metadata?.avatar_url} name={community.user?.user_metadata?.full_name || "You"} size="md" />
+                  <div className="flex-1 space-y-3">
+                    <textarea
+                      value={newPostContent}
+                      onChange={(e) => setNewPostContent(e.target.value)}
+                      placeholder={activeSpace ? `Share something with ${community.spaces.find((s: any) => s.id === activeSpace)?.name}...` : "Share something with the community..."}
+                      className="w-full text-left px-4 py-3 bg-gray-50 rounded-xl text-gray-700 outline-none border border-gray-200 focus:border-primary-500 resize-none"
+                      rows={3}
+                    />
+                    <div className="flex justify-end gap-2">
+                      {isCreatingPost && <Button variant="ghost" onClick={() => { setIsCreatingPost(false); setNewPostContent(''); }}>Cancel</Button>}
+                      <Button onClick={handleCreatePost} disabled={!newPostContent.trim()}>Post</Button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {!isCreatingPost && !activeSpace && (
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <Avatar src={community.user?.user_metadata?.avatar_url} name={community.user?.user_metadata?.full_name || "You"} size="md" />
+                  <button onClick={() => setIsCreatingPost(true)} className="flex-1 text-left px-4 py-3 bg-gray-100 rounded-xl text-gray-500 hover:bg-gray-200 transition-colors">
+                    Share something with the community...
+                  </button>
+                </div>
+              </Card>
+            )}
 
             {/* Posts */}
-            {posts.map((post) => (
-              <motion.div
-                key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <Card className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      {post.isAnonymous ? (
-                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                          <Users className="w-5 h-5 text-gray-500" />
+            {community.isLoading && filteredPosts.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">Loading posts...</div>
+            ) : filteredPosts.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">No posts found. Start the conversation!</div>
+            ) : (
+              filteredPosts.map((post: any) => {
+                const authorName = post.author?.full_name || post.author?.name || 'Member';
+                const authorAvatar = post.author?.avatar_url || post.author?.avatar;
+                const authorRole = post.author?.role;
+                const isExpert = authorRole === 'instructor' || authorRole === 'admin';
+                const spaceName = community.spaces.find((s: any) => s.id === post.space_id)?.name || post.space || 'General';
+                const timeCreated = post.created_at ? new Date(post.created_at).toLocaleDateString() : post.time || '';
+                const isLiked = community.userLikes.postIds.includes(post.id) || post.isLiked;
+                const likesCount = (post.likesCount != null) ? post.likesCount : post.likes;
+                const commentsCount = (post.commentsCount != null) ? post.commentsCount : post.comments;
+
+                return (
+                  <motion.div
+                    key={post.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <Card className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <Avatar src={authorAvatar || undefined} name={authorName} />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold text-gray-900">{authorName}</p>
+                              {isExpert && (
+                                <Badge size="sm" variant="info">Expert</Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              {spaceName} • {timeCreated}
+                            </p>
+                          </div>
                         </div>
-                      ) : (
-                        <Avatar src={post.author.avatar || undefined} name={post.author.name} />
-                      )}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-gray-900">{post.author.name}</p>
-                          {post.author.isExpert && (
-                            <Badge size="sm" variant="info">Expert</Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-500">
-                          {post.space} • {post.time}
-                        </p>
+                        <button className="text-gray-400 hover:text-gray-600">
+                          <MoreHorizontal className="w-5 h-5" />
+                        </button>
                       </div>
-                    </div>
-                    <button className="text-gray-400 hover:text-gray-600">
-                      <MoreHorizontal className="w-5 h-5" />
-                    </button>
-                  </div>
 
-                  <p className="text-gray-700 mb-4 leading-relaxed">{post.content}</p>
+                      <p className="text-gray-700 mb-4 leading-relaxed whitespace-pre-wrap">{post.content}</p>
 
-                  <div className="flex items-center gap-6 pt-4 border-t border-gray-100">
-                    <button
-                      onClick={() => toggleLike(post.id)}
-                      className={`flex items-center gap-2 text-sm font-medium transition-colors ${
-                        likedPosts.has(post.id) ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
-                      }`}
-                    >
-                      <Heart className={`w-5 h-5 ${likedPosts.has(post.id) ? 'fill-current' : ''}`} />
-                      {post.likes + (likedPosts.has(post.id) && !post.isLiked ? 1 : 0)}
-                    </button>
-                    <button className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-primary-600 transition-colors">
-                      <MessageCircle className="w-5 h-5" />
-                      {post.comments}
-                    </button>
-                    <button className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-primary-600 transition-colors">
-                      <Share2 className="w-5 h-5" />
-                      Share
-                    </button>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
+                      <div className="flex items-center gap-6 pt-4 border-t border-gray-100">
+                        <button
+                          onClick={() => handleToggleLike(post.id)}
+                          className={`flex items-center gap-2 text-sm font-medium transition-colors ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
+                            }`}
+                        >
+                          <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+                          {likesCount || 0}
+                        </button>
+                        <button
+                          onClick={() => handleToggleComments(post.id)}
+                          className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-primary-600 transition-colors"
+                        >
+                          <MessageCircle className="w-5 h-5" />
+                          {commentsCount || 0}
+                        </button>
+                        <button className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-primary-600 transition-colors">
+                          <Share2 className="w-5 h-5" />
+                          Share
+                        </button>
+                      </div>
 
-            <div className="text-center py-8">
-              <Button variant="outline">Load More Posts</Button>
-            </div>
+                      {/* Comments Section */}
+                      {expandedComments.has(post.id) && (
+                        <div className="mt-4 pt-4 border-t border-gray-50 space-y-4">
+                          {/* Replies list (could load actual replies here if we hook them into useCommunityData) */}
+                          {post.replies?.map((reply: any) => (
+                            <div key={reply.id} className="flex gap-3 bg-gray-50 p-3 rounded-lg">
+                              <Avatar src={reply.author?.avatar_url || reply.author?.avatar || undefined} name={reply.author?.full_name || reply.author?.name || 'Member'} size="sm" />
+                              <div>
+                                <p className="text-sm font-semibold">{reply.author?.full_name || reply.author?.name || 'Member'}</p>
+                                <p className="text-sm text-gray-700">{reply.content}</p>
+                              </div>
+                            </div>
+                          ))}
+                          {post.replies?.length === 0 && <p className="text-xs text-gray-500">No comments yet.</p>}
+
+                          <div className="flex gap-2 items-center">
+                            <Input
+                              placeholder="Write a comment..."
+                              value={newCommentContent[post.id] || ''}
+                              onChange={(e) => setNewCommentContent(prev => ({ ...prev, [post.id]: e.target.value }))}
+                              className="flex-1 bg-gray-50"
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                  handlePostComment(post.id);
+                                }
+                              }}
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => handlePostComment(post.id)}
+                              disabled={!newCommentContent[post.id]?.trim()}
+                            >
+                              <Send className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </Card>
+                  </motion.div>
+                );
+              })
+            )}
+
+            {filteredPosts.length > 0 && (
+              <div className="text-center py-8">
+                <Button variant="outline">Load More Posts</Button>
+              </div>
+            )}
           </div>
 
           {/* Right Sidebar */}
@@ -266,22 +400,28 @@ export const Community: React.FC = () => {
                 Upcoming Events
               </h3>
               <div className="space-y-4">
-                {upcomingEvents.map((event) => (
-                  <div key={event.id} className="p-3 bg-gray-50 rounded-xl">
-                    <p className="font-semibold text-gray-900 text-sm mb-1">{event.title}</p>
-                    <p className="text-xs text-gray-500 mb-2">{event.date}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">{event.attendees} attending</span>
-                      <Button size="sm" variant="ghost" className="text-xs">RSVP</Button>
+                {community.events.length > 0 ? (
+                  community.events.slice(0, 3).map((event: any) => (
+                    <div key={event.id} className="p-3 bg-gray-50 rounded-xl">
+                      <p className="font-semibold text-gray-900 text-sm mb-1">{event.title}</p>
+                      <p className="text-xs text-gray-500 mb-2">{event.date} at {event.time}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">{event.attendees || 0} attending</span>
+                        <Button
+                          size="sm"
+                          variant={event.isRsvped ? 'primary' : 'ghost'}
+                          className="text-xs"
+                          onClick={() => community.toggleEventRsvp(event.id)}
+                        >
+                          {event.isRsvped ? 'RSVP\'d' : 'RSVP'}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500 text-center">No upcoming events.</p>
+                )}
               </div>
-              <Link to="/community/events">
-                <Button variant="ghost" size="sm" className="w-full mt-4">
-                  View All Events
-                </Button>
-              </Link>
             </Card>
 
             {/* Community Guidelines */}

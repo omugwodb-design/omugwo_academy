@@ -1,6 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useAuthStore } from '../../../stores/authStore';
+import { toast } from 'react-hot-toast';
+
+const getParsedContent = (content: any) => {
+  if (!content) return {};
+  if (typeof content === 'object') return content;
+  try {
+    return JSON.parse(content);
+  } catch {
+    return { body: content };
+  }
+};
 
 export const useCourseData = (courseId?: string, lessonId?: string) => {
   const { user } = useAuthStore();
@@ -24,7 +35,16 @@ export const useCourseData = (courseId?: string, lessonId?: string) => {
         .eq('id', courseId)
         .single();
         
-      if (courseError) throw courseError;
+      if (courseError) {
+        console.error('[useCourseData] course fetch error', {
+          courseId,
+          code: (courseError as any)?.code,
+          message: (courseError as any)?.message,
+          details: (courseError as any)?.details,
+          hint: (courseError as any)?.hint,
+        });
+        throw courseError;
+      }
       setCourse(courseData);
 
       // 2. Fetch Modules & Lessons
@@ -37,12 +57,23 @@ export const useCourseData = (courseId?: string, lessonId?: string) => {
         .eq('course_id', courseId)
         .order('order_index', { ascending: true });
 
-      if (moduleError) throw moduleError;
+      if (moduleError) {
+        console.error('[useCourseData] modules+lessons fetch error', {
+          courseId,
+          code: (moduleError as any)?.code,
+          message: (moduleError as any)?.message,
+          details: (moduleError as any)?.details,
+          hint: (moduleError as any)?.hint,
+        });
+        throw moduleError;
+      }
       
       // Sort lessons within modules
       const sortedModules = moduleData?.map(mod => ({
         ...mod,
-        lessons: (mod.lessons || []).sort((a: any, b: any) => a.order_index - b.order_index)
+        lessons: (mod.lessons || [])
+          .sort((a: any, b: any) => a.order_index - b.order_index)
+          .map((l: any) => ({ ...l, content: getParsedContent(l.content) }))
       })) || [];
       
       setModules(sortedModules);
@@ -90,6 +121,7 @@ export const useCourseData = (courseId?: string, lessonId?: string) => {
       setCurrentLesson(targetLesson);
 
     } catch (error) {
+      toast.error('Failed to load course content');
       console.error('Error fetching course data:', error);
     } finally {
       setIsLoading(false);

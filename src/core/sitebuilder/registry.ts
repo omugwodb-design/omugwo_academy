@@ -3,7 +3,7 @@ import {
   Zap, CircleHelp, BarChart3, MailPlus, BadgeDollarSign, ToggleRight,
   BookOpen, Video, Calendar, Users, Award, Target, Timer,
   PanelTopDashed, Rows4, Phone, MapPinned, GitBranch, Database,
-  GalleryHorizontalEnd, UsersRound, FileText, Megaphone, Play
+  GalleryHorizontalEnd, UsersRound, FileText, Megaphone, Play, Gem
 } from "lucide-react";
 import { BlockDefinition } from "./types";
 
@@ -35,9 +35,25 @@ import { WebinarGridBlock } from "./blocks/webinar-grid-block";
 import { ContactFormBlock } from "./blocks/contact-form-block";
 import { ContactInfoBlock } from "./blocks/contact-info-block";
 import { webinarGridBlockSchema, contactFormBlockSchema, contactInfoBlockSchema } from "./blocks/webinar-grid-block-schema";
+import { InteractiveCourseHeroBlock, interactiveCourseHeroBlockSchema } from "./blocks/interactive-course-hero-block";
+import { CinematicCourseHeroBlock, cinematicCourseHeroBlockSchema } from "./blocks/cinematic-course-hero-block";
+import { MinimalistCourseHeroBlock, minimalistCourseHeroBlockSchema } from "./blocks/minimalist-course-hero-block";
+import { LuxuryCourseHeroBlock, luxuryCourseHeroBlockSchema } from "./blocks/luxury-course-hero-block";
+import { InteractiveCourseFeaturesBlock, interactiveCourseFeaturesBlockSchema } from "./blocks/interactive-course-features-block";
+import { InteractiveCourseModulesBlock, interactiveCourseModulesBlockSchema } from "./blocks/interactive-course-modules-block";
+import { CinematicCourseBodyBlock, cinematicCourseBodyBlockSchema } from "./blocks/cinematic-course-body-block";
+import { MinimalistCoursePhilosophyBlock, minimalistCoursePhilosophyBlockSchema } from "./blocks/minimalist-course-philosophy-block";
+import { MinimalistCourseCurriculumBlock, minimalistCourseCurriculumBlockSchema } from "./blocks/minimalist-course-curriculum-block";
+import { LuxuryCourseExperienceBlock, luxuryCourseExperienceBlockSchema } from "./blocks/luxury-course-experience-block";
+import { LuxuryCourseCurriculumBlock, luxuryCourseCurriculumBlockSchema } from "./blocks/luxury-course-curriculum-block";
+import { LuxuryCourseInvestmentBlock, luxuryCourseInvestmentBlockSchema } from "./blocks/luxury-course-investment-block";
+import { InteractiveCoursePageBlock, interactiveCoursePageBlockSchema } from "./blocks/interactive-course-page-block";
+import { CinematicCoursePageBlock, cinematicCoursePageBlockSchema } from "./blocks/cinematic-course-page-block";
+import { MinimalistCoursePageBlock, minimalistCoursePageBlockSchema } from "./blocks/minimalist-course-page-block";
+import { LuxuryCoursePageBlock, luxuryCoursePageBlockSchema } from "./blocks/luxury-course-page-block";
 
 export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
-  // â”€â”€â”€ Hero Blocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Hero Blocks 
   hero: {
     type: "hero",
     label: "Hero Section",
@@ -72,6 +88,7 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       ctaText: "Explore Courses",
       ctaLink: "/courses",
       align: "left",
+      heroImageSize: "lg",
       backgroundImage: "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&q=80&w=2000",
       showOverlay: true,
       overlayOpacity: 40,
@@ -81,7 +98,7 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     propSchema: heroBlockSchema,
   },
 
-  // â”€â”€â”€ Marketing Blocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Marketing Blocks 
   features: {
     type: "features",
     label: "Features Grid",
@@ -184,11 +201,17 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     defaultProps: {
       title: "Our Story",
       imagePosition: "right",
+      imageOffsetX: 0,
+      imageOffsetY: 0,
+      quoteOffsetX: 0,
+      quoteOffsetY: 0,
+      textOffsetX: 0,
+      textOffsetY: 0,
     },
     propSchema: contentBlockSchema,
   },
 
-  // â”€â”€â”€ Course Blocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Course Blocks 
   course_curriculum: {
     type: "course_curriculum",
     label: "Course Curriculum",
@@ -247,7 +270,210 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     propSchema: pricingBlockSchema,
   },
 
-  // â”€â”€â”€ Webinar Blocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  pricing: {
+    type: "pricing",
+    label: "Pricing",
+    icon: BadgeDollarSign,
+    category: "course",
+    component: PricingBlock,
+    defaultProps: {
+      title: "Choose Your Learning Path",
+      subtitle: "Invest in yourself and your family's wellbeing.",
+    },
+    propSchema: pricingBlockSchema,
+  },
+
+  //  Showcase Course Layout Blocks (Exact Replicas) 
+  interactive_course_hero: {
+    type: "interactive_course_hero",
+    label: "Interactive Course Hero",
+    icon: Sparkles,
+    category: "course",
+    component: InteractiveCourseHeroBlock,
+    defaultProps: {
+      title: "Your Modern Postpartum Playbook",
+      titleHighlight: "Postpartum",
+      subtitle: "A complete, culturally grounded and medically sound roadmap to help you recover, feel supported, and enjoy the first year of motherhood with confidence.",
+      ctaText: "Get Lifetime Access",
+      price: "₦49,000",
+      priceSubtext: "One-time payment",
+      badgeText: "Enrolling Now for Next Cohort",
+      heroImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800",
+      instructorName: "Dr. Megor",
+      instructorRole: "Lead Instructor",
+      stat1Label: "Format",
+      stat1Value: "12 Hours Video",
+      stat2Label: "Community",
+      stat2Value: "8,432 Members",
+    },
+    propSchema: interactiveCourseHeroBlockSchema,
+  },
+  cinematic_course_hero: {
+    type: "cinematic_course_hero",
+    label: "Cinematic Course Hero",
+    icon: Play,
+    category: "course",
+    component: CinematicCourseHeroBlock,
+    defaultProps: {
+      title: "The Postpartum Masterclass",
+      subtitle: "A complete, culturally grounded and medically sound roadmap to help you recover, feel supported, and enjoy motherhood.",
+      badgeText: "Masterclass",
+      ctaText: "Enroll Now",
+      price: "₦49,000",
+      backgroundImage: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=1600",
+      rating: "4.9",
+      students: "8,432",
+      duration: "12 Hours",
+      lessons: "48",
+    },
+    propSchema: cinematicCourseHeroBlockSchema,
+  },
+  minimalist_course_hero: {
+    type: "minimalist_course_hero",
+    label: "Minimalist Course Hero",
+    icon: FileText,
+    category: "course",
+    component: MinimalistCourseHeroBlock,
+    defaultProps: {
+      tagline: "A Modern Guide to Postpartum",
+      titleLine1: "Reclaim",
+      titleLine2: "Your Body.",
+      titleLine3: "Restore",
+      titleLine4: "Your Mind.",
+      ctaText: "Start the Journey",
+      price: "₦49,000",
+      heroImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=1600",
+      brandName: "Omugwo.",
+    },
+    propSchema: minimalistCourseHeroBlockSchema,
+  },
+  luxury_course_hero: {
+    type: "luxury_course_hero",
+    label: "Luxury Course Hero",
+    icon: Award,
+    category: "course",
+    component: LuxuryCourseHeroBlock,
+    defaultProps: {
+      collectionTag: "The Signature Collection",
+      title: "The Postpartum",
+      titleItalic: "Masterclass",
+      subtitle: "Curated expertise for the modern mother. A refined approach to healing and wellness.",
+      heroImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=1600",
+      brandName: "Omugwo Academy",
+      buttonText: "Boutique",
+    },
+    propSchema: luxuryCourseHeroBlockSchema,
+  },
+  interactive_course_features: {
+    type: "interactive_course_features",
+    label: "Interactive Course Features",
+    icon: LayoutGrid,
+    category: "course",
+    component: InteractiveCourseFeaturesBlock,
+    defaultProps: {},
+    propSchema: interactiveCourseFeaturesBlockSchema,
+  },
+  interactive_course_modules: {
+    type: "interactive_course_modules",
+    label: "Interactive Course Modules",
+    icon: LayoutGrid,
+    category: "course",
+    component: InteractiveCourseModulesBlock,
+    defaultProps: {},
+    propSchema: interactiveCourseModulesBlockSchema,
+  },
+  cinematic_course_body: {
+    type: "cinematic_course_body",
+    label: "Cinematic Course Body",
+    icon: Play,
+    category: "course",
+    component: CinematicCourseBodyBlock,
+    defaultProps: {},
+    propSchema: cinematicCourseBodyBlockSchema,
+  },
+  minimalist_course_philosophy: {
+    type: "minimalist_course_philosophy",
+    label: "Minimalist Course Philosophy",
+    icon: FileText,
+    category: "course",
+    component: MinimalistCoursePhilosophyBlock,
+    defaultProps: {},
+    propSchema: minimalistCoursePhilosophyBlockSchema,
+  },
+  minimalist_course_curriculum: {
+    type: "minimalist_course_curriculum",
+    label: "Minimalist Course Curriculum",
+    icon: BookOpen,
+    category: "course",
+    component: MinimalistCourseCurriculumBlock,
+    defaultProps: {},
+    propSchema: minimalistCourseCurriculumBlockSchema,
+  },
+  luxury_course_experience: {
+    type: "luxury_course_experience",
+    label: "Luxury Course Experience",
+    icon: Gem,
+    category: "course",
+    component: LuxuryCourseExperienceBlock,
+    defaultProps: {},
+    propSchema: luxuryCourseExperienceBlockSchema,
+  },
+  luxury_course_curriculum: {
+    type: "luxury_course_curriculum",
+    label: "Luxury Course Curriculum",
+    icon: BookOpen,
+    category: "course",
+    component: LuxuryCourseCurriculumBlock,
+    defaultProps: {},
+    propSchema: luxuryCourseCurriculumBlockSchema,
+  },
+  luxury_course_investment: {
+    type: "luxury_course_investment",
+    label: "Luxury Course Investment",
+    icon: BadgeDollarSign,
+    category: "course",
+    component: LuxuryCourseInvestmentBlock,
+    defaultProps: {},
+    propSchema: luxuryCourseInvestmentBlockSchema,
+  },
+  interactive_course_page: {
+    type: "interactive_course_page",
+    label: "Interactive Course Page (Exact)",
+    icon: Sparkles,
+    category: "course",
+    component: InteractiveCoursePageBlock,
+    defaultProps: {},
+    propSchema: interactiveCoursePageBlockSchema,
+  },
+  cinematic_course_page: {
+    type: "cinematic_course_page",
+    label: "Cinematic Course Page (Exact)",
+    icon: Play,
+    category: "course",
+    component: CinematicCoursePageBlock,
+    defaultProps: {},
+    propSchema: cinematicCoursePageBlockSchema,
+  },
+  minimalist_course_page: {
+    type: "minimalist_course_page",
+    label: "Minimalist Course Page (Exact)",
+    icon: FileText,
+    category: "course",
+    component: MinimalistCoursePageBlock,
+    defaultProps: {},
+    propSchema: minimalistCoursePageBlockSchema,
+  },
+  luxury_course_page: {
+    type: "luxury_course_page",
+    label: "Luxury Course Page (Exact)",
+    icon: Award,
+    category: "course",
+    component: LuxuryCoursePageBlock,
+    defaultProps: {},
+    propSchema: luxuryCoursePageBlockSchema,
+  },
+
+  //  Webinar Blocks 
   webinar_registration: {
     type: "webinar_registration",
     label: "Webinar Registration",
@@ -280,7 +506,7 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     propSchema: webinarGridBlockSchema,
   },
 
-  // â”€â”€â”€ Community Blocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Community Blocks 
   community_discussions: {
     type: "community_discussions",
     label: "Community Discussions",
@@ -312,7 +538,7 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     propSchema: blogPostsBlockSchema,
   },
 
-  // â”€â”€â”€ New Essential Blocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  New Essential Blocks 
   team: {
     type: "team",
     label: "Team Members",
@@ -443,7 +669,7 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     propSchema: contactInfoBlockSchema,
   },
 
-  // â”€â”€â”€ Structural Blocks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Structural Blocks 
   navigation: {
     type: "navigation",
     label: "Navigation Bar",
@@ -475,7 +701,7 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
 // Grouped blocks for sidebar display
 export const BLOCK_CATEGORIES = [
   { id: "hero", label: "Hero Sections", blocks: ["hero", "hero_split"] },
-  { id: "course", label: "Course Blocks", blocks: ["course_grid", "pricing_table"] },
+  { id: "course", label: "Course Blocks", blocks: ["course_grid", "pricing_table", "pricing", "interactive_course_hero", "interactive_course_features", "interactive_course_modules", "cinematic_course_hero", "cinematic_course_body", "minimalist_course_hero", "minimalist_course_philosophy", "minimalist_course_curriculum", "luxury_course_hero", "luxury_course_experience", "luxury_course_curriculum", "luxury_course_investment", "interactive_course_page", "cinematic_course_page", "minimalist_course_page", "luxury_course_page"] },
   { id: "webinar", label: "Webinar Blocks", blocks: ["webinar_registration", "webinar_grid"] },
   { id: "community", label: "Community", blocks: ["community_discussions"] },
   { id: "social_proof", label: "Social Proof", blocks: ["testimonials", "logo_cloud"] },

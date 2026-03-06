@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar, Header, MainContent } from './components';
 import { useCourseData } from './hooks/useCourseData';
 import { Loader2 } from 'lucide-react';
@@ -7,6 +7,11 @@ import { Loader2 } from 'lucide-react';
 export const PremiumLearningExperience: React.FC = () => {
   const { courseId, lessonId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const basePath = useMemo(() => {
+    return location.pathname.startsWith('/course-preview') ? '/course-preview' : '/learn';
+  }, [location.pathname]);
   
   // Custom hook to manage all data fetching and state
   const { 
@@ -68,23 +73,23 @@ export const PremiumLearningExperience: React.FC = () => {
   const goNext = useCallback(() => {
     const next = getNext();
     if (next) {
-      navigate(`/learn/${courseId}/${next.id}`);
+      navigate(`${basePath}/${courseId}/${next.id}`);
       setCurrentLesson(next);
       // Auto-expand module containing next lesson
       const mod = modules.find(m => m.lessons?.some((l: any) => l.id === next.id));
       if (mod) setExpandedModule(mod.id);
     }
-  }, [getNext, navigate, courseId, setCurrentLesson, modules, setExpandedModule]);
+  }, [getNext, navigate, basePath, courseId, setCurrentLesson, modules, setExpandedModule]);
 
   const goPrev = useCallback(() => {
     const prev = getPrev();
     if (prev) {
-      navigate(`/learn/${courseId}/${prev.id}`);
+      navigate(`${basePath}/${courseId}/${prev.id}`);
       setCurrentLesson(prev);
       const mod = modules.find(m => m.lessons?.some((l: any) => l.id === prev.id));
       if (mod) setExpandedModule(mod.id);
     }
-  }, [getPrev, navigate, courseId, setCurrentLesson, modules, setExpandedModule]);
+  }, [getPrev, navigate, basePath, courseId, setCurrentLesson, modules, setExpandedModule]);
 
   if (isLoading) {
     return (
@@ -125,6 +130,7 @@ export const PremiumLearningExperience: React.FC = () => {
           expandedModule={expandedModule}
           setExpandedModule={setExpandedModule}
           courseId={courseId || ''}
+          basePath={basePath}
           isMobileOpen={isMobileSidebarOpen}
           setMobileOpen={setIsMobileSidebarOpen}
         />

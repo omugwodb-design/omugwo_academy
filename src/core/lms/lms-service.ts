@@ -1,6 +1,6 @@
 import { supabase } from "../../lib/supabase";
 
-// â”€â”€â”€ Course CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Course CRUD 
 
 export const getCourses = async (filters?: { published?: boolean; instructorId?: string; featured?: boolean }) => {
   let query = supabase.from("courses").select("*, modules(*, lessons(*))").order("created_at", { ascending: false });
@@ -61,7 +61,7 @@ export const deleteCourse = async (courseId: string) => {
   if (error) throw error;
 };
 
-// â”€â”€â”€ Module CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Module CRUD 
 
 export const getModules = async (courseId: string) => {
   const { data, error } = await supabase
@@ -106,7 +106,7 @@ export const reorderModules = async (modules: { id: string; order_index: number 
   await Promise.all(promises);
 };
 
-// â”€â”€â”€ Lesson CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Lesson CRUD 
 
 export const getLessons = async (moduleId: string) => {
   const { data, error } = await supabase
@@ -158,7 +158,7 @@ export const reorderLessons = async (lessons: { id: string; order_index: number 
   await Promise.all(promises);
 };
 
-// â”€â”€â”€ Quiz CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Quiz CRUD 
 
 export const getQuiz = async (lessonId: string) => {
   const { data, error } = await supabase
@@ -187,11 +187,11 @@ export const createQuiz = async (lessonId: string, quiz: {
 };
 
 export const addQuizQuestion = async (quizId: string, question: {
-  question_text: string;
-  question_type: string;
-  options?: any[];
-  correct_answer?: string;
-  points?: number;
+  question: string;
+  question_type?: string;
+  options?: any;
+  correct_answer?: number | null;
+  explanation?: string | null;
   order_index: number;
 }) => {
   const { data, error } = await supabase
@@ -204,9 +204,23 @@ export const addQuizQuestion = async (quizId: string, question: {
 };
 
 export const updateQuizQuestion = async (questionId: string, updates: Record<string, any>) => {
+  const allowed: Record<string, any> = {
+    question: updates.question,
+    question_type: updates.question_type,
+    options: updates.options,
+    correct_answer: updates.correct_answer,
+    order_index: updates.order_index,
+    explanation: updates.explanation,
+    scenario_context: updates.scenario_context,
+  };
+
+  const cleanUpdates = Object.fromEntries(
+    Object.entries(allowed).filter(([, v]) => v !== undefined)
+  );
+
   const { data, error } = await supabase
     .from("quiz_questions")
-    .update(updates)
+    .update(cleanUpdates)
     .eq("id", questionId)
     .select()
     .single();
@@ -219,7 +233,7 @@ export const deleteQuizQuestion = async (questionId: string) => {
   if (error) throw error;
 };
 
-// â”€â”€â”€ Quiz Attempt / Grading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Quiz Attempt / Grading 
 
 export const submitQuizAttempt = async (quizId: string, userId: string, answers: Record<string, string>) => {
   // 1. Fetch quiz with questions
@@ -230,49 +244,113 @@ export const submitQuizAttempt = async (quizId: string, userId: string, answers:
     .single();
   if (qErr || !quiz) throw qErr || new Error("Quiz not found");
 
-  // 2. Grade
+  // 2. Grade (only graded questions, not survey/poll/rating)
   let totalPoints = 0;
   let earnedPoints = 0;
   const results: any[] = [];
+  const feedbackQuestions: any[] = [];
 
   for (const q of (quiz as any).questions || []) {
-    const pts = q.points || 1;
-    totalPoints += pts;
+    const questionType = q.question_type || 'multiple_choice';
+    const isFeedback = ['survey', 'poll', 'rating'].includes(questionType);
     const userAnswer = answers[q.id] || "";
-    const isCorrect = userAnswer.toLowerCase().trim() === (q.correct_answer || "").toLowerCase().trim();
-    if (isCorrect) earnedPoints += pts;
-    results.push({ question_id: q.id, user_answer: userAnswer, is_correct: isCorrect, points_earned: isCorrect ? pts : 0 });
+
+    if (isFeedback) {
+      // Store feedback questions separately for saving to survey/poll tables
+      feedbackQuestions.push({ ...q, userAnswer, questionType });
+    } else {
+      // Grade regular questions
+      const pts = q.points || 1;
+      totalPoints += pts;
+      const correctIdx = typeof q.correct_answer === 'number' ? q.correct_answer : null;
+      const correctValue = correctIdx !== null && Array.isArray(q.options) ? q.options[correctIdx]?.value : String(q.correct_answer || '');
+      const isCorrect = userAnswer.toLowerCase().trim() === String(correctValue).toLowerCase().trim();
+      if (isCorrect) earnedPoints += pts;
+      results.push({ question_id: q.id, user_answer: userAnswer, is_correct: isCorrect, points_earned: isCorrect ? pts : 0 });
+    }
   }
 
   const score = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
   const passed = score >= (quiz.passing_score || 70);
 
-  // 3. Save attempt
+  // Save attempt (schema uses quiz_responses)
   const { data: attempt, error: aErr } = await supabase
-    .from("quiz_attempts")
+    .from("quiz_responses")
     .insert({
       quiz_id: quizId,
       user_id: userId,
       score,
       passed,
       answers: results,
-      completed_at: new Date().toISOString(),
+      submitted_at: new Date().toISOString(),
     })
     .select()
     .single();
   if (aErr) throw aErr;
 
+  // 4. Save feedback question responses (survey/poll/rating)
+  for (const fq of feedbackQuestions) {
+    if (!fq.userAnswer) continue;
+
+    try {
+      if (fq.questionType === 'survey') {
+        // Save to survey_responses table
+        await supabase.from("survey_responses").upsert({
+          quiz_id: quizId,
+          question_id: fq.id,
+          user_id: userId,
+          response_text: fq.userAnswer,
+          response_data: { option_selected: fq.userAnswer },
+          submitted_at: new Date().toISOString(),
+        }, { onConflict: 'quiz_id,question_id,user_id' });
+      } else if (fq.questionType === 'poll') {
+        // Save to poll_votes table
+        const optionIndex = (fq.options || []).findIndex((o: any) => 
+          (typeof o === 'object' ? (o.value || o.label) : o) === fq.userAnswer
+        );
+        await supabase.from("poll_votes").upsert({
+          quiz_id: quizId,
+          question_id: fq.id,
+          user_id: userId,
+          option_index: optionIndex >= 0 ? optionIndex : 0,
+          voted_at: new Date().toISOString(),
+        }, { onConflict: 'quiz_id,question_id,user_id' });
+      } else if (fq.questionType === 'rating') {
+        // Save rating to survey_responses (could also be course_ratings for course feedback)
+        await supabase.from("survey_responses").upsert({
+          quiz_id: quizId,
+          question_id: fq.id,
+          user_id: userId,
+          response_text: fq.userAnswer,
+          response_data: { rating: parseInt(fq.userAnswer) || 0, scale: parseInt(fq.options?.[0]?.label) || 5 },
+          submitted_at: new Date().toISOString(),
+        }, { onConflict: 'quiz_id,question_id,user_id' });
+      }
+    } catch (feedbackErr) {
+      console.error('Error saving feedback response:', feedbackErr);
+    }
+  }
+
   return { attempt, score, passed, results, totalPoints, earnedPoints };
 };
 
-// â”€â”€â”€ Progress Tracking â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Progress Tracking 
 
 export const getLessonProgress = async (userId: string, courseId: string) => {
+  const { data: modules, error: mErr } = await supabase
+    .from("modules")
+    .select("id, lessons(id)")
+    .eq("course_id", courseId);
+  if (mErr) throw mErr;
+
+  const lessonIds = (modules || []).flatMap((m: any) => (m.lessons || []).map((l: any) => l.id));
+  if (lessonIds.length === 0) return [];
+
   const { data, error } = await supabase
     .from("lesson_progress")
     .select("*")
     .eq("user_id", userId)
-    .eq("course_id", courseId);
+    .in("lesson_id", lessonIds);
   if (error) throw error;
   return data || [];
 };
@@ -284,10 +362,10 @@ export const markLessonComplete = async (userId: string, courseId: string, lesso
     .upsert(
       {
         user_id: userId,
-        course_id: courseId,
         lesson_id: lessonId,
-        completed: true,
+        is_completed: true,
         completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id,lesson_id" }
     );
@@ -299,21 +377,25 @@ export const markLessonComplete = async (userId: string, courseId: string, lesso
 
 export const recalculateCourseProgress = async (userId: string, courseId: string) => {
   // Get total lessons in course
-  const { data: modules } = await supabase
+  const { data: modules, error: mErr } = await supabase
     .from("modules")
     .select("id, lessons(id)")
     .eq("course_id", courseId);
+  if (mErr) throw mErr;
 
   const totalLessons = (modules || []).reduce((sum: number, m: any) => sum + (m.lessons?.length || 0), 0);
   if (totalLessons === 0) return 0;
+
+  const lessonIds = (modules || []).flatMap((m: any) => (m.lessons || []).map((l: any) => l.id));
+  if (lessonIds.length === 0) return 0;
 
   // Get completed lessons
   const { data: progress } = await supabase
     .from("lesson_progress")
     .select("id")
     .eq("user_id", userId)
-    .eq("course_id", courseId)
-    .eq("completed", true);
+    .in("lesson_id", lessonIds)
+    .eq("is_completed", true);
 
   const completedLessons = progress?.length || 0;
   const percentage = Math.round((completedLessons / totalLessons) * 100);
@@ -340,7 +422,7 @@ export const recalculateCourseProgress = async (userId: string, courseId: string
   return percentage;
 };
 
-// â”€â”€â”€ Enrollment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Enrollment 
 
 export const enrollUser = async (userId: string, courseId: string) => {
   const { data, error } = await supabase
@@ -379,7 +461,7 @@ export const getUserEnrollments = async (userId: string) => {
   return data || [];
 };
 
-// â”€â”€â”€ Certificate Generation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Certificate Generation 
 
 export const generateCertificate = async (userId: string, courseId: string) => {
   // Check if certificate already exists
@@ -394,7 +476,7 @@ export const generateCertificate = async (userId: string, courseId: string) => {
 
   // Get course and user info
   const { data: course } = await supabase.from("courses").select("title, instructor_id").eq("id", courseId).single();
-  const { data: userProfile } = await supabase.from("profiles").select("full_name").eq("id", userId).single();
+  const { data: userProfile } = await supabase.from("users").select("full_name").eq("id", userId).single();
 
   const certNumber = `CERT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
   const verificationUrl = `/certificates/verify/${certNumber}`;
@@ -405,8 +487,6 @@ export const generateCertificate = async (userId: string, courseId: string) => {
       user_id: userId,
       course_id: courseId,
       certificate_number: certNumber,
-      student_name: userProfile?.full_name || "Student",
-      course_title: course?.title || "Course",
       issued_at: new Date().toISOString(),
       verification_url: verificationUrl,
     })
@@ -430,14 +510,14 @@ export const getCertificate = async (userId: string, courseId: string) => {
 export const verifyCertificate = async (certNumber: string) => {
   const { data, error } = await supabase
     .from("certificates")
-    .select("*, course:courses(title), student:profiles(full_name)")
+    .select("*, course:courses(title)")
     .eq("certificate_number", certNumber)
     .maybeSingle();
   if (error) throw error;
   return data;
 };
 
-// â”€â”€â”€ Streak Tracking â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Streak Tracking 
 
 export const updateStreak = async (userId: string) => {
   const today = new Date().toISOString().split("T")[0];
@@ -479,7 +559,7 @@ export const updateStreak = async (userId: string) => {
   return { current_streak: newStreak, longest_streak: longestStreak };
 };
 
-// â”€â”€â”€ Assignment CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Assignment CRUD 
 
 export const createAssignment = async (lessonId: string, assignment: {
   title: string;
@@ -535,7 +615,7 @@ export const gradeAssignment = async (submissionId: string, grade: {
   return data;
 };
 
-// â”€â”€â”€ Instructor Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Instructor Dashboard 
 
 export const getInstructorStats = async (instructorId: string) => {
   const { data: courses } = await supabase

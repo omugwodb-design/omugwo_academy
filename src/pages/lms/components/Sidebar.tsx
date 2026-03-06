@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronDown, CheckCircle, Play, FileText, HelpCircle, ClipboardList, Lock, MonitorPlay } from 'lucide-react';
@@ -11,6 +11,7 @@ interface SidebarProps {
   expandedModule: string | null;
   setExpandedModule: (id: string | null) => void;
   courseId: string;
+  basePath?: string;
   isMobileOpen: boolean;
   setMobileOpen: (open: boolean) => void;
 }
@@ -22,9 +23,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
   expandedModule,
   setExpandedModule,
   courseId,
+  basePath = '/learn',
   isMobileOpen,
   setMobileOpen
 }) => {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+
+    const update = () => setIsDesktop(mq.matches);
+    update();
+
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', update);
+      return () => mq.removeEventListener('change', update);
+    }
+
+    // Safari fallback
+    const legacyMq = mq as unknown as {
+      addListener?: (cb: () => void) => void;
+      removeListener?: (cb: () => void) => void;
+    };
+
+    legacyMq.addListener?.(update);
+    return () => {
+      legacyMq.removeListener?.(update);
+    };
+  }, []);
+
   const isLessonCompleted = (id: string) => lessonProgress.some(p => p.lesson_id === id && p.completed);
 
   const getModuleProgress = (mod: any) => {
@@ -48,22 +75,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <>
       {/* Mobile overlay */}
       <AnimatePresence>
-        {isMobileOpen && (
+        {!isDesktop && isMobileOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setMobileOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed inset-x-0 top-16 bottom-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           />
         )}
       </AnimatePresence>
 
       <motion.aside
         initial={false}
-        animate={{ x: isMobileOpen ? 0 : '-100%' }}
+        animate={{ x: isDesktop ? 0 : isMobileOpen ? 0 : '-100%' }}
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors duration-300 lg:static lg:translate-x-0",
+          "fixed top-16 bottom-0 left-0 z-50 w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors duration-300 lg:static lg:translate-x-0",
           !isMobileOpen && "-translate-x-full lg:translate-x-0"
         )}
       >
@@ -126,7 +153,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           return (
                             <Link
                               key={l.id}
-                              to={isLocked ? '#' : `/learn/${courseId}/${l.id}`}
+                              to={isLocked ? '#' : `${basePath}/${courseId}/${l.id}`}
                               onClick={(e) => {
                                 if (isLocked) e.preventDefault();
                                 setMobileOpen(false);

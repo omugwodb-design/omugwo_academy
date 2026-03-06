@@ -628,6 +628,36 @@ CREATE POLICY "Public can read community events" ON public.community_events FOR 
 DROP POLICY IF EXISTS "Public can read webinars" ON public.webinars;
 CREATE POLICY "Public can read webinars" ON public.webinars FOR SELECT USING (true);
 
+-- ============================================================================
+-- 5. AUTH SYNC TRIGGER
+-- Ensure new signups in auth.users are synced to public.users
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.users (id, email, full_name, role, created_at, updated_at)
+  VALUES (
+    new.id,
+    new.email,
+    new.raw_user_meta_data->>'full_name',
+    COALESCE(new.raw_user_meta_data->>'role', 'student'),
+    NOW(),
+    NOW()
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    full_name = COALESCE(EXCLUDED.full_name, public.users.full_name),
+    updated_at = NOW();
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 DROP POLICY IF EXISTS "Public can read site config" ON public.site_config;
 CREATE POLICY "Public can read site config" ON public.site_config FOR SELECT USING (true);
 
@@ -637,6 +667,63 @@ CREATE POLICY "Public can read published site pages" ON public.site_pages FOR SE
 -- Authenticated user policies
 DROP POLICY IF EXISTS "Authenticated can read all site pages" ON public.site_pages;
 CREATE POLICY "Authenticated can read all site pages" ON public.site_pages FOR SELECT TO authenticated USING (true);
+
+-- ============================================================================
+-- 7. FUNNELS & LEADS
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.funnels (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    status TEXT DEFAULT 'draft',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.funnel_steps (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    funnel_id UUID REFERENCES public.funnels(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    step_type TEXT NOT NULL,
+    site_page_id UUID REFERENCES public.site_pages(id) ON DELETE SET NULL,
+    order_index INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS funnel_id UUID REFERENCES public.funnels(id) ON DELETE SET NULL;
+
+ALTER TABLE public.funnels ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.funnel_steps ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public can read published funnels" ON public.funnels;
+CREATE POLICY "Public can read published funnels" ON public.funnels FOR SELECT USING (status = 'published');
+
+DROP POLICY IF EXISTS "Public can read funnel steps" ON public.funnel_steps;
+CREATE POLICY "Public can read funnel steps" ON public.funnel_steps FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admins can manage funnels" ON public.funnels;
+CREATE POLICY "Admins can manage funnels" ON public.funnels FOR ALL TO authenticated USING ((auth.jwt() ->> 'role') IN ('admin', 'super_admin', 'marketing_admin')) WITH CHECK ((auth.jwt() ->> 'role') IN ('admin', 'super_admin', 'marketing_admin'));
+
+DROP POLICY IF EXISTS "Admins can manage funnel steps" ON public.funnel_steps;
+CREATE POLICY "Admins can manage funnel steps" ON public.funnel_steps FOR ALL TO authenticated USING ((auth.jwt() ->> 'role') IN ('admin', 'super_admin', 'marketing_admin')) WITH CHECK ((auth.jwt() ->> 'role') IN ('admin', 'super_admin', 'marketing_admin'));
+
+DROP POLICY IF EXISTS "Admins can manage leads" ON public.leads;
+CREATE POLICY "Admins can manage leads" ON public.leads FOR ALL TO authenticated USING ((auth.jwt() ->> 'role') IN ('admin', 'super_admin', 'marketing_admin')) WITH CHECK ((auth.jwt() ->> 'role') IN ('admin', 'super_admin', 'marketing_admin'));
+
+DROP POLICY IF EXISTS "Public can insert leads" ON public.leads;
+CREATE POLICY "Public can insert leads" ON public.leads FOR INSERT WITH CHECK (true);
+
+-- Allow anyone with the token to view the invite
+DROP POLICY IF EXISTS "Public can view invites by token" ON public.user_invites;
+CREATE POLICY "Public can view invites by token" ON public.user_invites
+    FOR SELECT USING (true);
+
+-- Allow accepting the invite
+DROP POLICY IF EXISTS "Users can accept their invite" ON public.user_invites;
+CREATE POLICY "Users can accept their invite" ON public.user_invites
+    FOR UPDATE USING (accepted_at IS NULL);
 
 DROP POLICY IF EXISTS "Authenticated can manage own posts" ON public.community_posts;
 CREATE POLICY "Authenticated can manage own posts" ON public.community_posts FOR ALL TO authenticated USING (user_id = auth.uid()::text) WITH CHECK (user_id = auth.uid()::text);

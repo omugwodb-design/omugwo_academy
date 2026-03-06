@@ -142,26 +142,6 @@ export const Login: React.FC = () => {
             </Button>
           </form>
 
-          {/* Social Logins */}
-          <div className="mt-8 relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
-            </div>
-          </div>
-
-          <div className="mt-6 flex gap-3">
-            <button
-              onClick={signInWithGoogle}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700"
-            >
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-              Google
-            </button>
-          </div>
-
           <div className="mt-6 p-4 bg-purple-50 border border-purple-100 rounded-xl">
             <p className="text-xs text-purple-700 font-medium">
               <span className="font-bold">Staff & Admin:</span> Use the same login. You'll be automatically redirected to the admin panel based on your assigned role.

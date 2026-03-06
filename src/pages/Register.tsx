@@ -142,25 +142,6 @@ export const Register: React.FC = () => {
                   </Button>
                 </form>
 
-                <div className="mt-8 relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">Or sign up with</span>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex gap-3">
-                  <button
-                    onClick={signUpWithGoogle}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700"
-                  >
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-                    Google
-                  </button>
-                </div>
-
                 <p className="mt-6 text-center text-gray-600">
                   Already have an account?{' '}
                   <Link to="/login" className="text-primary-600 font-semibold hover:underline">

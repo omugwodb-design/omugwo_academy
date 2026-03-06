@@ -26,7 +26,6 @@ const navItems = [
     href: '/community',
     children: [
       { label: 'Discussion Spaces', href: '/community', icon: MessageCircle, desc: 'Connect with other parents' },
-      { label: 'Live Events', href: '/community/events', icon: Calendar, desc: 'Join live sessions and Q&As' },
     ],
   },
   { label: 'Webinars', href: '/webinars' },

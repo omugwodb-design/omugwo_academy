@@ -26,35 +26,24 @@ export const Courses: React.FC = () => {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('courses')
-        .select(`
-          *,
-          instructor:users (full_name, avatar_url),
-          modules (count)
-        `)
+        .select('*')
         .eq('is_published', true);
 
       if (error) throw error;
 
       // Transform data to match UI expectations if necessary
       const transformedCourses = data.map(course => {
-        const lessonsCount = Array.isArray(course.modules) && course.modules[0]?.count
-          ? course.modules[0].count
-          : 0;
-
-        const instructor = course.instructor
-          ? {
-              name: course.instructor.full_name || 'Omugwo Academy',
-              avatar: course.instructor.avatar_url || '',
-            }
-          : { name: 'Omugwo Academy', avatar: '' };
+        const instructor = { name: 'Omugwo Academy', avatar: '' };
+        const fallbackImage = "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800";
+        const thumbnail = typeof course.thumbnail_url === 'string' ? course.thumbnail_url.trim() : '';
 
         return {
           ...course,
-          image: course.thumbnail_url || "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800",
+          image: thumbnail ? thumbnail : fallbackImage,
           rating: 4.8, // Fallback for now
           students: 0, // Fallback for now
           icon: GraduationCap,
-          lessons: lessonsCount,
+          lessons: 0,
           instructor,
         };
       });
@@ -152,81 +141,86 @@ export const Courses: React.FC = () => {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Card hover padding="none" className="h-full flex flex-col md:flex-row overflow-hidden">
-                    <div className="relative md:w-2/5 flex-shrink-0">
-                      <img
-                        src={course.image}
-                        alt={course.title}
-                        className="w-full h-48 md:h-full object-cover"
-                      />
-                      {course.badge && (
-                        <Badge
-                          className="absolute top-4 left-4"
-                          variant={course.badge === 'Free' ? 'success' : 'default'}
-                        >
-                          {course.badge}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="p-6 flex-1 flex flex-col">
-                      <div className="flex items-center gap-4 mb-3">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                          <span className="text-sm font-bold text-gray-900">{course.rating}</span>
+                  <Link to={`/courses/${course.id}`} className="block">
+                    <Card hover padding="none" className="h-full flex flex-col md:flex-row overflow-hidden">
+                      <div className="relative md:w-2/5 flex-shrink-0">
+                        {typeof course.image === 'string' && course.image.trim() ? (
+                          <img
+                            src={course.image}
+                            alt={course.title}
+                            className="w-full h-48 md:h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-48 md:h-full bg-gray-100" />
+                        )}
+                        {course.badge && (
+                          <Badge
+                            className="absolute top-4 left-4"
+                            variant={course.badge === 'Free' ? 'success' : 'default'}
+                          >
+                            {course.badge}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="p-6 flex-1 flex flex-col">
+                        <div className="flex items-center gap-4 mb-3">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                            <span className="text-sm font-bold text-gray-900">{course.rating}</span>
+                          </div>
                         </div>
-                        <span className="text-sm text-gray-500">
-                          {course.students.toLocaleString()} students
-                        </span>
-                      </div>
 
-                      <h3 className="text-xl font-bold mb-2 text-gray-900">{course.title}</h3>
-                      <p className="text-gray-600 text-sm mb-4 flex-1">{course.shortDescription}</p>
+                        <h3 className="text-xl font-bold mb-2 text-gray-900">{course.title}</h3>
+                        <p className="text-gray-600 text-sm mb-4 flex-1">{course.shortDescription}</p>
 
-                      <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          {course.duration}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <FileText className="w-4 h-4" />
-                          {course.lessons} lessons
-                        </span>
-                      </div>
+                        <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            {course.duration}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <FileText className="w-4 h-4" />
+                            {course.lessons} lessons
+                          </span>
+                        </div>
 
-                      <div className="flex items-center gap-3 mb-4">
-                        <img
-                          src={course.instructor.avatar}
-                          alt={course.instructor.name}
-                          className="w-8 h-8 rounded-full"
-                        />
-                        <span className="text-sm text-gray-600">{course.instructor.name}</span>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <div>
-                          {course.price === 0 ? (
-                            <span className="text-2xl font-black text-green-600">Free</span>
+                        <div className="flex items-center gap-3 mb-4">
+                          {course.instructor.avatar ? (
+                            <img
+                              src={course.instructor.avatar}
+                              alt={course.instructor.name}
+                              className="w-8 h-8 rounded-full"
+                            />
                           ) : (
-                            <div className="flex items-center gap-2">
-                              <span className="text-2xl font-black text-primary-600">
-                                ₦{course.price.toLocaleString()}
-                              </span>
-                              {course.originalPrice && (
-                                <span className="text-sm text-gray-400 line-through">
-                                  ₦{course.originalPrice.toLocaleString()}
-                                </span>
-                              )}
-                            </div>
+                            <div className="w-8 h-8 rounded-full bg-gray-200" />
                           )}
+                          <span className="text-sm text-gray-600">{course.instructor.name}</span>
                         </div>
-                        <Link to={`/courses/${course.id}`}>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <div>
+                            {course.price === 0 ? (
+                              <span className="text-2xl font-black text-green-600">Free</span>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl font-black text-primary-600">
+                                  ₦{course.price.toLocaleString()}
+                                </span>
+                                {course.originalPrice && (
+                                  <span className="text-sm text-gray-400 line-through">
+                                    ₦{course.originalPrice.toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
                           <Button size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                            {course.price === 0 ? 'Start Free' : 'Enroll Now'}
+                            View Course
                           </Button>
-                        </Link>
+                        </div>
                       </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  </Link>
                 </motion.div>
               ))}
             </div>

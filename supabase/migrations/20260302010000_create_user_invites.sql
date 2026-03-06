@@ -29,9 +29,11 @@ CREATE POLICY "Users can view their own invites" ON public.user_invites
     FOR SELECT USING (auth.uid()::text = invited_by);
 
 -- Policy: Users can insert invites (if they have admin role)
+DROP POLICY IF EXISTS "Admins can create invites" ON public.user_invites;
 CREATE POLICY "Admins can create invites" ON public.user_invites
     FOR INSERT WITH CHECK (
-        EXISTS (
+        (auth.jwt() ->> 'role') IN ('admin', 'super_admin')
+        OR EXISTS (
             SELECT 1 FROM public.users 
             WHERE id::text = auth.uid()::text 
             AND role IN ('admin', 'super_admin')
@@ -39,13 +41,16 @@ CREATE POLICY "Admins can create invites" ON public.user_invites
     );
 
 -- Policy: Users can update invites they sent
+DROP POLICY IF EXISTS "Users can update their own invites" ON public.user_invites;
 CREATE POLICY "Users can update their own invites" ON public.user_invites
     FOR UPDATE USING (auth.uid()::text = invited_by);
 
 -- Policy: Super admins can do everything
+DROP POLICY IF EXISTS "Super admins full access to invites" ON public.user_invites;
 CREATE POLICY "Super admins full access to invites" ON public.user_invites
     FOR ALL USING (
-        EXISTS (
+        (auth.jwt() ->> 'role') = 'super_admin'
+        OR EXISTS (
             SELECT 1 FROM public.users 
             WHERE id::text = auth.uid()::text 
             AND role = 'super_admin'

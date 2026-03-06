@@ -5,7 +5,7 @@ import {
   LayoutDashboard, BookOpen, Users, DollarSign, MessageSquare,
   Video, Award, Mail, Settings, ChevronRight, TrendingUp,
   TrendingDown, ArrowUpRight, Bell, Search, Menu, X, Heart,
-  LayoutTemplate, Sun, Moon, Ticket
+  LayoutTemplate, Sun, Moon, Ticket, BarChart3
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -20,6 +20,7 @@ const sidebarItems = [
   { id: 'overview', label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
   { id: 'site-builder', label: 'Site Builder', icon: LayoutTemplate, path: '/admin/site-builder' },
   { id: 'courses', label: 'Course Catalog', icon: BookOpen, path: '/admin/courses' },
+  { id: 'course-analytics', label: 'Course Analytics', icon: BarChart3, path: '/admin/analytics/courses' },
   { id: 'users', label: 'Users & Staff', icon: Users, path: '/admin/users' },
   { id: 'payments', label: 'Sales & Revenue', icon: DollarSign, path: '/admin/payments' },
   { id: 'coupons', label: 'Coupons', icon: Ticket, path: '/admin/coupons' },

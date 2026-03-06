@@ -101,7 +101,7 @@ export const Checkout: React.FC = () => {
       const coupon = res.coupon;
 
       let computed = 0;
-      if (coupon.discount_type === 'percent') {
+      if (coupon.discount_type === 'percentage' || coupon.discount_type === 'percent') {
         computed = subtotal * (Number(coupon.discount_value || 0) / 100);
       } else {
         computed = Number(coupon.discount_value || 0);

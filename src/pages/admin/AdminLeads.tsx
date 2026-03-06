@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Search, Download, Filter, User, Calendar, ExternalLink } from 'lucide-react';
+import { Mail, Search, Download } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
@@ -20,14 +20,10 @@ export const AdminLeads: React.FC = () => {
     const fetchLeads = async () => {
         try {
             setIsLoading(true);
-            // Using webinar registrations as leads
             const { data, error } = await supabase
-                .from('webinar_registrations')
-                .select(`
-          *,
-          webinar:webinars (title)
-        `)
-                .order('registered_at', { ascending: false });
+                .from('leads')
+                .select('id, email, full_name, source, status, lead_magnet, created_at')
+                .order('created_at', { ascending: false });
 
             if (error) throw error;
             setLeads(data || []);
@@ -40,8 +36,9 @@ export const AdminLeads: React.FC = () => {
     };
 
     const filteredLeads = leads.filter(l =>
-        l.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        l.webinar?.title.toLowerCase().includes(searchQuery.toLowerCase())
+        (l.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (l.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (l.source || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
@@ -60,7 +57,7 @@ export const AdminLeads: React.FC = () => {
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1">
                         <Input
-                            placeholder="Search leads by email or webinar..."
+                            placeholder="Search leads by email, name, or source..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             leftIcon={<Search className="w-4 h-4" />}
@@ -75,7 +72,7 @@ export const AdminLeads: React.FC = () => {
                         <thead className="bg-gray-50/80 dark:bg-gray-800/80 border-b border-gray-100 dark:border-gray-800">
                             <tr>
                                 <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Lead</th>
-                                <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Source (Webinar)</th>
+                                <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Source</th>
                                 <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                                 <th className="px-6 py-4 text-left text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                                 <th className="px-6 py-4 text-right text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
@@ -101,19 +98,22 @@ export const AdminLeads: React.FC = () => {
                                             </div>
                                             <div>
                                                 <p className="font-bold text-sm text-gray-900 dark:text-white">{lead.email}</p>
+                                                {lead.full_name && (
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">{lead.full_name}</p>
+                                                )}
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-300 line-clamp-1">{lead.webinar?.title}</p>
+                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-300 line-clamp-1">{lead.source || '-'}</p>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <Badge variant={lead.attended ? 'success' : 'info'} className="uppercase text-[10px] tracking-widest font-bold px-2 py-1">
-                                            {lead.attended ? 'Attended' : 'Registered'}
+                                        <Badge variant={lead.status === 'converted' ? 'success' : lead.status === 'unsubscribed' ? 'warning' : 'info'} className="uppercase text-[10px] tracking-widest font-bold px-2 py-1">
+                                            {lead.status || 'new'}
                                         </Badge>
                                     </td>
                                     <td className="px-6 py-4 text-[13px] font-medium text-gray-500 dark:text-gray-400">
-                                        {format(new Date(lead.registered_at), 'MMM d, yyyy')}
+                                        {format(new Date(lead.created_at), 'MMM d, yyyy')}
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <Button variant="ghost" size="sm" className="hover:bg-primary-50 dark:hover:bg-primary-900/30 text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400">

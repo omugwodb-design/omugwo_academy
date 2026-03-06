@@ -72,7 +72,7 @@ export const CommunityDiscussionsBlock: React.FC<BlockComponentProps> = ({ block
       },
       {
         title: "Postpartum meal prep ideas (Naija-friendly)",
-        excerpt: "Share recipes and meal plans that helped you recover faster â€” especially soups and swallows.",
+        excerpt: "Share recipes and meal plans that helped you recover faster   especially soups and swallows.",
         meta: "Nutrition Â· 5h ago",
         likes: 42,
         comments: 19,

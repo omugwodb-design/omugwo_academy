@@ -36,7 +36,7 @@ export const SmartHome: React.FC = () => {
           .select('*')
           .eq('is_home_page', true)
           .eq('status', 'PUBLISHED')
-          .single();
+          .maybeSingle();
 
         if (error || !homePage || !homePage.published_blocks || homePage.published_blocks.length === 0) {
           // No published homepage from site builder, use static Home

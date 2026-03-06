@@ -117,14 +117,22 @@ export const VideoBlock: React.FC<BlockComponentProps> = ({ block, onChange, sel
           <AnimationWrapper animation={animConfig}>
             <div>
               {title && (
-                <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}>
-                  {title}
-                </h2>
+                <h2
+                  className="text-3xl md:text-4xl font-black text-gray-900 mb-4"
+                  contentEditable={selected}
+                  suppressContentEditableWarning
+                  onBlur={(e) => handleChange("title", e.currentTarget.innerHTML || "")}
+                  dangerouslySetInnerHTML={{ __html: title }}
+                />
               )}
               {subtitle && (
-                <p className="text-lg text-gray-600 leading-relaxed" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}>
-                  {subtitle}
-                </p>
+                <p
+                  className="text-lg text-gray-600 leading-relaxed"
+                  contentEditable={selected}
+                  suppressContentEditableWarning
+                  onBlur={(e) => handleChange("subtitle", e.currentTarget.innerHTML || "")}
+                  dangerouslySetInnerHTML={{ __html: subtitle }}
+                />
               )}
             </div>
           </AnimationWrapper>
@@ -142,8 +150,24 @@ export const VideoBlock: React.FC<BlockComponentProps> = ({ block, onChange, sel
       <div className="max-w-4xl mx-auto">
         {(title || subtitle) && (
           <AnimationWrapper animation={animConfig} className="text-center mb-10">
-            {title && <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}>{title}</h2>}
-            {subtitle && <p className="text-lg text-gray-600" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}>{subtitle}</p>}
+            {title && (
+              <h2
+                className="text-3xl md:text-4xl font-black text-gray-900 mb-4"
+                contentEditable={selected}
+                suppressContentEditableWarning
+                onBlur={(e) => handleChange("title", e.currentTarget.innerHTML || "")}
+                dangerouslySetInnerHTML={{ __html: title }}
+              />
+            )}
+            {subtitle && (
+              <p
+                className="text-lg text-gray-600"
+                contentEditable={selected}
+                suppressContentEditableWarning
+                onBlur={(e) => handleChange("subtitle", e.currentTarget.innerHTML || "")}
+                dangerouslySetInnerHTML={{ __html: subtitle }}
+              />
+            )}
           </AnimationWrapper>
         )}
         <AnimationWrapper animation={animConfig}>

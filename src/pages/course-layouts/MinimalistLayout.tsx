@@ -2,15 +2,34 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { COURSE_DATA } from './shared';
 import { ArrowRight, Check } from 'lucide-react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useCartStore } from '../../stores/cartStore';
 
 export const MinimalistLayout: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { courseId } = useParams<{ courseId?: string }>();
+  const addCourse = useCartStore((s) => s.addCourse);
+
+  const searchParams = new URLSearchParams(location.search);
+  const builderCourseId = searchParams.get('courseId');
+  const actualCourseId = courseId || builderCourseId || undefined;
+
+  const goToCheckout = () => {
+    if (actualCourseId) addCourse(actualCourseId);
+    navigate(actualCourseId ? `/checkout/${actualCourseId}` : '/checkout');
+  };
+
   return (
     <div className="min-h-screen bg-white text-black font-serif antialiased">
       {/* Editorial Header */}
       <header className="border-b border-black">
         <div className="max-w-screen-2xl mx-auto px-8 py-6 flex justify-between items-center">
           <div className="font-bold tracking-tighter text-2xl uppercase">Omugwo.</div>
-          <button className="text-sm font-bold uppercase tracking-widest hover:underline underline-offset-4">
+          <button
+            className="text-sm font-bold uppercase tracking-widest hover:underline underline-offset-4"
+            onClick={goToCheckout}
+          >
             Enroll Now
           </button>
         </div>
@@ -36,7 +55,10 @@ export const MinimalistLayout: React.FC = () => {
               </h1>
               
               <div className="flex items-center gap-6">
-                <button className="px-8 py-4 bg-black text-white text-sm font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors flex items-center gap-3">
+                <button
+                  className="px-8 py-4 bg-black text-white text-sm font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors flex items-center gap-3"
+                  onClick={goToCheckout}
+                >
                   Start the Journey <ArrowRight className="w-4 h-4" />
                 </button>
                 <span className="text-2xl font-light">{COURSE_DATA.price}</span>

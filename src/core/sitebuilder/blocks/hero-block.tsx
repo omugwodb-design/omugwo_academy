@@ -4,6 +4,9 @@ import { cn } from "../../../lib/utils";
 import { BlockComponentProps, PropSchema } from "../types";
 import { AnimationWrapper, animationSchemaFields, getAnimationConfig, sizingSchemaFields } from "./animation-wrapper";
 import { Heart, Star, Play, Users, Baby, BookOpen, Shield, Zap, Award, Target, Mic, Calendar } from "lucide-react";
+import { AnimatedBlob } from "../components/AnimatedBlob";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useCartStore } from "../../../stores/cartStore";
 
 const ICON_MAP: Record<string, React.FC<any>> = {
   heart: Heart, star: Star, play: Play, users: Users, baby: Baby,
@@ -28,6 +31,17 @@ export const heroBlockSchema: PropSchema[] = [
   { name: "secondaryCtaText", label: "Secondary Button", type: "text", group: "Content" },
   { name: "secondaryCtaLink", label: "Secondary Link", type: "text", group: "Content" },
   { name: "heroImage", label: "Hero Image (Split)", type: "image", group: "Content" },
+  {
+    name: "heroImageSize",
+    label: "Hero Image Size",
+    type: "select",
+    options: [
+      { label: "Small", value: "sm" },
+      { label: "Medium", value: "md" },
+      { label: "Large", value: "lg" },
+    ],
+    group: "Layout",
+  },
   {
     name: "imagePosition", label: "Image Position", type: "select", options: [
       { label: "Right", value: "right" },
@@ -61,6 +75,17 @@ export const heroBlockSchema: PropSchema[] = [
       { label: "Right", value: "right" },
     ], group: "Layout"
   },
+  {
+    name: "contentAlign",
+    label: "Content Alignment",
+    type: "select",
+    options: [
+      { label: "Center", value: "center" },
+      { label: "Left", value: "left" },
+      { label: "Right", value: "right" },
+    ],
+    group: "Content",
+  },
   { name: "fullHeight", label: "Full Height (Screen)", type: "boolean", group: "Layout" },
   { name: "backgroundImage", label: "Background Image", type: "image", group: "Background" },
   { name: "backgroundColor", label: "Background Color", type: "color", group: "Background" },
@@ -87,8 +112,19 @@ export const heroBlockSchema: PropSchema[] = [
 ];
 
 export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, selected }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { courseId } = useParams<{ courseId?: string }>();
+  const addCourse = useCartStore((s) => s.addCourse);
+
+  const searchParams = new URLSearchParams(location.search);
+  const builderCourseId = searchParams.get("courseId");
+  const actualCourseId = courseId || builderCourseId || undefined;
+
   // Determine effectiveVariant - if block type is hero_split, use "split" as default
   const effectiveVariant = block.props.variant || (block.type === "hero_split" ? "split" : "centered");
+  const isSplitLike = effectiveVariant === "split";
+  const isPodcastSplit = block.type === "hero_split";
   
   const {
     title = "Empowering Your Postpartum Journey",
@@ -99,11 +135,13 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
     secondaryCtaText = "Watch Free Masterclass",
     secondaryCtaLink = "#",
     heroImage = "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800",
+    heroImageSize = "md",
     imagePosition = "right",
     imageEffect = "none",
     badgeText = "",
     badgeIcon = "",
     align = "center",
+    contentAlign = align,
     backgroundImage = "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=2000",
     backgroundColor,
     backgroundGradient,
@@ -122,8 +160,50 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
 
   const animConfig = getAnimationConfig(block.props);
 
+  const resolveSmartHref = (href: string) => {
+    const raw = String(href || "");
+    if (!raw) return raw;
+    if (actualCourseId) {
+      if (raw.includes("{courseId}")) return raw.replace("{courseId}", actualCourseId);
+      if (raw === "/checkout" || raw === "/checkout/") return `/checkout/${actualCourseId}`;
+    }
+    return raw;
+  };
+
+  const handleSmartNav = (e: React.MouseEvent, href: string) => {
+    const target = resolveSmartHref(href);
+    if (selected) {
+      e.preventDefault();
+      return;
+    }
+    if (!target) return;
+
+    // in-app navigation
+    if (target.startsWith("/")) {
+      e.preventDefault();
+      if (actualCourseId && (target.startsWith(`/checkout/${actualCourseId}`) || target === "/checkout" || target === "/checkout/")) {
+        addCourse(actualCourseId);
+      }
+      navigate(target);
+    }
+  };
+
+  const effectiveHeroImageSize =
+    isSplitLike && !block.props.heroImageSize ? "lg" : heroImageSize;
+
+  const heroImageSizeClass =
+    effectiveHeroImageSize === "sm"
+      ? "max-w-[340px] lg:max-w-[380px]"
+      : effectiveHeroImageSize === "lg"
+        ? "max-w-[520px] lg:max-w-[600px]"
+        : "max-w-[420px] lg:max-w-[460px]";
+
   const handleChange = (key: string, value: any) => {
     onChange(block.id, { ...block.props, [key]: value });
+  };
+
+  const onBlurHtml = (key: string) => (e: React.FocusEvent<HTMLElement>) => {
+    handleChange(key, (e.currentTarget as any).innerHTML || "");
   };
 
   const BadgeIcon = badgeIcon ? ICON_MAP[badgeIcon] : null;
@@ -149,7 +229,11 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
   };
 
   const renderSocialProof = () => (
-    <div className={cn("mt-12 flex items-center gap-6", align === "center" && "justify-center")}>
+    <div className={cn(
+      "mt-12 flex items-center gap-6",
+      contentAlign === "center" && "justify-center",
+      contentAlign === "right" && "justify-end"
+    )}>
       {socialProofAvatars && socialProofAvatars.length > 0 && (
         <div className="flex -space-x-3">
           {socialProofAvatars.map((avatar: any, i: number) => (
@@ -212,16 +296,16 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
     return null;
   };
 
-  // â”€â”€â”€ Split Variant â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Split Variant 
   if (effectiveVariant === "split") {
     return (
       <section
-        className={cn("relative overflow-hidden", paddingY)}
+        className={cn("relative", paddingY)}
         style={{ backgroundColor: backgroundColor || "transparent", background: backgroundGradient || undefined }}
       >
-        <div className={cn("mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center", containerSize)}>
+        <div className={cn("mx-auto px-4 md:px-8 grid lg:grid-cols-2 gap-12 items-center", containerSize)}>
           <AnimationWrapper animation={{ ...animConfig, type: animConfig.type || "slideUp" }} className={imagePosition === "left" ? "order-2" : "order-1"}>
-            <div className={cn(align === "center" && "text-center", align === "right" && "text-right")}>
+            <div className={cn(contentAlign === "center" && "text-center", contentAlign === "right" && "text-right")}>
               {badgeText && (
                 <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-gray-900 text-gray-900 text-[10px] font-bold tracking-widest uppercase rounded-full mb-6">
                   {BadgeIcon && <BadgeIcon className="w-3 h-3 fill-current" />}
@@ -232,26 +316,36 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
                 className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tight mb-6 text-gray-900 leading-[1.1]"
                 contentEditable={selected}
                 suppressContentEditableWarning
-                onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}
-              >
-                {renderTitle()}
-              </h1>
+                onBlur={onBlurHtml("title")}
+                dangerouslySetInnerHTML={{ __html: titleHighlight ? String(renderTitle() as any) : (title || "") }}
+              />
               <p
                 className="text-lg md:text-xl mb-8 text-gray-600 max-w-lg leading-relaxed"
                 contentEditable={selected}
                 suppressContentEditableWarning
-                onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}
-              >
-                {subtitle}
-              </p>
-              <div className={cn("flex gap-4 flex-wrap", align === "center" && "justify-center", align === "right" && "justify-end")}>
+                onBlur={onBlurHtml("subtitle")}
+                dangerouslySetInnerHTML={{ __html: subtitle }}
+              />
+              <div className={cn(
+                "flex gap-4 flex-wrap",
+                contentAlign === "center" && "justify-center",
+                contentAlign === "right" && "justify-end"
+              )}>
                 {ctaText && (
-                  <a href={ctaLink} className="inline-flex items-center px-8 py-4 bg-[#a855f7] text-white text-sm font-bold uppercase tracking-wider rounded-2xl hover:bg-purple-600 transition-colors shadow-lg shadow-purple-500/30" onClick={(e) => e.preventDefault()}>
+                  <a
+                    href={resolveSmartHref(ctaLink)}
+                    className="inline-flex items-center px-8 py-4 bg-[#a855f7] text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-purple-600 transition-colors shadow-lg shadow-purple-500/30"
+                    onClick={(e) => handleSmartNav(e, ctaLink)}
+                  >
                     {ctaText}
                   </a>
                 )}
                 {secondaryCtaText && (
-                  <a href={secondaryCtaLink} className="inline-flex items-center px-8 py-4 font-bold uppercase tracking-wider rounded-full transition-colors border-2 border-gray-200 text-gray-700 hover:bg-gray-50" onClick={(e) => e.preventDefault()}>
+                  <a
+                    href={resolveSmartHref(secondaryCtaLink)}
+                    className="inline-flex items-center px-8 py-4 font-bold uppercase tracking-wider rounded-full transition-colors border-2 border-gray-200 text-gray-700 hover:bg-gray-50"
+                    onClick={(e) => handleSmartNav(e, secondaryCtaLink)}
+                  >
                     {secondaryCtaText}
                   </a>
                 )}
@@ -261,19 +355,30 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
           </AnimationWrapper>
           <AnimationWrapper animation={{ ...animConfig, type: animConfig.type || (imagePosition === "left" ? "slideRight" : "slideLeft"), delay: 0.2 }} className={cn("relative", imagePosition === "left" ? "order-1" : "order-2")}>
             <div className="relative">
-              {imageEffect === "animated-blob" ? (
-                <motion.div 
-                  animate={{ rotate: 360, scale: [1, 1.05, 1] }} 
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="absolute -inset-8 rounded-full bg-gradient-to-tr from-purple-300 via-pink-200 to-primary-300 opacity-60 blur-3xl -z-10"
-                />
+              {imageEffect === "rotate-right" && (
+                <div className="absolute -inset-4 bg-primary-100 rounded-[3rem] rotate-3 opacity-50 z-0" />
+              )}
+              {imageEffect === "rotate-left" && (
+                <div className="absolute -inset-4 bg-primary-100 rounded-[3rem] -rotate-3 opacity-50 z-0" />
+              )}
+              {(imageEffect === "animated-blob" || isPodcastSplit) ? (
+                <AnimatedBlob className="-inset-2 -translate-x-2 -translate-y-2" />
               ) : (
                 <>
-                  <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-primary-100 rounded-2xl -z-10" />
-                  <div className="absolute -top-4 -right-4 w-16 h-16 bg-primary-600/20 rounded-full -z-10" />
+                  <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-primary-100 rounded-2xl z-0" />
+                  <div className="absolute -top-4 -right-4 w-16 h-16 bg-primary-600/20 rounded-full z-0" />
                 </>
               )}
-              <img src={heroImage} alt="Hero" className="relative w-full rounded-[2.5rem] shadow-2xl object-cover aspect-[4/3]" />
+              <div className={cn("relative z-10", (isPodcastSplit || imageEffect === "animated-blob") && heroImageSizeClass)}>
+                <img
+                  src={heroImage}
+                  alt="Hero"
+                  className={cn(
+                    "relative w-full rounded-[2.5rem] shadow-2xl object-cover",
+                    isPodcastSplit ? "aspect-square" : "aspect-[4/3]"
+                  )}
+                />
+              </div>
             </div>
           </AnimationWrapper>
         </div>
@@ -281,11 +386,11 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
     );
   }
 
-  // â”€â”€â”€ Minimal Variant â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Minimal Variant 
   if (effectiveVariant === "minimal") {
     return (
       <section className={cn("relative overflow-hidden", paddingY)} style={{ backgroundColor: backgroundColor || "#ffffff" }}>
-        <AnimationWrapper animation={animConfig} className={cn("mx-auto px-6 text-center", containerSize)}>
+        <AnimationWrapper animation={animConfig} className={cn("mx-auto px-4 md:px-8 text-center", containerSize)}>
           {badgeText && (
             <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-gray-100 text-gray-700 text-sm font-bold rounded-full mb-6">
               {BadgeIcon && <BadgeIcon className="w-3 h-3 fill-current" />}
@@ -310,13 +415,21 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
           </p>
           <div className="flex gap-4 flex-wrap justify-center">
             {ctaText && (
-              <a href={ctaLink} className="inline-flex items-center px-8 py-4 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors" onClick={(e) => e.preventDefault()}>
+              <a
+                href={resolveSmartHref(ctaLink)}
+                className="inline-flex items-center px-8 py-4 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
+                onClick={(e) => handleSmartNav(e, ctaLink)}
+              >
                 {ctaText}
               </a>
             )}
             {secondaryCtaText && (
-              <a href={secondaryCtaLink} className="inline-flex items-center px-8 py-4 font-bold rounded-xl transition-colors text-gray-600 hover:text-gray-900" onClick={(e) => e.preventDefault()}>
-                {secondaryCtaText} â†’
+              <a
+                href={resolveSmartHref(secondaryCtaLink)}
+                className="inline-flex items-center px-8 py-4 font-bold rounded-xl transition-colors text-gray-600 hover:text-gray-900"
+                onClick={(e) => handleSmartNav(e, secondaryCtaLink)}
+              >
+                {secondaryCtaText}
               </a>
             )}
           </div>
@@ -326,7 +439,7 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
     );
   }
 
-  // â”€â”€â”€ Video Background Variant â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Video Background Variant 
   if (effectiveVariant === "video-bg") {
     return (
       <section className={cn("relative flex flex-col justify-center items-center text-center overflow-hidden min-h-[600px]", paddingY)}>
@@ -348,7 +461,7 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
           </div>
         )}
         {renderOverlay()}
-        <AnimationWrapper animation={animConfig} className={cn("relative z-10 mx-auto px-6", containerSize)}>
+        <AnimationWrapper animation={animConfig} className={cn("relative z-10 mx-auto px-4 md:px-8", containerSize)}>
           <h1
             className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tight mb-6 text-white leading-[1.1]"
             contentEditable={selected}
@@ -367,12 +480,20 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
           </p>
           <div className="flex gap-4 flex-wrap justify-center">
             {ctaText && (
-              <a href={ctaLink} className="inline-flex items-center px-8 py-4 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-colors shadow-lg" onClick={(e) => e.preventDefault()}>
+              <a
+                href={resolveSmartHref(ctaLink)}
+                className="inline-flex items-center px-8 py-4 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/30"
+                onClick={(e) => handleSmartNav(e, ctaLink)}
+              >
                 {ctaText}
               </a>
             )}
             {secondaryCtaText && (
-              <a href={secondaryCtaLink} className="inline-flex items-center px-8 py-4 font-bold rounded-xl transition-colors border-2 border-white/30 text-white hover:bg-white/10" onClick={(e) => e.preventDefault()}>
+              <a
+                href={resolveSmartHref(secondaryCtaLink)}
+                className="inline-flex items-center px-8 py-4 font-bold rounded-xl transition-colors border-2 border-white/30 text-white hover:bg-white/10"
+                onClick={(e) => handleSmartNav(e, secondaryCtaLink)}
+              >
                 {secondaryCtaText}
               </a>
             )}
@@ -383,16 +504,16 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
     );
   }
 
-  // â”€â”€â”€ Centered (Default) Variant â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Centered (Default) Variant 
   return (
     <section
       className={cn(
         "relative flex flex-col justify-center overflow-hidden min-h-[600px]",
         fullHeight && "min-h-screen",
         paddingY,
-        align === "left" && "items-start text-left",
-        align === "center" && "items-center text-center",
-        align === "right" && "items-end text-right"
+        align === "left" && "items-start",
+        align === "center" && "items-center",
+        align === "right" && "items-end"
       )}
       style={{
         backgroundColor: backgroundColor || undefined,
@@ -413,7 +534,7 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
       <AnimationWrapper
         animation={animConfig}
         className={cn(
-          "relative z-10 mx-auto px-6",
+          "relative z-10 mx-auto px-4 md:px-8",
           containerSize,
           align === "left" && "ml-0 mr-auto",
           align === "right" && "mr-0 ml-auto"
@@ -428,9 +549,12 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
             {badgeText}
           </span>
         )}
+
         <h1
           className={cn(
-            "text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-[1.1]",
+            "text-4xl md:text-6xl font-black tracking-tight mb-6",
+            contentAlign === "center" && "text-center",
+            contentAlign === "right" && "text-right",
             isDark ? "text-white" : "text-gray-900"
           )}
           contentEditable={selected}
@@ -443,36 +567,47 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
         <p
           className={cn(
             "text-lg md:text-xl mb-8 max-w-2xl leading-relaxed",
-            align === "center" && "mx-auto",
+            contentAlign === "center" && "mx-auto",
+            contentAlign === "right" && "ml-auto",
+            contentAlign === "center" && "text-center",
+            contentAlign === "right" && "text-right",
             isDark ? "text-white/80" : "text-gray-600"
           )}
           contentEditable={selected}
           suppressContentEditableWarning
-          onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}
-        >
-          {subtitle}
-        </p>
+          onBlur={onBlurHtml("subtitle")}
+          dangerouslySetInnerHTML={{ __html: subtitle }}
+        />
 
-        <div className={cn("flex gap-4 flex-wrap", align === "center" && "justify-center")}>
+        <div className={cn(
+          "flex gap-4 flex-wrap",
+          contentAlign === "center" && "justify-center",
+          contentAlign === "right" && "justify-end"
+        )}>
           {ctaText && (
             <a
-              href={ctaLink}
-              className="inline-flex items-center px-8 py-4 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/30"
-              onClick={(e) => e.preventDefault()}
+              href={resolveSmartHref(ctaLink)}
+              className={cn(
+                "inline-flex items-center px-8 py-4 font-bold uppercase tracking-wider rounded-full transition-colors shadow-lg",
+                isDark
+                  ? "bg-white text-gray-900 hover:bg-gray-100"
+                  : "bg-primary-600 text-white hover:bg-primary-700"
+              )}
+              onClick={(e) => handleSmartNav(e, ctaLink)}
             >
               {ctaText}
             </a>
           )}
           {secondaryCtaText && (
             <a
-              href={secondaryCtaLink}
+              href={resolveSmartHref(secondaryCtaLink)}
               className={cn(
-                "inline-flex items-center px-8 py-4 font-bold rounded-xl transition-colors border-2",
+                "inline-flex items-center px-8 py-4 font-bold rounded-full transition-colors border-2",
                 isDark
                   ? "border-white/30 text-white hover:bg-white/10"
                   : "border-gray-200 text-gray-700 hover:bg-gray-50"
               )}
-              onClick={(e) => e.preventDefault()}
+              onClick={(e) => handleSmartNav(e, secondaryCtaLink)}
             >
               {secondaryCtaText}
             </a>

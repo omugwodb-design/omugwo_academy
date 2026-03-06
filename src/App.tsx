@@ -1,8 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Layout } from './components/layout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { SupabaseAuthProvider } from './components/auth/SupabaseAuthProvider';
+
 import {
   Home, About, Courses, CourseDetail, Dashboard, MyCourses,
   Login, Register, ForgotPassword, ResetPassword, PremiumLearningExperience, Community, Webinars,
@@ -15,7 +17,7 @@ import { InvitePage } from './pages/InvitePage';
 import {
   AdminDashboard, AdminCourses, AdminUsers, AdminPayments,
   AdminWebinars, AdminCommunity, AdminLeads, AdminCertificates,
-  AdminSettings, AdminCourseEditor, AdminCoupons
+  AdminSettings, AdminCourseEditor, AdminCoupons, AdminFunnels, AdminCourseAnalytics
 } from './pages/admin';
 import { SiteBuilder } from './core/sitebuilder/site-builder';
 import { CommunityApp } from './pages/community/CommunityApp';
@@ -34,10 +36,19 @@ import { ScientificLayout } from './pages/course-layouts/ScientificLayout';
 import { AppDashboardLayout } from './pages/course-layouts/AppDashboardLayout';
 import { SalesFocusedLayout } from './pages/course-layouts/SalesFocusedLayout';
 
+const ScrollToTop: React.FC = () => {
+  const { pathname, search } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname, search]);
+  return null;
+};
+
 export const App: React.FC = () => {
   return (
     <SupabaseAuthProvider>
       <Router>
+        <ScrollToTop />
         <AuthEventHandler />
         <Layout>
           <Routes>
@@ -45,7 +56,7 @@ export const App: React.FC = () => {
             <Route path="/" element={<SmartHome />} />
             <Route path="/about" element={<About />} />
             <Route path="/courses" element={<Courses />} />
-            <Route path="/community" element={<Community />} />
+            <Route path="/community" element={<CommunityApp />} />
             <Route path="/webinars" element={<Webinars />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/blog" element={<Blog />} />
@@ -117,6 +128,8 @@ export const App: React.FC = () => {
                 <Route path="webinars" element={<AdminWebinars />} />
                 <Route path="webinars/new" element={<AdminWebinars />} />
                 <Route path="leads" element={<AdminLeads />} />
+                <Route path="analytics/courses" element={<AdminCourseAnalytics />} />
+                <Route path="funnels" element={<AdminFunnels />} />
                 <Route path="certificates" element={<AdminCertificates />} />
                 <Route path="settings" element={<AdminSettings />} />
               </Route>
@@ -129,6 +142,7 @@ export const App: React.FC = () => {
             </Route>
 
             {/* ââââ Community ââââ */}
+            <Route path="/community/events" element={<Navigate to="/community?tab=events" replace />} />
             <Route path="/community/post/:postId" element={<CommunityApp />} />
             <Route path="/community/*" element={<CommunityApp />} />
 
@@ -136,9 +150,9 @@ export const App: React.FC = () => {
             <Route path="/webinars/*" element={<WebinarSystem />} />
 
             {/* ââââ Auth routes ââââ */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/login" element={<DynamicSitePage fallback={<Login />} pageType="login" />} />
+            <Route path="/register" element={<DynamicSitePage fallback={<Register />} pageType="register" />} />
+            <Route path="/forgot-password" element={<DynamicSitePage fallback={<ForgotPassword />} pageType="forgot_password" />} />
             <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         </Layout>

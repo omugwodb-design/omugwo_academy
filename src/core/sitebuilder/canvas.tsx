@@ -1,10 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { cn } from "../../lib/utils";
-import { Block } from "./types";
-import { BLOCK_DEFINITIONS } from "./registry";
-import { DeviceProvider } from "./device-context";
-import { useEditorStore } from "./editor-store";
-import { Monitor, Tablet, Smartphone, GripVertical, ArrowUp, ArrowDown, Trash2, Copy } from "lucide-react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   DndContext,
   closestCenter,
@@ -24,8 +18,24 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import {
+  ArrowDown,
+  ArrowUp,
+  Copy,
+  GripVertical,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Trash2,
+} from "lucide-react";
+import { cn } from "../../lib/utils";
+import { useEditorStore } from "./editor-store";
+import { BLOCK_DEFINITIONS } from "./registry";
+import { DeviceProvider } from "./device-context";
+import { InlineTextToolbar } from "./components/InlineTextToolbar";
+import type { Block } from "./types";
 
-// â”€â”€â”€ Sortable Block Wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Sortable Block Wrapper 
 const SortableBlock = ({ block }: { block: Block }) => {
   const {
     selectedBlockId,
@@ -156,7 +166,7 @@ const SortableBlock = ({ block }: { block: Block }) => {
   );
 };
 
-// â”€â”€â”€ Canvas Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Canvas Component 
 export const Canvas: React.FC = () => {
   const {
     device,
@@ -290,6 +300,7 @@ export const Canvas: React.FC = () => {
         onDragOver={handleSidebarDragOver}
         onDrop={handleSidebarDrop}
       >
+        <InlineTextToolbar />
         <div
           className="bg-white dark:bg-gray-950 shadow-2xl transition-all duration-300 origin-top overflow-y-auto overflow-x-hidden antialiased text-gray-900 dark:text-gray-100"
           style={{

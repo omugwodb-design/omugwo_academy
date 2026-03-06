@@ -36,7 +36,7 @@ export const FAQBlock: React.FC<BlockComponentProps> = ({ block, onChange, selec
       { question: "Who is this course for?", answer: "Our courses are designed for new mothers, expectant mothers, fathers/partners, grandmothers, and healthcare professionals who want to provide better postnatal care." },
       { question: "How long do I have access?", answer: "You get lifetime access to all course materials. Learn at your own pace, revisit lessons anytime, and access future updates at no extra cost." },
       { question: "Is there a money-back guarantee?", answer: "Yes! We offer a 30-day money-back guarantee. If you're not satisfied with the course, we'll refund your payment in full, no questions asked." },
-      { question: "Can I access the course on mobile?", answer: "Absolutely! Our platform is fully responsive and works on all devices â€” phone, tablet, and desktop. You can also download resources for offline access." },
+      { question: "Can I access the course on mobile?", answer: "Absolutely! Our platform is fully responsive and works on all devices   phone, tablet, and desktop. You can also download resources for offline access." },
       { question: "Do I get a certificate?", answer: "Yes, upon completing any course, you'll receive a verified digital certificate that you can share on LinkedIn or add to your professional portfolio." },
     ],
     backgroundColor,
@@ -55,7 +55,7 @@ export const FAQBlock: React.FC<BlockComponentProps> = ({ block, onChange, selec
     handleChange("faqs", next);
   };
 
-  // â”€â”€â”€ Two Column Variant â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Two Column Variant 
   if (variant === "two-column") {
     const mid = Math.ceil(faqs.length / 2);
     const left = faqs.slice(0, mid);
@@ -89,7 +89,7 @@ export const FAQBlock: React.FC<BlockComponentProps> = ({ block, onChange, selec
     );
   }
 
-  // â”€â”€â”€ Cards Variant â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Cards Variant 
   if (variant === "cards") {
     return (
       <section className={cn(paddingY, "px-6")} style={{ backgroundColor: backgroundColor || undefined }}>
@@ -111,7 +111,7 @@ export const FAQBlock: React.FC<BlockComponentProps> = ({ block, onChange, selec
     );
   }
 
-  // â”€â”€â”€ Accordion (Default) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Accordion (Default) 
   return (
     <section className={cn(paddingY, "px-6")} style={{ backgroundColor: backgroundColor || undefined }}>
       <div className={cn("mx-auto", containerSize)}>

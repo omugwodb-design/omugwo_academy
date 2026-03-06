@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Menu, Trophy } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { Button } from '../../../components/ui/Button';
@@ -22,9 +22,28 @@ export const Header: React.FC<HeaderProps> = ({
   setMobileOpen
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleBack = () => {
+    const canGoBack =
+      typeof window !== 'undefined' &&
+      (window.history.length > 1 || (window.history.state && (window.history.state as any).idx > 0));
+
+    if (canGoBack) {
+      navigate(-1);
+      return;
+    }
+
+    if (location.pathname.startsWith('/course-preview')) {
+      navigate('/admin/courses');
+      return;
+    }
+
+    navigate('/dashboard');
+  };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
+    <header className="sticky top-0 z-[60] bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
       <div className="flex items-center justify-between px-4 h-16">
         <div className="flex items-center gap-4">
           <button 
@@ -35,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
           
           <button 
-            onClick={() => navigate('/dashboard')}
+            onClick={handleBack}
             className="hidden lg:flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             title="Back to Dashboard"
           >
@@ -83,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           <Button 
-            onClick={() => navigate('/dashboard')}
+            onClick={handleBack}
             variant="outline" 
             className="md:hidden px-3 py-1.5 h-auto text-xs"
           >

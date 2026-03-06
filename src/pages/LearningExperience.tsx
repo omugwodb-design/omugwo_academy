@@ -215,7 +215,7 @@ export const LearningExperience: React.FC = () => {
 
         {/* Main */}
         <main className="flex-1 overflow-y-auto h-[calc(100vh-56px)]">
-          {/* â”€â”€ Video â”€â”€ */}
+          {/*  Video  */}
           {currentLesson.type === 'video' && currentLesson.video_url ? (
             <div className="relative bg-black aspect-video max-h-[70vh]">
               {currentLesson.video_url.includes('youtube') || currentLesson.video_url.includes('youtu.be') ? (
@@ -228,7 +228,7 @@ export const LearningExperience: React.FC = () => {
               <button onClick={() => setShowStickyPanel(!showStickyPanel)} className="absolute top-4 right-4 bg-yellow-400/90 hover:bg-yellow-400 text-yellow-900 p-2 rounded-lg shadow-lg z-10"><StickyNote className="w-4 h-4" /></button>
             </div>
           ) : currentLesson.type === 'pdf' ? (
-            /* â”€â”€ PDF â”€â”€ */
+            /*  PDF  */
             <div className="bg-gray-900">
               <div className="bg-gray-800 p-4 flex items-center justify-between border-b border-gray-700">
                 <div className="flex items-center gap-3"><FileText className="w-5 h-5 text-red-400" /><span className="text-white font-medium">{currentLesson.title}</span></div>
@@ -242,7 +242,7 @@ export const LearningExperience: React.FC = () => {
               ) : (<div className="flex items-center justify-center h-full"><p className="text-gray-500">PDF not available yet.</p></div>)}</div>
             </div>
           ) : currentLesson.type === 'quiz' ? (
-            /* â”€â”€ Quiz â”€â”€ */
+            /*  Quiz  */
             <div className="bg-gray-900 px-6 py-12"><div className="max-w-3xl mx-auto">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 bg-yellow-500/20 rounded-2xl flex items-center justify-center"><HelpCircle className="w-6 h-6 text-yellow-400" /></div>
@@ -269,7 +269,7 @@ export const LearningExperience: React.FC = () => {
               ) : <p className="text-gray-500 text-center py-8">No quiz questions available yet.</p>}
             </div></div>
           ) : currentLesson.type === 'assignment' ? (
-            /* â”€â”€ Assignment â”€â”€ */
+            /*  Assignment  */
             <div className="bg-gray-900 px-6 py-12"><div className="max-w-3xl mx-auto">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 bg-orange-500/20 rounded-2xl flex items-center justify-center"><ClipboardList className="w-6 h-6 text-orange-400" /></div>
@@ -291,7 +291,7 @@ export const LearningExperience: React.FC = () => {
               )}
             </div></div>
           ) : (
-            /* â”€â”€ Text / Reflection / Default â”€â”€ */
+            /*  Text / Reflection / Default  */
             <div className="bg-gray-900 px-6 py-12"><div className="max-w-3xl mx-auto">
               <div className="flex items-center gap-3 mb-8">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${currentLesson.type === 'reflection' ? 'bg-purple-500/20' : 'bg-blue-500/20'}`}>

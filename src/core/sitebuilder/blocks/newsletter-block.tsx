@@ -3,6 +3,8 @@ import { cn } from "../../../lib/utils";
 import { BlockComponentProps, PropSchema } from "../types";
 import { Mail } from "lucide-react";
 import { animationSchemaFields } from "./animation-wrapper";
+import { toast } from "react-hot-toast";
+import { leadsApi } from "../../../services/api";
 
 export const newsletterBlockSchema: PropSchema[] = [
   { name: "title", label: "Title", type: "text", group: "Content" },
@@ -28,6 +30,9 @@ export const NewsletterBlock: React.FC<BlockComponentProps> = ({ block, onChange
     layout = "split",
   } = block.props;
 
+  const [email, setEmail] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
   const handleChange = (key: string, value: any) => {
     onChange(block.id, { ...block.props, [key]: value });
   };
@@ -35,6 +40,35 @@ export const NewsletterBlock: React.FC<BlockComponentProps> = ({ block, onChange
   const bg = variant === "primary" ? "bg-primary-600" : variant === "dark" ? "bg-gray-900" : "bg-gray-50";
   const text = variant === "light" ? "text-gray-900" : "text-white";
   const sub = variant === "light" ? "text-gray-600" : "text-white/80";
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selected) return;
+    if (isSubmitting) return;
+
+    const trimmed = email.trim().toLowerCase();
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+    if (!isValidEmail) {
+      toast.error("Please enter a valid email");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await leadsApi.create({ email: trimmed, source: "newsletter" });
+      setEmail("");
+      toast.success("Subscribed successfully");
+    } catch (err: any) {
+      const code = err?.code;
+      if (code === "23505") {
+        toast.success("You're already subscribed");
+        return;
+      }
+      toast.error("Subscription failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <section className={cn(layout === "split" ? "py-12" : "py-20", "px-6", bg)}>
@@ -58,14 +92,19 @@ export const NewsletterBlock: React.FC<BlockComponentProps> = ({ block, onChange
             {subtitle}
           </p>
         </div>
-        <form className={cn("flex gap-3", layout === "split" ? "w-full md:w-auto" : "max-w-md mx-auto w-full")} onSubmit={(e) => e.preventDefault()}>
+        <form className={cn("flex gap-3", layout === "split" ? "w-full md:w-auto" : "max-w-md mx-auto w-full")} onSubmit={handleSubmit}>
           <input
             type="email"
             placeholder={placeholder}
             className={cn("flex-1 px-4 py-3 rounded-xl border outline-none transition-all", variant === "light" ? "border-gray-200 focus:ring-2 focus:ring-primary-500" : "bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:ring-2 focus:ring-white/30")}
-            onChange={() => {}}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={selected || isSubmitting}
           />
-          <button className={cn("px-6 py-3 font-bold rounded-xl transition-colors whitespace-nowrap", variant === "light" ? "bg-primary-600 text-white hover:bg-primary-700" : "bg-white text-primary-700 hover:bg-gray-100")}>
+          <button
+            className={cn("px-6 py-3 font-bold rounded-xl transition-colors whitespace-nowrap", variant === "light" ? "bg-primary-600 text-white hover:bg-primary-700" : "bg-white text-primary-700 hover:bg-gray-100")}
+            disabled={selected || isSubmitting}
+          >
             <span
               contentEditable={selected}
               suppressContentEditableWarning

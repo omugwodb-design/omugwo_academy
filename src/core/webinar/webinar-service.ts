@@ -1,6 +1,6 @@
 import { supabase } from "../../lib/supabase";
 
-// â”€â”€â”€ Webinars â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Webinars 
 
 export const getWebinars = async (filters?: {
   type?: string;
@@ -10,7 +10,7 @@ export const getWebinars = async (filters?: {
   let query = supabase
     .from("webinars")
     .select("*, speakers:webinar_speakers(*), registrations:webinar_registrations(count)")
-    .order("date", { ascending: true });
+    .order("scheduled_at", { ascending: true, nullsFirst: false });
 
   if (filters?.type) query = query.eq("type", filters.type);
   if (filters?.status) query = query.eq("status", filters.status);
@@ -44,18 +44,36 @@ export const getWebinar = async (webinarId: string) => {
 export const createWebinar = async (webinar: {
   title: string;
   description?: string;
-  type: string;
-  date: string;
-  time: string;
+  type?: string;
+  status?: string;
+  scheduled_at: string;
   duration_minutes?: number;
-  capacity?: number;
+  max_attendees?: number;
   banner_url?: string;
+  thumbnail_url?: string;
   price?: number;
-  created_by: string;
+  host_id?: string;
+  created_by?: string;
 }) => {
+  const payload: Record<string, any> = {
+    title: webinar.title,
+    description: webinar.description,
+    type: webinar.type || "free",
+    status: webinar.status || "upcoming",
+    scheduled_at: webinar.scheduled_at,
+    duration_minutes: webinar.duration_minutes ?? 60,
+    max_attendees: webinar.max_attendees ?? 500,
+    price: webinar.price ?? null,
+    banner_url: webinar.banner_url,
+    thumbnail_url: webinar.thumbnail_url,
+    host_id: webinar.host_id,
+    created_by: webinar.created_by,
+    updated_at: new Date().toISOString(),
+  };
+
   const { data, error } = await supabase
     .from("webinars")
-    .insert({ ...webinar, status: "upcoming" })
+    .insert(payload)
     .select()
     .single();
   if (error) throw error;
@@ -78,7 +96,7 @@ export const deleteWebinar = async (webinarId: string) => {
   if (error) throw error;
 };
 
-// â”€â”€â”€ Registration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Registration 
 
 export const registerForWebinar = async (webinarId: string, userId: string) => {
   const { data: existing } = await supabase
@@ -132,7 +150,7 @@ export const isRegistered = async (webinarId: string, userId: string) => {
   return !!data;
 };
 
-// â”€â”€â”€ Speakers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Speakers 
 
 export const addSpeaker = async (webinarId: string, speaker: {
   name: string;
@@ -154,7 +172,7 @@ export const removeSpeaker = async (speakerId: string) => {
   if (error) throw error;
 };
 
-// â”€â”€â”€ Agenda â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Agenda 
 
 export const addAgendaItem = async (webinarId: string, item: {
   time: string;
@@ -187,7 +205,7 @@ export const deleteAgendaItem = async (itemId: string) => {
   if (error) throw error;
 };
 
-// â”€â”€â”€ Live Chat â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Live Chat 
 
 export const getChatMessages = async (webinarId: string, limit: number = 100) => {
   const { data, error } = await supabase
@@ -215,7 +233,7 @@ export const sendChatMessage = async (webinarId: string, userId: string, message
   return data;
 };
 
-// â”€â”€â”€ Polls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Polls 
 
 export const getPolls = async (webinarId: string) => {
   const { data, error } = await supabase
@@ -296,7 +314,7 @@ export const closePoll = async (pollId: string) => {
   return data;
 };
 
-// â”€â”€â”€ Email Reminders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Email Reminders 
 
 export const scheduleReminder = async (webinarId: string, reminder: {
   type: string;
@@ -313,7 +331,7 @@ export const scheduleReminder = async (webinarId: string, reminder: {
   return data;
 };
 
-// â”€â”€â”€ Analytics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Analytics 
 
 export const getWebinarAnalytics = async (webinarId: string) => {
   const [regs, chats, polls] = await Promise.all([

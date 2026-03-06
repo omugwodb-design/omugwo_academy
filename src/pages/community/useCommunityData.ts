@@ -7,6 +7,8 @@ import {
   toggleRsvp as toggleRsvpService, reportPost as reportPostService,
   markBestAnswer as markBestAnswerService,
   subscribeToAllPosts, subscribeToSpacePosts, subscribeToEvents,
+  getUserRsvpedEventIds, getUserJoinedSpaceIds,
+  joinSpace as joinSpaceService, leaveSpace as leaveSpaceService,
 } from '../../core/community/community-service';
 
 export function useCommunityData() {
@@ -17,6 +19,8 @@ export function useCommunityData() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [badges, setBadges] = useState<any[]>([]);
   const [userLikes, setUserLikes] = useState<{ postIds: string[]; commentIds: string[] }>({ postIds: [], commentIds: [] });
+  const [userRsvps, setUserRsvps] = useState<{ eventIds: string[] }>({ eventIds: [] });
+  const [userSpaces, setUserSpaces] = useState<{ spaceIds: string[] }>({ spaceIds: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,12 +41,16 @@ export function useCommunityData() {
       setLeaderboard(leaderboardData);
 
       if (user) {
-        const [likesData, badgesData] = await Promise.all([
+        const [likesData, badgesData, rsvpsData, spacesData] = await Promise.all([
           getUserLikes(user.id).catch(() => ({ postIds: [], commentIds: [] })),
           getUserBadges(user.id).catch(() => []),
+          getUserRsvpedEventIds(user.id).catch(() => []),
+          getUserJoinedSpaceIds(user.id).catch(() => []),
         ]);
         setUserLikes(likesData);
         setBadges(badgesData);
+        setUserRsvps({ eventIds: rsvpsData });
+        setUserSpaces({ spaceIds: spacesData });
       }
     } catch (err: any) {
       console.error('Community data load error:', err);
@@ -112,17 +120,20 @@ export function useCommunityData() {
     }
   }, []);
 
-  const submitPost = useCallback(async (spaceId: string, content: string, isAnonymous: boolean) => {
+  const submitPost = useCallback(async (spaceId: string, content: string) => {
     if (!user) throw new Error('Must be logged in');
+    if (!(userSpaces.spaceIds || []).includes(spaceId)) {
+      throw new Error('Join this space before posting');
+    }
     const post = await createPostService({
       space_id: spaceId,
       user_id: user.id,
       content,
-      is_anonymous: isAnonymous,
+      is_anonymous: false,
     });
     setPosts(prev => [post, ...prev]);
     return post;
-  }, [user]);
+  }, [user, userSpaces.spaceIds]);
 
   const submitComment = useCallback(async (postId: string, content: string) => {
     if (!user) throw new Error('Must be logged in');
@@ -153,6 +164,11 @@ export function useCommunityData() {
   const toggleEventRsvp = useCallback(async (eventId: string) => {
     if (!user) return;
     const rsvped = await toggleRsvpService(eventId, user.id);
+    setUserRsvps(prev => ({
+      eventIds: rsvped
+        ? Array.from(new Set([...prev.eventIds, eventId]))
+        : prev.eventIds.filter(id => id !== eventId),
+    }));
     setEvents(prev => prev.map(e =>
       e.id === eventId
         ? { ...e, attendees: e.attendees + (rsvped ? 1 : -1), isRsvped: rsvped }
@@ -163,6 +179,22 @@ export function useCommunityData() {
   const reportPost = useCallback(async (postId: string, reason: string) => {
     if (!user) return;
     await reportPostService({ post_id: postId, reported_by: user.id, reason });
+  }, [user]);
+
+  const joinSpace = useCallback(async (spaceId: string) => {
+    if (!user) throw new Error('Must be logged in');
+    await joinSpaceService(spaceId, user.id);
+    setUserSpaces(prev => ({
+      spaceIds: Array.from(new Set([...(prev.spaceIds || []), spaceId])),
+    }));
+  }, [user]);
+
+  const leaveSpace = useCallback(async (spaceId: string) => {
+    if (!user) throw new Error('Must be logged in');
+    await leaveSpaceService(spaceId, user.id);
+    setUserSpaces(prev => ({
+      spaceIds: (prev.spaceIds || []).filter(id => id !== spaceId),
+    }));
   }, [user]);
 
   const selectBestAnswer = useCallback(async (commentId: string, postId: string) => {
@@ -176,6 +208,8 @@ export function useCommunityData() {
     leaderboard,
     badges,
     userLikes,
+    userRsvps,
+    userSpaces,
     isLoading,
     error,
     user,
@@ -188,5 +222,7 @@ export function useCommunityData() {
     toggleEventRsvp,
     reportPost,
     selectBestAnswer,
+    joinSpace,
+    leaveSpace,
   };
 }

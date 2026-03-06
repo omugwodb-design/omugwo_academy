@@ -4,7 +4,7 @@ import { COURSE_SALES_TEMPLATES } from "./course-sales-templates";
 
 const id = () => Math.random().toString(36).substr(2, 9);
 
-// â”€â”€â”€ ALL TEMPLATES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  ALL TEMPLATES 
 export const EXACT_REPLICA_TEMPLATES: Template[] = [
     {
         id: "omugwo-default-home",
@@ -79,7 +79,7 @@ export const EXACT_REPLICA_TEMPLATES: Template[] = [
                     badgeText: "The Challenge",
                     badgeVariant: "warning",
                     title: "Why Postnatal Care in Africa Needs Modernization",
-                    body: "The traditional \"Omugwo\" practice â€” where experienced mothers guide new parents â€” is fading as families become more nuclear and geographically dispersed.\n\nNew mothers are left navigating postpartum challenges alone, often without access to reliable information that respects their cultural context while meeting modern medical standards.\n\n**We're rebuilding the village â€” digitally.**",
+                    body: "The traditional \"Omugwo\" practice   where experienced mothers guide new parents   is fading as families become more nuclear and geographically dispersed.\n\nNew mothers are left navigating postpartum challenges alone, often without access to reliable information that respects their cultural context while meeting modern medical standards.\n\n**We're rebuilding the village   digitally.**",
                     image: "https://images.unsplash.com/photo-1609220136736-443140cffec6?auto=format&fit=crop&q=80&w=800",
                     imagePosition: "right",
                     backgroundColor: "#f9fafb",
@@ -215,7 +215,7 @@ export const EXACT_REPLICA_TEMPLATES: Template[] = [
                     testimonials: [
                         { name: "Adaeze Okonkwo", role: "First-time Mom, Lagos", content: "Omugwo Academy changed everything for me. The blend of traditional wisdom with modern medical advice gave me confidence I never knew I needed.", avatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&q=80&w=200", rating: 5 },
                         { name: "Chukwuemeka Eze", role: "New Dad, Abuja", content: "As a father, I felt lost during my wife's postpartum period. The Dads Course equipped me with practical skills to support her meaningfully.", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200", rating: 5 },
-                        { name: "Folake Adeyemi", role: "Mom of 3, Ibadan", content: "Even after three children, I learned so much. The community support is incredible â€” it truly feels like having a village again.", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200", rating: 5 }
+                        { name: "Folake Adeyemi", role: "Mom of 3, Ibadan", content: "Even after three children, I learned so much. The community support is incredible   it truly feels like having a village again.", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200", rating: 5 }
                     ]
                 }
             },
@@ -491,7 +491,7 @@ export const EXACT_REPLICA_TEMPLATES: Template[] = [
             }
         ]
     },
-    // â”€â”€â”€ COMMUNITY PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  COMMUNITY PAGE 
     {
         id: "omugwo-community-page",
         name: "Community Page",
@@ -595,7 +595,7 @@ export const EXACT_REPLICA_TEMPLATES: Template[] = [
             }
         ]
     },
-    // â”€â”€â”€ WEBINARS PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  WEBINARS PAGE 
     {
         id: "omugwo-webinars-page",
         name: "Webinars Page",
@@ -717,7 +717,7 @@ export const EXACT_REPLICA_TEMPLATES: Template[] = [
             }
         ]
     },
-    // â”€â”€â”€ CONTACT PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  CONTACT PAGE 
     {
         id: "omugwo-contact-page",
         name: "Contact Page",
@@ -836,7 +836,7 @@ export const EXACT_REPLICA_TEMPLATES: Template[] = [
     }
 ];
 
-// â”€â”€â”€ MAIN TEMPLATES EXPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  MAIN TEMPLATES EXPORT 
 export const TEMPLATES: Template[] = [
   ...EXACT_REPLICA_TEMPLATES,
   ...COURSE_SALES_TEMPLATES
@@ -914,8 +914,8 @@ export const TEMPLATES: Template[] = [
                 type: "content",
                 label: "Problem Amplification",
                 props: {
-                    title: "Postpartum can feel overwhelming â€” especially when youâ€™re expected to just â€˜figure it outâ€™",
-                    body: "Your body is healing. Your emotions are shifting. Your relationships are changing. And suddenly everyone has advice â€” but not everyone has answers.\n\nThis is where new mothers often suffer quietly: exhaustion, anxiety, pain, confusion, isolation â€” and the pressure to look like everything is fine.\n\nYou deserve support that is practical, culturally relevant, and evidence-based.",
+                    title: "Postpartum can feel overwhelming   especially when youâ€™re expected to just â€˜figure it outâ€™",
+                    body: "Your body is healing. Your emotions are shifting. Your relationships are changing. And suddenly everyone has advice   but not everyone has answers.\n\nThis is where new mothers often suffer quietly: exhaustion, anxiety, pain, confusion, isolation   and the pressure to look like everything is fine.\n\nYou deserve support that is practical, culturally relevant, and evidence-based.",
                     image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=1200",
                     imagePosition: "right",
                     backgroundColor: "#f9fafb",
@@ -931,7 +931,7 @@ export const TEMPLATES: Template[] = [
                 label: "Introduce Omugwo Framework",
                 props: {
                     title: "Introducing the Omugwo Framework",
-                    body: "A structured 5-part framework that blends traditional postnatal wisdom with modern medical guidance â€” built to support your recovery and protect your peace.\n\nInside this masterclass youâ€™ll learn what to focus on week-by-week, whatâ€™s normal vs. what needs attention, and how to build a sustainable recovery plan you can actually follow.",
+                    body: "A structured 5-part framework that blends traditional postnatal wisdom with modern medical guidance   built to support your recovery and protect your peace.\n\nInside this masterclass youâ€™ll learn what to focus on week-by-week, whatâ€™s normal vs. what needs attention, and how to build a sustainable recovery plan you can actually follow.",
                     image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&q=80&w=1200",
                     imagePosition: "left",
                     paddingY: "py-20",
@@ -946,7 +946,7 @@ export const TEMPLATES: Template[] = [
                 label: "Curriculum Breakdown",
                 props: {
                     title: "Curriculum Breakdown",
-                    subtitle: "5 modules that cover the real postpartum journey â€” body, mind, culture, marriage, and baby.",
+                    subtitle: "5 modules that cover the real postpartum journey   body, mind, culture, marriage, and baby.",
                     modules: [
                         {
                             title: "Module 1: Body Recovery",
@@ -962,7 +962,7 @@ export const TEMPLATES: Template[] = [
                         },
                         {
                             title: "Module 3: Cultural Balance",
-                            description: "How to honor traditions without losing your autonomy â€” boundaries, family dynamics, and cultural pressure.",
+                            description: "How to honor traditions without losing your autonomy   boundaries, family dynamics, and cultural pressure.",
                             duration: "1h 30m",
                             lessons: "Understanding Cultural Expectations|9:15|video,Setting Healthy Boundaries|11:30|video,Communicating with Family|10:45|video,Balancing Tradition and Autonomy|8:30|video,Module Quiz|5:00|quiz"
                         },
@@ -989,7 +989,7 @@ export const TEMPLATES: Template[] = [
                 props: {
                     variant: "icons-top",
                     title: "Bonuses Included",
-                    subtitle: "Practical tools to help you apply what you learn â€” immediately.",
+                    subtitle: "Practical tools to help you apply what you learn   immediately.",
                     columns: "3",
                     paddingY: "py-20",
                     containerSize: "max-w-7xl",
@@ -1008,7 +1008,7 @@ export const TEMPLATES: Template[] = [
                         {
                             icon: "users",
                             title: "Private Community Access",
-                            description: "Support from other mothers on the journey â€” plus encouragement and accountability."
+                            description: "Support from other mothers on the journey   plus encouragement and accountability."
                         }
                     ]
                 }
@@ -1082,7 +1082,7 @@ export const TEMPLATES: Template[] = [
                         },
                         {
                             question: "How long will I have access?",
-                            answer: "Lifetime access â€” including future updates."
+                            answer: "Lifetime access   including future updates."
                         },
                         {
                             question: "Can I join if I'm currently pregnant?",
@@ -1096,7 +1096,7 @@ export const TEMPLATES: Template[] = [
                 type: "cta",
                 label: "Final CTA",
                 props: {
-                    title: "You deserve support â€” not stress",
+                    title: "You deserve support   not stress",
                     subtitle: "Enroll today and begin your postpartum journey with confidence and clarity.",
                     primaryText: "Enroll Now",
                     primaryHref: "#pricing",
@@ -1431,7 +1431,7 @@ export const TEMPLATES: Template[] = [
         tags: ["bundle", "offer", "discount"],
         blocks: [
             { id: id(), type: "navigation", label: "Header", props: { brandName: "Ultimate Bundle", variant: "light", ctaText: "Claim Offer" } },
-            { id: id(), type: "hero", label: "Hero", props: { title: "The Ultimate Creator Bundle", subtitle: "Get 15+ courses, templates, and workshops for 90% off. 48 hours only.", ctaText: "Claim The Bundle â€” $99", align: "center", backgroundImage: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=1920" } },
+            { id: id(), type: "hero", label: "Hero", props: { title: "The Ultimate Creator Bundle", subtitle: "Get 15+ courses, templates, and workshops for 90% off. 48 hours only.", ctaText: "Claim The Bundle   $99", align: "center", backgroundImage: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=1920" } },
             { id: id(), type: "features", label: "What's Included", props: { title: "Everything you get", columns: "4" } },
             { id: id(), type: "stats", label: "Value", props: { title: "Total Value: $2,497" } },
             { id: id(), type: "cta", label: "Buy Button", props: { title: "Don't Miss This", primaryText: "Buy Now for $99", variant: "gradient", align: "center" } },
@@ -1443,7 +1443,7 @@ export const TEMPLATES: Template[] = [
     }
 ];
 
-// â”€â”€â”€ MAIN TEMPLATES EXPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  MAIN TEMPLATES EXPORT 
 export const TEMPLATES: Template[] = [
   ...EXACT_REPLICA_TEMPLATES,
   ...COURSE_SALES_TEMPLATES

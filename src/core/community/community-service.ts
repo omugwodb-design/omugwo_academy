@@ -1,6 +1,34 @@
 import { supabase } from "../../lib/supabase";
 
-// â”€â”€â”€ Spaces â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const getProfilesByIds = async (userIds: (string | null | undefined)[]) => {
+  const ids = Array.from(new Set((userIds || []).filter(Boolean))) as string[];
+  if (ids.length === 0) return new Map<string, any>();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, full_name, avatar_url, role")
+    .in("id", ids);
+  if (error) throw error;
+
+  const map = new Map<string, any>();
+  (data || []).forEach((p: any) => {
+    map.set(p.id, p);
+  });
+
+  const missing = ids.filter((id) => !map.has(id));
+  if (missing.length > 0) {
+    const { data: usersData } = await supabase
+      .from("users")
+      .select("id, full_name, avatar_url, role")
+      .in("id", missing);
+    (usersData || []).forEach((u: any) => {
+      map.set(String(u.id), u);
+    });
+  }
+  return map;
+};
+
+//  Spaces 
 
 export const getSpaces = async () => {
   const { data, error } = await supabase
@@ -41,7 +69,16 @@ export const leaveSpace = async (spaceId: string, userId: string) => {
   if (error) throw error;
 };
 
-// â”€â”€â”€ Posts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export const getUserJoinedSpaceIds = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("community_space_members")
+    .select("space_id")
+    .eq("user_id", userId);
+  if (error) throw error;
+  return (data || []).map((r: any) => String(r.space_id));
+};
+
+//  Posts 
 
 export const getPosts = async (filters?: {
   spaceId?: string;
@@ -52,7 +89,7 @@ export const getPosts = async (filters?: {
 }) => {
   let query = supabase
     .from("community_posts")
-    .select("*, author:profiles(id, full_name, avatar_url, role), space:community_spaces(id, name, icon, color), likes:community_likes(count), comments:community_comments(count)")
+    .select("*, space:community_spaces(id, name, icon, color), likes:community_likes(count), comments:community_comments(count)")
     .order("created_at", { ascending: false });
 
   if (filters?.spaceId) query = query.eq("space_id", filters.spaceId);
@@ -63,8 +100,11 @@ export const getPosts = async (filters?: {
   const { data, error } = await query;
   if (error) throw error;
 
+  const profileMap = await getProfilesByIds((data || []).map((p: any) => p.user_id));
+
   return (data || []).map((p: any) => ({
     ...p,
+    author: profileMap.get(p.user_id) || null,
     likesCount: p.likes?.[0]?.count || 0,
     commentsCount: p.comments?.[0]?.count || 0,
   }));
@@ -73,11 +113,22 @@ export const getPosts = async (filters?: {
 export const getPost = async (postId: string) => {
   const { data, error } = await supabase
     .from("community_posts")
-    .select("*, author:profiles(id, full_name, avatar_url, role), comments:community_comments(*, author:profiles(id, full_name, avatar_url, role))")
+    .select("*, comments:community_comments(*)")
     .eq("id", postId)
     .single();
   if (error) throw error;
-  return data;
+
+  const commentUserIds = (data?.comments || []).map((c: any) => c.user_id);
+  const profileMap = await getProfilesByIds([data?.user_id, ...commentUserIds]);
+
+  return {
+    ...data,
+    author: profileMap.get(data?.user_id) || null,
+    comments: (data?.comments || []).map((c: any) => ({
+      ...c,
+      author: profileMap.get(c.user_id) || null,
+    })),
+  };
 };
 
 export const createPost = async (post: {
@@ -86,24 +137,29 @@ export const createPost = async (post: {
   content: string;
   images?: string[];
   tags?: string[];
-  is_anonymous?: boolean;
 }) => {
   const { data, error } = await supabase
     .from("community_posts")
     .insert({
       ...post,
+      is_anonymous: false,
       created_at: new Date().toISOString(),
     })
-    .select("*, author:profiles(id, full_name, avatar_url, role)")
+    .select("*")
     .single();
   if (error) throw error;
+
+  const profileMap = await getProfilesByIds([data?.user_id]);
 
   // Award points for posting
   if (post.user_id) {
     await awardPoints(post.user_id, 5, "Created a post");
   }
 
-  return data;
+  return {
+    ...data,
+    author: profileMap.get(data?.user_id) || null,
+  };
 };
 
 export const updatePost = async (postId: string, updates: Record<string, any>) => {
@@ -126,17 +182,20 @@ export const pinPost = async (postId: string, isPinned: boolean) => {
   return updatePost(postId, { is_pinned: isPinned });
 };
 
-// â”€â”€â”€ Comments / Replies â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Comments / Replies 
 
 export const getComments = async (postId: string) => {
   const { data, error } = await supabase
     .from("community_comments")
-    .select("*, author:profiles(id, full_name, avatar_url, role), likes:community_likes(count)")
+    .select("*, likes:community_likes(count)")
     .eq("post_id", postId)
     .order("created_at", { ascending: true });
   if (error) throw error;
+
+  const profileMap = await getProfilesByIds((data || []).map((c: any) => c.user_id));
   return (data || []).map((c: any) => ({
     ...c,
+    author: profileMap.get(c.user_id) || null,
     likesCount: c.likes?.[0]?.count || 0,
   }));
 };
@@ -150,16 +209,21 @@ export const createComment = async (comment: {
   const { data, error } = await supabase
     .from("community_comments")
     .insert({ ...comment, created_at: new Date().toISOString() })
-    .select("*, author:profiles(id, full_name, avatar_url, role)")
+    .select("*")
     .single();
   if (error) throw error;
+
+  const profileMap = await getProfilesByIds([data?.user_id]);
 
   // Award points for replying
   if (comment.user_id) {
     await awardPoints(comment.user_id, 3, "Replied to a post");
   }
 
-  return data;
+  return {
+    ...data,
+    author: profileMap.get(data?.user_id) || null,
+  };
 };
 
 export const markBestAnswer = async (commentId: string, postId: string) => {
@@ -186,7 +250,7 @@ export const markBestAnswer = async (commentId: string, postId: string) => {
   return data;
 };
 
-// â”€â”€â”€ Likes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Likes 
 
 export const toggleLike = async (userId: string, targetType: "post" | "comment", targetId: string) => {
   const column = targetType === "post" ? "post_id" : "comment_id";
@@ -214,6 +278,15 @@ export const toggleLike = async (userId: string, targetType: "post" | "comment",
   }
 };
 
+export const getUserRsvpedEventIds = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("community_event_rsvps")
+    .select("event_id")
+    .eq("user_id", userId);
+  if (error) throw error;
+  return (data || []).map((r: any) => String(r.event_id));
+};
+
 export const getUserLikes = async (userId: string) => {
   const { data, error } = await supabase
     .from("community_likes")
@@ -226,7 +299,7 @@ export const getUserLikes = async (userId: string) => {
   };
 };
 
-// â”€â”€â”€ Reports / Moderation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Reports / Moderation 
 
 export const reportPost = async (report: {
   post_id: string;
@@ -271,13 +344,14 @@ export const resolveReport = async (reportId: string, resolution: "approved" | "
   return data;
 };
 
-// â”€â”€â”€ Events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Events 
 
 export const getEvents = async () => {
+  const nowIso = new Date().toISOString();
   const { data, error } = await supabase
     .from("community_events")
     .select("*, rsvps:community_event_rsvps(count)")
-    .gte("date", new Date().toISOString().split("T")[0])
+    .gte("date", nowIso)
     .order("date", { ascending: true });
   if (error) throw error;
   return (data || []).map((e: any) => ({
@@ -324,7 +398,7 @@ export const toggleRsvp = async (eventId: string, userId: string) => {
   }
 };
 
-// â”€â”€â”€ Gamification â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Gamification 
 
 export const awardPoints = async (userId: string, points: number, reason: string) => {
   // Get current points
@@ -361,11 +435,16 @@ export const awardPoints = async (userId: string, points: number, reason: string
 export const getLeaderboard = async (limit: number = 10) => {
   const { data, error } = await supabase
     .from("user_points")
-    .select("*, user:profiles(id, full_name, avatar_url)")
+    .select("*")
     .order("total_points", { ascending: false })
     .limit(limit);
   if (error) throw error;
-  return data || [];
+
+  const profileMap = await getProfilesByIds((data || []).map((r: any) => r.user_id));
+  return (data || []).map((r: any) => ({
+    ...r,
+    user: profileMap.get(r.user_id) || null,
+  }));
 };
 
 export const getUserBadges = async (userId: string) => {

@@ -115,7 +115,11 @@ export const Cart: React.FC = () => {
                   <span className="font-black text-gray-900 dark:text-white">{formattedSubtotal}</span>
                 </div>
 
-                <Button className="w-full" size="lg" onClick={() => navigate('/checkout')}>
+                <Button
+                  className="w-full"
+                  size="lg"
+                  onClick={() => navigate(courses.length === 1 ? `/checkout/${courses[0].id}` : '/checkout')}
+                >
                   Checkout
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>

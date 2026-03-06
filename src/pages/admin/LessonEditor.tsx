@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { MediaUpload } from '../../components/ui/MediaUpload';
-import MDEditor from '@uiw/react-md-editor';
+import { TiptapEditor } from '../../components/ui/TiptapEditor';
 
 interface LessonEditorProps {
   lesson: any;
@@ -174,15 +174,12 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({ lesson, onSave, onCl
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Lesson Content
               </label>
-              <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
-                <MDEditor
-                  value={content}
-                  onChange={(v) => setContent(v || '')}
-                  height={320}
-                />
-              </div>
+              <TiptapEditor
+                content={content}
+                onChange={(html) => setContent(html)}
+              />
               <p className="text-xs text-gray-500 mt-1">
-                Markdown editor with preview
+                Rich text editor with support for formatting, links, and images
               </p>
             </div>
           )}
@@ -199,13 +196,10 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({ lesson, onSave, onCl
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Quiz Content
                 </label>
-                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
-                  <MDEditor
-                    value={content}
-                    onChange={(v) => setContent(v || '')}
-                    height={240}
-                  />
-                </div>
+                <TiptapEditor
+                  content={content}
+                  onChange={(html) => setContent(html)}
+                />
               </div>
             </div>
           )}

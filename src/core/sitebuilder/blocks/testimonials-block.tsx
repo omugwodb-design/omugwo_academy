@@ -187,7 +187,7 @@ export const TestimonialsBlock: React.FC<BlockComponentProps> = ({ block, onChan
                 </p>
                 <p className="text-sm text-gray-500">
                   <span className="font-bold text-gray-900" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(idx, "name", e.currentTarget.textContent || "")}>{t.name}</span>
-                  {" â€” "}
+                  {"   "}
                   <span contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(idx, "role", e.currentTarget.textContent || "")}>{t.role}</span>
                 </p>
               </AnimationWrapper>

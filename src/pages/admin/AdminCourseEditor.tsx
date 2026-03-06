@@ -99,9 +99,16 @@ export const AdminCourseEditor: React.FC = () => {
         setIsPublished(course.is_published || false);
       }
       const mods = await getModules(id);
-      setModules(mods || []);
-      if (mods?.length) {
-        setExpandedModules(new Set([mods[0].id]));
+      const parsedMods = mods?.map(m => ({
+        ...m,
+        lessons: m.lessons?.map((l: any) => ({
+          ...l,
+          content: getParsedContent(l.content)
+        })) || []
+      })) || [];
+      setModules(parsedMods);
+      if (parsedMods?.length) {
+        setExpandedModules(new Set([parsedMods[0].id]));
       }
     } catch (err) {
       console.error('Error loading course:', err);
@@ -111,7 +118,7 @@ export const AdminCourseEditor: React.FC = () => {
     }
   };
 
-  // â”€â”€â”€ Save Course â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Save Course 
   const handleSave = async () => {
     if (!title) {
       toast.error('Please enter a course title');
@@ -154,7 +161,7 @@ export const AdminCourseEditor: React.FC = () => {
     navigate(`/course-preview/${courseId}`);
   };
 
-  // â”€â”€â”€ Module CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Module CRUD 
   const handleAddModule = async () => {
     if (!courseId) {
       toast.error('Save the course first');
@@ -205,7 +212,7 @@ export const AdminCourseEditor: React.FC = () => {
     }
   };
 
-  // â”€â”€â”€ Lesson CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Lesson CRUD 
   const handleAddLesson = async (moduleId: string, type: string) => {
     const mod = modules.find(m => m.id === moduleId);
     if (!mod) return;
@@ -228,10 +235,14 @@ export const AdminCourseEditor: React.FC = () => {
 
   const handleUpdateLesson = async (lessonId: string, moduleId: string, updates: Record<string, any>) => {
     try {
-      const updated = await updateLesson(lessonId, updates);
+      const payload = { ...updates };
+      if (payload.content && typeof payload.content === 'object') {
+        payload.content = JSON.stringify(payload.content);
+      }
+      const updated = await updateLesson(lessonId, payload);
       setModules(modules.map(m =>
         m.id === moduleId
-          ? { ...m, lessons: (m.lessons || []).map((l: any) => l.id === lessonId ? { ...l, ...updated } : l) }
+          ? { ...m, lessons: (m.lessons || []).map((l: any) => l.id === lessonId ? { ...l, ...updated, content: getParsedContent(updated.content) } : l) }
           : m
       ));
     } catch (err) {
@@ -266,7 +277,7 @@ export const AdminCourseEditor: React.FC = () => {
     return found ? found.icon : FileText;
   };
 
-  // â”€â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  //  Render 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -328,7 +339,7 @@ export const AdminCourseEditor: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === 'info' ? (
-          /* â”€â”€â”€ Course Info Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+          /*  Course Info Tab  */
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
               <Card className="p-6">
@@ -417,7 +428,7 @@ export const AdminCourseEditor: React.FC = () => {
             </div>
           </div>
         ) : (
-          /* â”€â”€â”€ Curriculum Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+          /*  Curriculum Tab  */
           <div className="max-w-4xl">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-black text-gray-900 dark:text-white">Curriculum</h2>
@@ -774,120 +785,14 @@ export const AdminCourseEditor: React.FC = () => {
                                         )}
                                         {(lesson.type === 'quiz') && (
                                           <div className="space-y-4">
-                                            <div className="space-y-1">
-                                              <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Quiz Title</label>
-                                              <input
-                                                className="w-full px-3 py-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg text-sm text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-primary-500"
-                                                placeholder="e.g., Module 1 Pulse Check"
-                                                value={typeof lesson.content === 'object' ? lesson.content?.quizTitle || '' : ''}
-                                                onChange={(e) => {
-                                                  const currentContent = typeof lesson.content === 'object' ? lesson.content : { prompt: lesson.content };
-                                                  const content = { ...currentContent, quizTitle: e.target.value };
-                                                  setModules(modules.map(m =>
-                                                    m.id === mod.id ? { ...m, lessons: m.lessons.map((l: any) => l.id === lesson.id ? { ...l, content } : l) } : m
-                                                  ));
-                                                }}
-                                                onBlur={(e) => {
-                                                  const currentContent = typeof lesson.content === 'object' ? lesson.content : { prompt: lesson.content };
-                                                  const content = { ...currentContent, quizTitle: e.target.value };
-                                                  handleUpdateLesson(lesson.id, mod.id, { content });
-                                                }}
-                                              />
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-3">
-                                              <div className="space-y-1">
-                                                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Passing Score (%)</label>
-                                                <input
-                                                  type="number"
-                                                  className="w-full px-3 py-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg text-sm text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-primary-500"
-                                                  placeholder="70"
-                                                  value={typeof lesson.content === 'object' ? lesson.content?.passingScore || '' : ''}
-                                                  onChange={(e) => {
-                                                    const currentContent = typeof lesson.content === 'object' ? lesson.content : { prompt: lesson.content };
-                                                    const content = { ...currentContent, passingScore: parseInt(e.target.value) || 0 };
-                                                    setModules(modules.map(m =>
-                                                      m.id === mod.id ? { ...m, lessons: m.lessons.map((l: any) => l.id === lesson.id ? { ...l, content } : l) } : m
-                                                    ));
-                                                  }}
-                                                  onBlur={(e) => {
-                                                    const currentContent = typeof lesson.content === 'object' ? lesson.content : { prompt: lesson.content };
-                                                    const content = { ...currentContent, passingScore: parseInt(e.target.value) || 0 };
-                                                    handleUpdateLesson(lesson.id, mod.id, { content });
-                                                  }}
-                                                />
-                                              </div>
-                                              <div className="space-y-1">
-                                                <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Time Limit (min)</label>
-                                                <input
-                                                  type="number"
-                                                  className="w-full px-3 py-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg text-sm text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-primary-500"
-                                                  placeholder="Leave blank for no limit"
-                                                  value={typeof lesson.content === 'object' ? lesson.content?.timeLimit || '' : ''}
-                                                  onChange={(e) => {
-                                                    const currentContent = typeof lesson.content === 'object' ? lesson.content : { prompt: lesson.content };
-                                                    const content = { ...currentContent, timeLimit: parseInt(e.target.value) || undefined };
-                                                    setModules(modules.map(m =>
-                                                      m.id === mod.id ? { ...m, lessons: m.lessons.map((l: any) => l.id === lesson.id ? { ...l, content } : l) } : m
-                                                    ));
-                                                  }}
-                                                  onBlur={(e) => {
-                                                    const currentContent = typeof lesson.content === 'object' ? lesson.content : { prompt: lesson.content };
-                                                    const content = { ...currentContent, timeLimit: parseInt(e.target.value) || undefined };
-                                                    handleUpdateLesson(lesson.id, mod.id, { content });
-                                                  }}
-                                                />
-                                              </div>
-                                            </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                              <div className="flex items-center gap-2">
-                                                <input
-                                                  type="checkbox"
-                                                  id={`shuffle-q-${lesson.id}`}
-                                                  checked={typeof lesson.content === 'object' ? !!lesson.content?.shuffleQuestions : false}
-                                                  onChange={(e) => {
-                                                    const currentContent = typeof lesson.content === 'object' ? lesson.content : { prompt: lesson.content };
-                                                    const content = { ...currentContent, shuffleQuestions: e.target.checked };
-                                                    setModules(modules.map(m =>
-                                                      m.id === mod.id ? { ...m, lessons: m.lessons.map((l: any) => l.id === lesson.id ? { ...l, content } : l) } : m
-                                                    ));
-                                                    handleUpdateLesson(lesson.id, mod.id, { content });
-                                                  }}
-                                                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                                />
-                                                <label htmlFor={`shuffle-q-${lesson.id}`} className="text-sm text-gray-700 dark:text-gray-300">
-                                                  Randomize Questions
-                                                </label>
-                                              </div>
-                                              <div className="flex items-center gap-2">
-                                                <input
-                                                  type="checkbox"
-                                                  id={`require-pass-${lesson.id}`}
-                                                  checked={typeof lesson.content === 'object' ? (lesson.content?.requirePass ?? true) : true}
-                                                  onChange={(e) => {
-                                                    const currentContent = typeof lesson.content === 'object' ? lesson.content : { prompt: lesson.content };
-                                                    const content = { ...currentContent, requirePass: e.target.checked };
-                                                    setModules(modules.map(m =>
-                                                      m.id === mod.id ? { ...m, lessons: m.lessons.map((l: any) => l.id === lesson.id ? { ...l, content } : l) } : m
-                                                    ));
-                                                    handleUpdateLesson(lesson.id, mod.id, { content });
-                                                  }}
-                                                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                                                />
-                                                <label htmlFor={`require-pass-${lesson.id}`} className="text-sm text-gray-700 dark:text-gray-300">
-                                                  Require Passing to Continue
-                                                </label>
-                                              </div>
-                                            </div>
-                                            
                                             {/* Quiz Builder CTA */}
-                                            <div className="mt-4 p-4 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-900/50 text-center">
-                                              <HelpCircle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                                Build and manage quiz questions with the full quiz builder.
+                                            <div className="mt-4 p-6 border border-dashed border-primary-200 dark:border-primary-900/50 rounded-xl bg-primary-50/50 dark:bg-primary-900/10 text-center">
+                                              <HelpCircle className="w-8 h-8 text-primary-400 mx-auto mb-3" />
+                                              <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Quiz Configuration</h4>
+                                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 max-w-sm mx-auto">
+                                                Build your quiz questions and configure settings like passing score and time limit in the Quiz Builder.
                                               </p>
                                               <Button 
-                                                variant="outline" 
-                                                size="sm" 
                                                 onClick={(e) => {
                                                   e.preventDefault();
                                                   setQuizBuilderLesson({ id: lesson.id, title: lesson.title });

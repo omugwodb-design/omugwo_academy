@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase';
 
-export type CouponDiscountType = 'percent' | 'fixed';
+export type CouponDiscountType = 'percentage' | 'percent' | 'fixed';
 
 export interface CouponValidationResult {
   valid: boolean;

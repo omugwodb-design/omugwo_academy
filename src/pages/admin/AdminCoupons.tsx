@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Plus, Search, Trash2, Edit3, Save, X } from 'lucide-react';
+import { Plus, Search, Trash2, Edit3, Save, X, ChevronDown } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -7,19 +7,21 @@ import { Badge } from '../../components/ui/Badge';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'react-hot-toast';
 
+type CourseOption = { id: string; title: string };
+
 type CouponRow = {
   id: string;
   code: string;
   name: string | null;
   description: string | null;
-  discount_type: 'percent' | 'fixed';
+  discount_type: 'percentage' | 'fixed';
   discount_value: number;
-  currency: string | null;
+  min_purchase: number | null;
   is_active: boolean;
-  starts_at: string | null;
-  expires_at: string | null;
-  max_uses_total: number | null;
-  uses_total: number;
+  valid_from: string | null;
+  valid_until: string | null;
+  max_uses: number | null;
+  uses_count: number;
   course_ids: string[] | null;
   created_at: string;
 };
@@ -29,23 +31,37 @@ const emptyDraft = () => ({
   code: '',
   name: '',
   description: '',
-  discount_type: 'percent' as 'percent' | 'fixed',
+  discount_type: 'percentage' as 'percentage' | 'fixed',
   discount_value: 10,
-  currency: 'NGN',
+  min_purchase: '',
   is_active: true,
-  starts_at: '',
-  expires_at: '',
-  max_uses_total: '',
-  course_ids: '',
+  valid_from: '',
+  valid_until: '',
+  max_uses: '',
+  course_ids: [] as string[],
 });
 
 export const AdminCoupons: React.FC = () => {
   const [coupons, setCoupons] = useState<CouponRow[]>([]);
+  const [courses, setCourses] = useState<CourseOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState<any>(emptyDraft());
+
+  const loadCourses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('id, title')
+        .eq('is_published', true)
+        .order('title');
+      if (!error && data) setCourses(data);
+    } catch (e) {
+      console.error('Failed to load courses:', e);
+    }
+  };
 
   const load = async () => {
     try {
@@ -67,6 +83,7 @@ export const AdminCoupons: React.FC = () => {
 
   useEffect(() => {
     load();
+    loadCourses();
   }, []);
 
   const filtered = useMemo(() => {
@@ -88,12 +105,12 @@ export const AdminCoupons: React.FC = () => {
       description: c.description || '',
       discount_type: c.discount_type,
       discount_value: c.discount_value,
-      currency: c.currency || 'NGN',
+      min_purchase: c.min_purchase ?? '',
       is_active: !!c.is_active,
-      starts_at: c.starts_at || '',
-      expires_at: c.expires_at || '',
-      max_uses_total: c.max_uses_total ?? '',
-      course_ids: (c.course_ids || []).join(','),
+      valid_from: c.valid_from ? String(c.valid_from).slice(0, 16) : '',
+      valid_until: c.valid_until ? String(c.valid_until).slice(0, 16) : '',
+      max_uses: c.max_uses ?? '',
+      course_ids: c.course_ids || [],
     });
     setIsEditing(true);
   };
@@ -106,17 +123,12 @@ export const AdminCoupons: React.FC = () => {
         description: draft.description ? String(draft.description).trim() : null,
         discount_type: draft.discount_type,
         discount_value: Number(draft.discount_value || 0),
-        currency: draft.currency || 'NGN',
+        min_purchase: draft.min_purchase === '' ? null : Number(draft.min_purchase || 0),
         is_active: !!draft.is_active,
-        starts_at: draft.starts_at ? new Date(draft.starts_at).toISOString() : null,
-        expires_at: draft.expires_at ? new Date(draft.expires_at).toISOString() : null,
-        max_uses_total: draft.max_uses_total === '' ? null : Number(draft.max_uses_total),
-        course_ids: draft.course_ids
-          ? String(draft.course_ids)
-              .split(',')
-              .map((s) => s.trim())
-              .filter(Boolean)
-          : null,
+        valid_from: draft.valid_from ? new Date(draft.valid_from).toISOString() : null,
+        valid_until: draft.valid_until ? new Date(draft.valid_until).toISOString() : null,
+        max_uses: draft.max_uses === '' ? null : Number(draft.max_uses),
+        course_ids: Array.isArray(draft.course_ids) && draft.course_ids.length > 0 ? draft.course_ids : null,
       };
 
       if (!payload.code) {
@@ -129,7 +141,7 @@ export const AdminCoupons: React.FC = () => {
         return;
       }
 
-      if (payload.discount_type === 'percent' && payload.discount_value > 100) {
+      if (payload.discount_type === 'percentage' && payload.discount_value > 100) {
         toast.error('Percent discount cannot exceed 100');
         return;
       }
@@ -200,21 +212,70 @@ export const AdminCoupons: React.FC = () => {
                 value={draft.discount_type}
                 onChange={(e) => setDraft({ ...draft, discount_type: e.target.value })}
               >
-                <option value="percent">Percent</option>
+                <option value="percentage">Percent</option>
                 <option value="fixed">Fixed</option>
               </select>
             </div>
             <Input
-              label={draft.discount_type === 'percent' ? 'Discount %' : 'Discount Amount'}
+              label={draft.discount_type === 'percentage' ? 'Discount %' : 'Discount Amount (₦)'}
               type="number"
               value={draft.discount_value}
               onChange={(e) => setDraft({ ...draft, discount_value: e.target.value })}
             />
-            <Input label="Currency" value={draft.currency} onChange={(e) => setDraft({ ...draft, currency: e.target.value })} />
-            <Input label="Starts At (optional)" type="datetime-local" value={draft.starts_at} onChange={(e) => setDraft({ ...draft, starts_at: e.target.value })} />
-            <Input label="Expires At (optional)" type="datetime-local" value={draft.expires_at} onChange={(e) => setDraft({ ...draft, expires_at: e.target.value })} />
-            <Input label="Max Uses Total (optional)" type="number" value={draft.max_uses_total} onChange={(e) => setDraft({ ...draft, max_uses_total: e.target.value })} />
-            <Input label="Course IDs (optional, comma-separated UUIDs)" value={draft.course_ids} onChange={(e) => setDraft({ ...draft, course_ids: e.target.value })} />
+            <Input label="Minimum Purchase (optional)" type="number" value={draft.min_purchase} onChange={(e) => setDraft({ ...draft, min_purchase: e.target.value })} />
+            <Input label="Valid From (optional)" type="datetime-local" value={draft.valid_from} onChange={(e) => setDraft({ ...draft, valid_from: e.target.value })} />
+            <Input label="Valid Until (optional)" type="datetime-local" value={draft.valid_until} onChange={(e) => setDraft({ ...draft, valid_until: e.target.value })} />
+            <Input label="Max Uses (optional)" type="number" value={draft.max_uses} onChange={(e) => setDraft({ ...draft, max_uses: e.target.value })} />
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Apply to Courses (optional - leave empty for all courses)
+              </label>
+              <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 min-h-[44px]">
+                {(draft.course_ids || []).map((cid: string) => {
+                  const course = courses.find((c) => c.id === cid);
+                  return (
+                    <span
+                      key={cid}
+                      className="inline-flex items-center gap-1 px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-medium"
+                    >
+                      {course?.title || cid.slice(0, 8)}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDraft({
+                            ...draft,
+                            course_ids: (draft.course_ids || []).filter((id: string) => id !== cid),
+                          })
+                        }
+                        className="ml-1 hover:text-red-500"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  );
+                })}
+                <select
+                  className="flex-1 min-w-[150px] bg-transparent text-sm outline-none"
+                  value=""
+                  onChange={(e) => {
+                    const nextId = e.target.value;
+                    const current = Array.isArray(draft.course_ids) ? draft.course_ids : [];
+                    if (nextId && !current.includes(nextId)) {
+                      setDraft({ ...draft, course_ids: [...current, nextId] });
+                    }
+                  }}
+                >
+                  <option value="">+ Add course...</option>
+                  {courses
+                    .filter((c) => !(Array.isArray(draft.course_ids) ? draft.course_ids : []).includes(c.id))
+                    .map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.title}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
             <div className="flex items-center gap-2 mt-2">
               <input
                 id="is_active"
@@ -269,10 +330,10 @@ export const AdminCoupons: React.FC = () => {
                     </td>
                     <td className="px-5 py-4 text-sm font-semibold text-gray-700 dark:text-gray-200">{c.discount_type}</td>
                     <td className="px-5 py-4 text-sm font-bold text-gray-900 dark:text-gray-100">
-                      {c.discount_type === 'percent' ? `${Number(c.discount_value)}%` : `${Number(c.discount_value)} ${c.currency || 'NGN'}`}
+                      {c.discount_type === 'percentage' ? `${Number(c.discount_value)}%` : `₦${Number(c.discount_value).toLocaleString()}`}
                     </td>
                     <td className="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
-                      {c.uses_total}{c.max_uses_total != null ? ` / ${c.max_uses_total}` : ''}
+                      {c.uses_count}{c.max_uses != null ? ` / ${c.max_uses}` : ''}
                     </td>
                     <td className="px-5 py-4">
                       <Badge variant={c.is_active ? 'success' : 'warning'}>{c.is_active ? 'Active' : 'Inactive'}</Badge>

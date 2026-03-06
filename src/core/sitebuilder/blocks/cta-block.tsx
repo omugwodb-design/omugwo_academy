@@ -3,6 +3,8 @@ import { cn } from "../../../lib/utils";
 import { BlockComponentProps, PropSchema } from "../types";
 import { ArrowRight } from "lucide-react";
 import { AnimationWrapper, animationSchemaFields, getAnimationConfig, sizingSchemaFields } from "./animation-wrapper";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useCartStore } from "../../../stores/cartStore";
 
 export const ctaBlockSchema: PropSchema[] = [
   { name: "title", label: "Title", type: "text", group: "Content" },
@@ -28,10 +30,19 @@ export const ctaBlockSchema: PropSchema[] = [
 ];
 
 export const CtaBlock: React.FC<BlockComponentProps> = ({ block, onChange, selected }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { courseId } = useParams<{ courseId?: string }>();
+  const addCourse = useCartStore((s) => s.addCourse);
+
+  const searchParams = new URLSearchParams(location.search);
+  const builderCourseId = searchParams.get('courseId');
+  const actualCourseId = courseId || builderCourseId || undefined;
+
   const {
     title = "Ready to Transform Your Postpartum Journey?",
     subtitle = "Join thousands of parents who've found confidence, support, and expert guidance through Omugwo Academy.",
-    // â”€â”€â”€ CTA Block Default â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  CTA Block Default 
     primaryText = "Explore Courses",
     primaryHref = "/courses",
     secondaryText = "Book Consultation",
@@ -57,6 +68,32 @@ export const CtaBlock: React.FC<BlockComponentProps> = ({ block, onChange, selec
   const textClass = variant === "soft" ? "text-gray-900" : "text-white";
   const subClass = variant === "soft" ? "text-gray-600" : "text-white/80";
 
+  const resolveSmartHref = (href: string) => {
+    const raw = String(href || '');
+    if (!raw) return raw;
+    if (actualCourseId) {
+      if (raw.includes('{courseId}')) return raw.replace('{courseId}', actualCourseId);
+      if (raw === '/checkout' || raw === '/checkout/') return `/checkout/${actualCourseId}`;
+    }
+    return raw;
+  };
+
+  const handleSmartNav = (e: React.MouseEvent, href: string) => {
+    const target = resolveSmartHref(href);
+    if (selected) {
+      e.preventDefault();
+      return;
+    }
+    if (!target) return;
+    if (target.startsWith('/')) {
+      e.preventDefault();
+      if (actualCourseId && (target.startsWith(`/checkout/${actualCourseId}`) || target === '/checkout' || target === '/checkout/')) {
+        addCourse(actualCourseId);
+      }
+      navigate(target);
+    }
+  };
+
   return (
     <section className={cn(paddingY, "px-6", bgClass)}>
       <div className={cn("mx-auto", containerSize, align === "center" ? "text-center" : "text-left")}>
@@ -79,7 +116,7 @@ export const CtaBlock: React.FC<BlockComponentProps> = ({ block, onChange, selec
           </p>
           <div className={cn("flex gap-4 flex-wrap", align === "center" && "justify-center")}>
             {primaryText && (
-              <a href={primaryHref} className={cn("inline-flex items-center justify-center gap-2 px-8 py-3.5 font-bold rounded-xl transition-all shadow-sm", variant === "soft" ? "bg-primary-600 text-white hover:bg-primary-700" : "bg-white text-primary-700 hover:bg-gray-50 hover:scale-105")} onClick={(e) => e.preventDefault()}>
+              <a href={resolveSmartHref(primaryHref)} className={cn("inline-flex items-center justify-center gap-2 px-8 py-3.5 font-bold rounded-xl transition-all shadow-sm", variant === "soft" ? "bg-primary-600 text-white hover:bg-primary-700" : "bg-white text-primary-700 hover:bg-gray-50 hover:scale-105")} onClick={(e) => handleSmartNav(e, primaryHref)}>
                 <span
                   contentEditable={selected}
                   suppressContentEditableWarning
@@ -91,7 +128,7 @@ export const CtaBlock: React.FC<BlockComponentProps> = ({ block, onChange, selec
               </a>
             )}
             {secondaryText && (
-              <a href={secondaryHref} className={cn("inline-flex items-center justify-center gap-2 px-8 py-3.5 font-bold rounded-xl border-2 transition-all", variant === "soft" ? "border-gray-200 text-gray-700 hover:bg-gray-50" : "border-white text-white hover:bg-white hover:text-primary-600")} onClick={(e) => e.preventDefault()}>
+              <a href={resolveSmartHref(secondaryHref)} className={cn("inline-flex items-center justify-center gap-2 px-8 py-3.5 font-bold rounded-xl border-2 transition-all", variant === "soft" ? "border-gray-200 text-gray-700 hover:bg-gray-50" : "border-white text-white hover:bg-white hover:text-primary-600")} onClick={(e) => handleSmartNav(e, secondaryHref)}>
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>

@@ -10,7 +10,7 @@ import {
   ArrowRight, Eye, TrendingUp, AlertCircle, Settings, Filter
 } from 'lucide-react';
 
-// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Types 
 type WebinarType = 'free' | 'paid' | 'members_only' | 'cohort';
 type WebinarStatus = 'upcoming' | 'live' | 'replay' | 'ended';
 
@@ -64,7 +64,7 @@ interface Poll {
   isActive: boolean;
 }
 
-// â”€â”€â”€ Mock Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Mock Data 
 const WEBINARS: Webinar[] = [
   {
     id: '1',
@@ -141,7 +141,7 @@ const WEBINARS: Webinar[] = [
   },
 ];
 
-// â”€â”€â”€ Webinar System Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Webinar System Component 
 export const WebinarSystem: React.FC = () => {
   const webinarData = useWebinarData();
   const [activeView, setActiveView] = useState<'list' | 'detail' | 'live' | 'admin'>('list');
@@ -160,7 +160,7 @@ export const WebinarSystem: React.FC = () => {
         date: w.date ? new Date(w.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '',
         time: w.time || '',
         duration: w.duration_minutes ? `${w.duration_minutes} min` : '60 min',
-        capacity: w.capacity || 500,
+        capacity: w.max_attendees ?? w.capacity ?? 500,
         registered: w.registered || 0,
         attended: w.attended || 0,
         speakers: (w.speakers || []).map((s: any) => ({ name: s.name, title: s.title || '', avatar: s.avatar_url || '', bio: s.bio || '' })),
@@ -303,7 +303,7 @@ export const WebinarSystem: React.FC = () => {
   );
 };
 
-// â”€â”€â”€ Webinar Detail View â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Webinar Detail View 
 const WebinarDetailView: React.FC<{ webinar: Webinar; onBack: () => void; onGoLive: () => void; }> = ({ webinar, onBack, onGoLive }) => {
   const [countdown, setCountdown] = useState({ days: 12, hours: 8, mins: 45, secs: 30 });
 
@@ -467,7 +467,7 @@ const WebinarDetailView: React.FC<{ webinar: Webinar; onBack: () => void; onGoLi
   );
 };
 
-// â”€â”€â”€ Live Webinar View â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Live Webinar View 
 const LiveWebinarView: React.FC<{ webinar: Webinar; onBack: () => void; }> = ({ webinar, onBack }) => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     { id: '1', user: 'Dr. Megor', message: 'Welcome everyone! We\'re about to begin. 🎉', time: '7:00 PM', isHost: true },

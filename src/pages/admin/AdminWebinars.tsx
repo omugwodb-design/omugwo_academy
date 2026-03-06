@@ -69,20 +69,25 @@ export const AdminWebinars: React.FC = () => {
     if (!formTitle.trim()) { toast.error('Title is required'); return; }
     setIsSaving(true);
     try {
+      const scheduledAt = formDate ? new Date(formDate).toISOString() : '';
       if (editingWebinar) {
         await updateWebinar(editingWebinar.id, {
           title: formTitle, description: formDesc, is_free: formType === 'free',
-          scheduled_at: formDate, duration_minutes: parseInt(formDuration) || 60,
+          scheduled_at: scheduledAt, duration_minutes: parseInt(formDuration) || 60,
           max_attendees: parseInt(formCapacity) || 500, price: formPrice ? parseFloat(formPrice) : null,
           thumbnail_url: formBanner,
         });
         toast.success('Webinar updated');
       } else {
         await createWebinar({
-          title: formTitle, description: formDesc, is_free: formType === 'free',
-          scheduled_at: formDate, duration_minutes: parseInt(formDuration) || 60,
+          title: formTitle,
+          description: formDesc,
+          type: formType === 'free' ? 'free' : 'paid',
+          scheduled_at: scheduledAt, duration_minutes: parseInt(formDuration) || 60,
           max_attendees: parseInt(formCapacity) || 500, price: formPrice ? parseFloat(formPrice) : undefined,
-          thumbnail_url: formBanner, host_id: user?.id || '',
+          thumbnail_url: formBanner,
+          host_id: user?.id || undefined,
+          created_by: user?.id || undefined,
         });
         toast.success('Webinar created');
       }
@@ -145,7 +150,7 @@ export const AdminWebinars: React.FC = () => {
               <h3 className="font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">{w.title}</h3>
               <div className="space-y-1.5 mb-4 text-sm text-gray-500 dark:text-gray-400">
                 {w.date && <div className="flex items-center gap-2"><Calendar className="w-3.5 h-3.5 text-primary-500" />{new Date(w.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} {w.time && `• ${w.time}`}</div>}
-                <div className="flex items-center gap-2"><Users className="w-3.5 h-3.5 text-blue-500" />{w.regCount || 0} registered {w.capacity && `/ ${w.capacity}`}</div>
+                <div className="flex items-center gap-2"><Users className="w-3.5 h-3.5 text-blue-500" />{w.regCount || 0} registered {w.max_attendees && `/ ${w.max_attendees}`}</div>
               </div>
 
               {/* Status controls */}

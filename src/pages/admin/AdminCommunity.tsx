@@ -8,6 +8,13 @@ import { supabase } from '../../lib/supabase';
 import { toast } from 'react-hot-toast';
 import { getReports, resolveReport } from '../../core/community/community-service';
 
+const toSlug = (value: string) =>
+  (value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
 const SPACE_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   MessageSquare,
   Users,
@@ -26,7 +33,11 @@ const SPACE_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>
 
 const SpaceIcon: React.FC<{ value?: string; fallback?: string; className?: string }> = ({ value, fallback, className }) => {
   const normalized = (value || '').trim();
-  const Icon = normalized ? SPACE_ICON_MAP[normalized] || SPACE_ICON_MAP[normalized.toLowerCase()] : undefined;
+  let Icon = undefined;
+  if (normalized) {
+    const key = Object.keys(SPACE_ICON_MAP).find(k => k.toLowerCase() === normalized.toLowerCase());
+    if (key) Icon = SPACE_ICON_MAP[key];
+  }
   if (Icon) return <Icon className={className} />;
   return <span className="text-2xl leading-none">{normalized || fallback || ''}</span>;
 };
@@ -55,6 +66,16 @@ export const AdminCommunity: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'spaces' | 'reports'>('spaces');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState<any>(null);
+
+  const [membersModalOpen, setMembersModalOpen] = useState(false);
+  const [membersSpace, setMembersSpace] = useState<any>(null);
+  const [members, setMembers] = useState<any[]>([]);
+  const [isMembersLoading, setIsMembersLoading] = useState(false);
+  const [memberSearch, setMemberSearch] = useState('');
+  const [userResults, setUserResults] = useState<any[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [selectedRole, setSelectedRole] = useState<'member' | 'moderator' | 'admin'>('member');
+  const [isMemberSaving, setIsMemberSaving] = useState(false);
 
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState('');
@@ -90,6 +111,147 @@ export const AdminCommunity: React.FC = () => {
     } catch { /* silent */ }
   };
 
+  const fetchMembers = async (spaceId: string) => {
+    setIsMembersLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('community_space_members')
+        .select('id, space_id, user_id, role, joined_at')
+        .eq('space_id', spaceId)
+        .order('joined_at', { ascending: false });
+      if (error) throw error;
+
+      const ids = Array.from(new Set((data || []).map((m: any) => String(m.user_id)).filter(Boolean)));
+      let userMap = new Map<string, any>();
+      if (ids.length > 0) {
+        const { data: userRows } = await supabase
+          .from('users')
+          .select('id, email, full_name, avatar_url, role')
+          .in('id', ids);
+        (userRows || []).forEach((u: any) => userMap.set(String(u.id), u));
+
+        const missing = ids.filter((id) => !userMap.has(id));
+        if (missing.length > 0) {
+          const { data: profileRows } = await supabase
+            .from('profiles')
+            .select('id, email, full_name, avatar_url, role')
+            .in('id', missing);
+          (profileRows || []).forEach((p: any) => userMap.set(String(p.id), p));
+        }
+      }
+
+      setMembers(
+        (data || []).map((m: any) => ({
+          ...m,
+          user: userMap.get(String(m.user_id)) || null,
+        }))
+      );
+    } catch (e: any) {
+      console.error(e);
+      toast.error('Failed to load members');
+      setMembers([]);
+    } finally {
+      setIsMembersLoading(false);
+    }
+  };
+
+  const openMembers = async (space: any) => {
+    setMembersSpace(space);
+    setMembersModalOpen(true);
+    setMemberSearch('');
+    setUserResults([]);
+    setSelectedUserId('');
+    setSelectedRole('member');
+    await fetchMembers(space.id);
+  };
+
+  useEffect(() => {
+    const q = memberSearch.trim();
+    if (!membersModalOpen || !membersSpace || q.length < 2) {
+      setUserResults([]);
+      return;
+    }
+
+    let canceled = false;
+    const run = async () => {
+      try {
+        const { data } = await supabase
+          .from('users')
+          .select('id, email, full_name, avatar_url, role')
+          .or(`email.ilike.%${q}%,full_name.ilike.%${q}%`)
+          .limit(10);
+        if (!canceled) setUserResults(data || []);
+      } catch {
+        if (!canceled) setUserResults([]);
+      }
+    };
+
+    run();
+    return () => {
+      canceled = true;
+    };
+  }, [memberSearch, membersModalOpen, membersSpace]);
+
+  const addMember = async () => {
+    if (!membersSpace?.id) return;
+    if (!selectedUserId) {
+      toast.error('Select a user');
+      return;
+    }
+
+    setIsMemberSaving(true);
+    try {
+      const { error } = await supabase
+        .from('community_space_members')
+        .upsert(
+          {
+            space_id: membersSpace.id,
+            user_id: selectedUserId,
+            role: selectedRole,
+            joined_at: new Date().toISOString(),
+          },
+          { onConflict: 'space_id,user_id' }
+        );
+      if (error) throw error;
+      toast.success('Member added');
+      setSelectedUserId('');
+      setMemberSearch('');
+      setUserResults([]);
+      await fetchMembers(membersSpace.id);
+      fetchSpaces();
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || 'Failed to add member');
+    } finally {
+      setIsMemberSaving(false);
+    }
+  };
+
+  const removeMember = async (memberRowId: string) => {
+    if (!membersSpace?.id) return;
+    if (!confirm('Remove this member from the space?')) return;
+    try {
+      const { error } = await supabase.from('community_space_members').delete().eq('id', memberRowId);
+      if (error) throw error;
+      toast.success('Member removed');
+      await fetchMembers(membersSpace.id);
+      fetchSpaces();
+    } catch {
+      toast.error('Failed to remove member');
+    }
+  };
+
+  const updateMemberRole = async (memberRowId: string, role: 'member' | 'moderator' | 'admin') => {
+    if (!membersSpace?.id) return;
+    try {
+      const { error } = await supabase.from('community_space_members').update({ role }).eq('id', memberRowId);
+      if (error) throw error;
+      setMembers((prev) => prev.map((m) => (m.id === memberRowId ? { ...m, role } : m)));
+    } catch {
+      toast.error('Failed to update role');
+    }
+  };
+
   const openCreate = () => {
     setEditingSpace(null);
     setFormName(''); setFormDesc(''); setFormIcon(''); setFormColor('#9333ea');
@@ -120,16 +282,39 @@ export const AdminCommunity: React.FC = () => {
     if (!formName.trim()) { toast.error('Name is required'); return; }
     setIsSaving(true);
     try {
-      const payload = {
-        name: formName, description: formDesc, icon: formIcon,
-        color: formColor, visibility: formVisibility, moderation_level: formModeration,
-      };
+      const { data: auth } = await supabase.auth.getUser();
+      const userId = auth?.user?.id;
+      const slug = toSlug(formName);
       if (editingSpace) {
+        const payload = {
+          name: formName,
+          description: formDesc,
+          icon: formIcon,
+          color: formColor,
+          visibility: formVisibility,
+          moderation_level: formModeration,
+          slug,
+          updated_at: new Date().toISOString(),
+        };
         const { error } = await supabase.from('community_spaces').update(payload).eq('id', editingSpace.id);
         if (error) throw error;
         toast.success('Space updated');
       } else {
-        const { error } = await supabase.from('community_spaces').insert(payload);
+        const payload = {
+          name: formName,
+          description: formDesc,
+          icon: formIcon,
+          color: formColor,
+          visibility: formVisibility,
+          moderation_level: formModeration,
+          slug,
+          created_by: userId || undefined,
+          updated_at: new Date().toISOString(),
+        };
+        const { error } = await supabase.from('community_spaces').insert({
+          ...payload,
+          created_at: new Date().toISOString(),
+        });
         if (error) throw error;
         toast.success('Space created');
       }
@@ -187,32 +372,162 @@ export const AdminCommunity: React.FC = () => {
           </Card>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {isLoading ? Array(3).fill(0).map((_, i) => <div key={i} className="h-40 rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse" />) :
-            filteredSpaces.map(space => (
-              <Card key={space.id} className="p-5 flex flex-col">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl" style={{ backgroundColor: (space.color || '#9333ea') + '20' }}>
-                    <SpaceIcon value={space.icon} fallback={space.name?.charAt(0)} className="w-6 h-6" />
+              filteredSpaces.map(space => (
+                <Card key={space.id} className="p-5 flex flex-col">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl" style={{ backgroundColor: (space.color || '#9333ea') + '20' }}>
+                      <SpaceIcon value={space.icon} fallback={space.name?.charAt(0)} className="w-6 h-6" />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => openMembers(space)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-400" title="Manage members">
+                        <Users className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => openEdit(space)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-400"><Edit className="w-4 h-4" /></button>
+                      <button onClick={() => handleDeleteSpace(space.id)} className="p-1.5 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-red-500"><Trash2 className="w-4 h-4" /></button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => openEdit(space)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-gray-400"><Edit className="w-4 h-4" /></button>
-                    <button onClick={() => handleDeleteSpace(space.id)} className="p-1.5 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-red-500"><Trash2 className="w-4 h-4" /></button>
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-1">{space.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{space.description}</p>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge variant={space.visibility === 'public' ? 'success' : space.visibility === 'private' ? 'warning' : 'info'} size="sm">{space.visibility}</Badge>
+                    <Badge size="sm">{space.moderation_level || 'open'}</Badge>
                   </div>
-                </div>
-                <h3 className="font-bold text-gray-900 dark:text-white mb-1">{space.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{space.description}</p>
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge variant={space.visibility === 'public' ? 'success' : space.visibility === 'private' ? 'warning' : 'info'} size="sm">{space.visibility}</Badge>
-                  <Badge size="sm">{space.moderation_level || 'open'}</Badge>
-                </div>
-                <div className="mt-auto flex items-center gap-4 py-3 border-t border-gray-100 dark:border-gray-800">
-                  <span className="text-xs font-bold text-gray-500"><Users className="w-3.5 h-3.5 inline mr-1 text-primary-500" />{space.members?.[0]?.count || 0}</span>
-                  <span className="text-xs font-bold text-gray-500"><MessageSquare className="w-3.5 h-3.5 inline mr-1 text-blue-500" />{space.posts?.[0]?.count || 0}</span>
-                </div>
-              </Card>
-            ))}
+                  <div className="mt-auto flex items-center gap-4 py-3 border-t border-gray-100 dark:border-gray-800">
+                    <span className="text-xs font-bold text-gray-500"><Users className="w-3.5 h-3.5 inline mr-1 text-primary-500" />{space.members?.[0]?.count || 0}</span>
+                    <span className="text-xs font-bold text-gray-500"><MessageSquare className="w-3.5 h-3.5 inline mr-1 text-blue-500" />{space.posts?.[0]?.count || 0}</span>
+                  </div>
+                </Card>
+              ))}
             {!isLoading && filteredSpaces.length === 0 && <div className="col-span-full py-20 text-center"><MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" /><p className="text-gray-500">No spaces found</p></div>}
           </div>
         </>
+      )}
+
+      {/* Members modal */}
+      {membersModalOpen && membersSpace && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+          <div className="w-full max-w-3xl bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+            <div className="p-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-black text-gray-900 dark:text-white">Members</h3>
+                <p className="text-sm text-gray-500">{membersSpace.name}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setMembersModalOpen(false);
+                  setMembersSpace(null);
+                  setMembers([]);
+                }}
+                className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="md:col-span-2">
+                  <Input
+                    placeholder="Search user by email or name…"
+                    value={memberSearch}
+                    onChange={(e) => setMemberSearch(e.target.value)}
+                    leftIcon={<Search className="w-4 h-4" />}
+                  />
+                  {userResults.length > 0 && (
+                    <div className="mt-2 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-950">
+                      {userResults.map((u: any) => (
+                        <button
+                          key={u.id}
+                          onClick={() => {
+                            setSelectedUserId(String(u.id));
+                            setMemberSearch(u.email || u.full_name || '');
+                            setUserResults([]);
+                          }}
+                          className="w-full px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-900 flex items-center justify-between"
+                        >
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{u.full_name || 'User'}</p>
+                            <p className="text-xs text-gray-500">{u.email}</p>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-gray-400" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <select
+                    value={selectedRole}
+                    onChange={(e) => setSelectedRole(e.target.value as any)}
+                    className="flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="member">member</option>
+                    <option value="moderator">moderator</option>
+                    <option value="admin">admin</option>
+                  </select>
+                  <Button onClick={addMember} disabled={isMemberSaving}>
+                    {isMemberSaving ? 'Adding…' : 'Add'}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden">
+                <div className="px-4 py-3 bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                  <p className="text-sm font-bold text-gray-700 dark:text-gray-200">Space Members</p>
+                  <p className="text-xs text-gray-500">{members.length}</p>
+                </div>
+
+                {isMembersLoading ? (
+                  <div className="p-6">Loading…</div>
+                ) : (
+                  <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {members.map((m: any) => (
+                      <div key={m.id} className="px-4 py-3 flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-primary-100 dark:bg-primary-500/10 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-xs overflow-hidden">
+                          {m.user?.avatar_url ? (
+                            <img src={m.user.avatar_url} alt={m.user.full_name || ''} className="w-full h-full object-cover" />
+                          ) : (
+                            ((m.user?.full_name || m.user?.email || 'U') as string)
+                              .split(' ')
+                              .filter(Boolean)
+                              .slice(0, 2)
+                              .map((n: string) => n[0])
+                              .join('')
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{m.user?.full_name || 'User'}</p>
+                          <p className="text-xs text-gray-500">{m.user?.email || m.user_id}</p>
+                        </div>
+                        <select
+                          value={m.role || 'member'}
+                          onChange={(e) => updateMemberRole(m.id, e.target.value as any)}
+                          className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-950"
+                        >
+                          <option value="member">member</option>
+                          <option value="moderator">moderator</option>
+                          <option value="admin">admin</option>
+                        </select>
+                        <button
+                          onClick={() => removeMember(m.id)}
+                          className="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600"
+                          title="Remove"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+
+                    {members.length === 0 && (
+                      <div className="p-8 text-center text-sm text-gray-500">No members yet</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {activeTab === 'reports' && (

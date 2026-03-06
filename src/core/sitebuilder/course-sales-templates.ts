@@ -44,7 +44,7 @@ export const COURSE_SALES_TEMPLATES: Template[] = [
                 props: {
                     variant: "tabs",
                     title: "Course Description",
-                    description: "Complete guide for new mothers covering recovery, nutrition, and baby care basics. This comprehensive program is designed to bridge the gap between traditional wisdom and modern medical science. We believe that every mother deserves a 'village' of support, and this course is your digital village.\n\nYour body is healing. Your emotions are shifting. Your relationships are changing. And suddenly everyone has advice â€” but not everyone has answers. This is where new mothers often suffer quietly: exhaustion, anxiety, pain, confusion, isolation â€” and the pressure to look like everything is fine.\n\nYou deserve support that is practical, culturally relevant, and evidence-based.",
+                    description: "Complete guide for new mothers covering recovery, nutrition, and baby care basics. This comprehensive program is designed to bridge the gap between traditional wisdom and modern medical science. We believe that every mother deserves a 'village' of support, and this course is your digital village.\n\nYour body is healing. Your emotions are shifting. Your relationships are changing. And suddenly everyone has advice   but not everyone has answers. This is where new mothers often suffer quietly: exhaustion, anxiety, pain, confusion, isolation   and the pressure to look like everything is fine.\n\nYou deserve support that is practical, culturally relevant, and evidence-based.",
                     learningObjectives: [
                         { text: "Postnatal physical recovery" },
                         { text: "Nutritional needs for breastfeeding" },
@@ -420,7 +420,7 @@ export const COURSE_SALES_TEMPLATES: Template[] = [
                 label: "About This Class",
                 props: {
                     title: "About This Class",
-                    body: "In this hands-on class, you won't just learn about recoveryâ€”you'll actively plan it. We'll cover everything from meal prep strategies to boundary setting scripts.\n\n**The Project:** By the end of this class, you'll have a completed Postpartum Recovery Playbook, ready to implement or share with your support team.",
+                    body: "In this hands-on class, you won't just learn about recovery you'll actively plan it. We'll cover everything from meal prep strategies to boundary setting scripts.\n\n**The Project:** By the end of this class, you'll have a completed Postpartum Recovery Playbook, ready to implement or share with your support team.",
                     imagePosition: "right"
                 }
             },

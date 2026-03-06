@@ -140,7 +140,7 @@ export const Home: React.FC = () => {
           .select('*')
           .eq('is_home_page', true)
           .eq('status', 'PUBLISHED')
-          .single();
+          .maybeSingle();
 
         if (config) setSiteConfig(config);
         if (page) setDynamicPage(page);
@@ -393,41 +393,41 @@ export const Home: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card hover padding="none" className="h-full flex flex-col">
-                  <div className="relative">
-                    <img
-                      src={course.image}
-                      alt={course.title}
-                      className="w-full h-48 object-cover"
-                    />
-                    {course.badge && (
-                      <Badge className="absolute top-4 left-4" variant="success">
-                        {course.badge}
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="p-6 flex-1 flex flex-col">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        {course.duration}
-                      </span>
-                      <span className="text-gray-300">•</span>
-                      <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        {course.lessons} Lessons
-                      </span>
+                <Link to={`/courses/${course.id}`} className="block">
+                  <Card hover padding="none" className="h-full flex flex-col">
+                    <div className="relative">
+                      <img
+                        src={course.image}
+                        alt={course.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      {course.badge && (
+                        <Badge className="absolute top-4 left-4" variant="success">
+                          {course.badge}
+                        </Badge>
+                      )}
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-gray-900">{course.title}</h3>
-                    <p className="text-gray-600 text-sm mb-6 flex-1">{course.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-black text-primary-600">
-                        ₦{course.price.toLocaleString()}
-                      </span>
-                      <Link to={`/courses/${course.id}`}>
+                    <div className="p-6 flex-1 flex flex-col">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                          {course.duration}
+                        </span>
+                        <span className="text-gray-300">•</span>
+                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                          {course.lessons} Lessons
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-bold mb-3 text-gray-900">{course.title}</h3>
+                      <p className="text-gray-600 text-sm mb-6 flex-1">{course.description}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-2xl font-black text-primary-600">
+                          ₦{course.price.toLocaleString()}
+                        </span>
                         <Button size="sm">Learn More</Button>
-                      </Link>
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </Link>
               </motion.div>
             ))}
           </div>

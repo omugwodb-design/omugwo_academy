@@ -75,7 +75,7 @@ export const SidebarRight: React.FC = () => {
   );
 };
 
-// â”€â”€â”€ Property Group â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Property Group 
 const PropertyGroup: React.FC<{ name: string; children: React.ReactNode }> = ({
   name,
   children,
@@ -103,7 +103,7 @@ const PropertyGroup: React.FC<{ name: string; children: React.ReactNode }> = ({
   );
 };
 
-// â”€â”€â”€ Property Field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Property Field 
 const PropertyField: React.FC<{
   schema: PropSchema;
   value: any;
@@ -312,7 +312,7 @@ const PropertyField: React.FC<{
   }
 };
 
-// â”€â”€â”€ Array Field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Array Field 
 const ArrayField: React.FC<{
   schema: PropSchema;
   value: any[];

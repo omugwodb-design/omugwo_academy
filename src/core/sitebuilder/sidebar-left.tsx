@@ -461,7 +461,7 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
   );
 };
 
-// â”€â”€â”€ Template Panel with Preview â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Template Panel with Preview 
 const TemplatePanel: React.FC<{
   onApply: (blocks: Block[]) => void;
   templates: any[];
@@ -510,21 +510,30 @@ const TemplatePanel: React.FC<{
       </div>
 
       {previewingTemplate && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex flex-col animate-in fade-in duration-300">
-          <div className="h-16 flex items-center justify-between px-8 bg-white/10 shrink-0">
-            <div className="flex items-center gap-3">
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex flex-col animate-in fade-in duration-300">
+          <div className="h-16 flex items-center justify-between px-8 bg-gray-900 border-b border-gray-700 shrink-0 shadow-lg">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setPreviewingTemplate(null)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors border border-gray-600"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+              </button>
               <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
                 <Heart className="w-5 h-5 text-white fill-white" />
               </div>
               <div>
                 <h3 className="text-lg font-black text-white">{previewingTemplate.name}</h3>
-                <p className="text-xs text-white/60">Template Preview</p>
+                <p className="text-xs text-gray-400">Template Preview</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setPreviewingTemplate(null)}
-                className="px-6 py-2.5 text-white/80 font-bold hover:text-white"
+                className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors border border-gray-600"
               >
                 Cancel
               </button>
@@ -533,7 +542,7 @@ const TemplatePanel: React.FC<{
                   onApply(previewingTemplate.blocks);
                   setPreviewingTemplate(null);
                 }}
-                className="px-8 py-2.5 bg-primary-600 text-white rounded-xl font-black shadow-2xl shadow-primary-500/50"
+                className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black shadow-2xl shadow-primary-500/50 transition-colors"
               >
                 Apply Template
               </button>

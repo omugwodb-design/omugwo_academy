@@ -36,6 +36,16 @@ export const PricingBlock: React.FC<BlockComponentProps> = ({ block, onChange, s
   const searchParams = new URLSearchParams(location.search);
   const builderCourseId = searchParams.get('courseId');
   const actualCourseId = courseId || builderCourseId;
+
+  const resolveSmartHref = (href: string) => {
+    const raw = String(href || '');
+    if (!raw) return raw;
+    if (actualCourseId) {
+      if (raw.includes('{courseId}')) return raw.replace('{courseId}', actualCourseId);
+      if (raw === '/checkout' || raw === '/checkout/') return `/checkout/${actualCourseId}`;
+    }
+    return raw;
+  };
   const {
     title = "Choose Your Learning Path",
     subtitle = "Invest in yourself and your family's wellbeing.",
@@ -192,7 +202,7 @@ export const PricingBlock: React.FC<BlockComponentProps> = ({ block, onChange, s
                   ))}
                 </ul>
                 <a
-                  href={plan.ctaLink}
+                  href={resolveSmartHref(plan.ctaLink)}
                   className={cn(
                     "block w-full text-center py-3 px-6 font-bold rounded-xl transition-colors",
                     plan.highlighted
@@ -200,13 +210,17 @@ export const PricingBlock: React.FC<BlockComponentProps> = ({ block, onChange, s
                       : "bg-primary-600 text-white hover:bg-primary-700"
                   )}
                   onClick={(e) => {
-                    e.preventDefault();
-                    if (selected) return;
-                    if (actualCourseId && (plan.ctaLink || '').startsWith('/')) {
-                      addCourse(actualCourseId);
+                    if (selected) {
+                      e.preventDefault();
+                      return;
                     }
-                    if (plan.ctaLink && plan.ctaLink.startsWith('/')) {
-                      navigate(plan.ctaLink);
+                    const target = resolveSmartHref(plan.ctaLink);
+                    if (target && target.startsWith('/')) {
+                      e.preventDefault();
+                      if (actualCourseId && (target.startsWith(`/checkout/${actualCourseId}`) || target === '/checkout' || target === '/checkout/')) {
+                        addCourse(actualCourseId);
+                      }
+                      navigate(target);
                     }
                   }}
                 >

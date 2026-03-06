@@ -165,18 +165,35 @@ export const CourseGridBlock: React.FC<BlockComponentProps> = ({ block, onChange
     handleChange("courses", next);
   };
 
+  const getCourseHref = (course: any, idx: number) => {
+    const id = course?.id || course?.course_id || course?.slug || idx;
+    return `/courses/${id}`;
+  };
+
   const renderCard = (course: any, idx: number) => (
-    <AnimationWrapper key={course.id || idx} animation={{ ...animConfig, type: "slideUp", delay: idx * 0.1 }} index={idx} className="bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full border border-gray-100 group">
-      <div className="relative h-48 overflow-hidden">
-        <img src={course.image_url || course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-        {course.badge && (
-          <span className="absolute top-4 left-4 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full shadow-sm">
-            {course.badge}
-          </span>
-        )}
-        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-      </div>
-      <div className="p-8 flex flex-col flex-1 relative bg-white">
+    <div
+      key={course.id || idx}
+      className={cn(!selected && 'cursor-pointer')}
+      onClick={() => {
+        if (selected) return;
+        window.location.href = getCourseHref(course, idx);
+      }}
+    >
+      <AnimationWrapper
+        animation={{ ...animConfig, type: "slideUp", delay: idx * 0.1 }}
+        index={idx}
+        className="bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full border border-gray-100 group"
+      >
+        <div className="relative h-48 overflow-hidden">
+          <img src={course.image_url || course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          {course.badge && (
+            <span className="absolute top-4 left-4 px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full shadow-sm">
+              {course.badge}
+            </span>
+          )}
+          <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
+        <div className="p-8 flex flex-col flex-1 relative bg-white">
         <div className="flex items-center gap-2 mb-4">
           {(course.duration || course.duration_hours) && (
             <>
@@ -202,12 +219,21 @@ export const CourseGridBlock: React.FC<BlockComponentProps> = ({ block, onChange
           <span className="font-black text-3xl text-primary-600" contentEditable={selected && mode === "static"} suppressContentEditableWarning onBlur={(e) => updateCourse(idx, "price", e.currentTarget.textContent || "")}>
             {typeof course.price === 'number' ? `₦${course.price.toLocaleString()}` : course.price}
           </span>
-          <button className="px-5 py-2.5 bg-gray-100 text-gray-900 text-sm font-bold rounded-xl group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm">
+          <button
+            className="px-5 py-2.5 bg-gray-100 text-gray-900 text-sm font-bold rounded-xl group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (selected) return;
+              window.location.href = getCourseHref(course, idx);
+            }}
+          >
             Learn More
           </button>
         </div>
       </div>
-    </AnimationWrapper>
+      </AnimationWrapper>
+    </div>
   );
 
   return (

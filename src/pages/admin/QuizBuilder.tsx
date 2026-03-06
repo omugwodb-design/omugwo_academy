@@ -21,7 +21,7 @@ interface QuizBuilderProps {
 interface QuestionDraft {
   id?: string;
   question_text: string;
-  question_type: 'multiple_choice' | 'true_false' | 'short_answer';
+  question_type: 'multiple_choice' | 'true_false' | 'short_answer' | 'survey' | 'poll' | 'rating';
   options: { value: string; label: string; }[];
   correct_answer: string;
   points: number;
@@ -29,12 +29,47 @@ interface QuestionDraft {
   explanation?: string;
   isNew?: boolean;
   isDirty?: boolean;
+  // Survey/Poll/Rating specific
+  ratingScale?: number; // 5 or 10 for rating questions
+  allowMultiple?: boolean; // For poll questions
 }
+
+const toDbCorrectAnswer = (q: QuestionDraft): { correct_answer: number | null; options: any } => {
+  if (q.question_type === 'short_answer') {
+    // Store short answer text in options array as workaround until correct_text column exists
+    return { correct_answer: 0, options: [{ value: 'answer', label: (q.correct_answer || '').trim() }] };
+  }
+
+  // Survey/Poll/Rating don't have correct answers
+  if (q.question_type === 'survey' || q.question_type === 'poll' || q.question_type === 'rating') {
+    const opts = q.question_type === 'rating' 
+      ? [{ value: 'scale', label: String(q.ratingScale || 5), allowMultiple: q.allowMultiple }]
+      : q.options.map((o, i) => ({ ...o, allowMultiple: q.allowMultiple }));
+    return { correct_answer: null, options: opts };
+  }
+
+  const idx = (q.options || []).findIndex((o) => o.value === q.correct_answer);
+  return { correct_answer: idx >= 0 ? idx : null, options: q.options };
+};
+
+const fromDbCorrectAnswer = (dbQ: any): string => {
+  if (dbQ?.question_type === 'short_answer') {
+    // Read short answer from options array workaround
+    return Array.isArray(dbQ?.options) && dbQ.options[0]?.label ? dbQ.options[0].label : '';
+  }
+  const idx = typeof dbQ?.correct_answer === 'number' ? dbQ.correct_answer : null;
+  if (idx === null || idx === undefined) return '';
+  const opt = Array.isArray(dbQ?.options) ? dbQ.options[idx] : null;
+  return opt?.value || '';
+};
 
 const QUESTION_TYPES = [
   { value: 'multiple_choice', label: 'Multiple Choice', icon: '🔘' },
   { value: 'true_false', label: 'True / False', icon: '✅' },
   { value: 'short_answer', label: 'Short Answer', icon: '✍️' },
+  { value: 'survey', label: 'Survey', icon: '📋' },
+  { value: 'poll', label: 'Poll', icon: '📊' },
+  { value: 'rating', label: 'Rating', icon: '⭐' },
 ];
 
 const DEFAULT_MC_OPTIONS = [
@@ -83,11 +118,11 @@ export const QuizBuilder: React.FC<QuizBuilderProps> = ({ lessonId, lessonTitle,
           .sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0))
           .map((q: any) => ({
             id: q.id,
-            question_text: q.question_text || '',
+            question_text: q.question || '',
             question_type: q.question_type || 'multiple_choice',
             options: q.options || DEFAULT_MC_OPTIONS,
-            correct_answer: q.correct_answer || '',
-            points: q.points || 1,
+            correct_answer: fromDbCorrectAnswer(q),
+            points: 1,
             order_index: q.order_index || 0,
             explanation: q.explanation || '',
             isNew: false,
@@ -118,17 +153,29 @@ export const QuizBuilder: React.FC<QuizBuilderProps> = ({ lessonId, lessonTitle,
     return quiz.id;
   };
 
-  const handleAddQuestion = (type: 'multiple_choice' | 'true_false' | 'short_answer') => {
+  const handleAddQuestion = (type: 'multiple_choice' | 'true_false' | 'short_answer' | 'survey' | 'poll' | 'rating') => {
+    const getDefaultOptions = () => {
+      switch (type) {
+        case 'multiple_choice': return [...DEFAULT_MC_OPTIONS];
+        case 'true_false': return [...DEFAULT_TF_OPTIONS];
+        case 'survey': return [{ value: 'a', label: '' }, { value: 'b', label: '' }, { value: 'c', label: '' }];
+        case 'poll': return [{ value: 'a', label: 'Option 1' }, { value: 'b', label: 'Option 2' }];
+        case 'rating': return [];
+        default: return [];
+      }
+    };
     const newQ: QuestionDraft = {
       question_text: '',
       question_type: type,
-      options: type === 'multiple_choice' ? [...DEFAULT_MC_OPTIONS] : type === 'true_false' ? [...DEFAULT_TF_OPTIONS] : [],
+      options: getDefaultOptions(),
       correct_answer: type === 'true_false' ? 'true' : '',
-      points: 1,
+      points: type === 'survey' || type === 'poll' || type === 'rating' ? 0 : 1, // No points for feedback questions
       order_index: questions.length,
       explanation: '',
       isNew: true,
       isDirty: true,
+      ratingScale: type === 'rating' ? 5 : undefined,
+      allowMultiple: type === 'poll' ? false : undefined,
     };
     setQuestions([...questions, newQ]);
     setExpandedQuestion(questions.length);
@@ -203,6 +250,10 @@ export const QuizBuilder: React.FC<QuizBuilderProps> = ({ lessonId, lessonTitle,
         if (!q.correct_answer) { toast.error(`Question ${i + 1}: select correct answer`); setExpandedQuestion(i); return; }
       }
       if (q.question_type === 'short_answer' && !q.correct_answer.trim()) { toast.error(`Question ${i + 1}: provide the correct answer`); setExpandedQuestion(i); return; }
+      // Survey/Poll need at least 2 options with text
+      if ((q.question_type === 'survey' || q.question_type === 'poll') && q.options.filter(o => o.label.trim()).length < 2) {
+        toast.error(`Question ${i + 1}: add at least 2 options with text`); setExpandedQuestion(i); return;
+      }
     }
 
     setIsSaving(true);
@@ -221,12 +272,12 @@ export const QuizBuilder: React.FC<QuizBuilderProps> = ({ lessonId, lessonTitle,
       // Save each question
       for (const q of questions) {
         if (!q.isDirty) continue;
+        const { correct_answer, options } = toDbCorrectAnswer(q);
         const payload = {
-          question_text: q.question_text,
+          question: q.question_text,
           question_type: q.question_type,
-          options: q.options,
-          correct_answer: q.correct_answer,
-          points: q.points,
+          options,
+          correct_answer,
           order_index: q.order_index,
           explanation: q.explanation,
         };
@@ -420,6 +471,88 @@ export const QuizBuilder: React.FC<QuizBuilderProps> = ({ lessonId, lessonTitle,
                           <input className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-500"
                             placeholder="Expected answer (case-insensitive matching)"
                             value={q.correct_answer} onChange={e => handleUpdateQuestion(qi, { correct_answer: e.target.value })} />
+                        </div>
+                      )}
+
+                      {/* Survey Options (open-ended response choices) */}
+                      {q.question_type === 'survey' && (
+                        <div className="space-y-3">
+                          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p className="text-xs text-blue-700 dark:text-blue-300">📋 Survey questions collect feedback - no correct answer needed. Responses are stored for analysis.</p>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium text-gray-500">Response Options</label>
+                            {q.options.map((opt, oi) => (
+                              <div key={oi} className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-gray-400 uppercase w-4">{opt.value}.</span>
+                                <input className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-500"
+                                  placeholder={`Option ${oi + 1}`}
+                                  value={opt.label} onChange={e => handleUpdateOption(qi, oi, e.target.value)} />
+                                <button onClick={() => handleRemoveOption(qi, oi)} className="p-1 text-gray-400 hover:text-red-500"><X className="w-3.5 h-3.5" /></button>
+                              </div>
+                            ))}
+                            {q.options.length < 10 && (
+                              <button onClick={() => handleAddOption(qi)} className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 font-medium mt-1">
+                                <Plus className="w-3 h-3" /> Add Option
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Poll Options (with real-time results) */}
+                      {q.question_type === 'poll' && (
+                        <div className="space-y-3">
+                          <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                            <p className="text-xs text-purple-700 dark:text-purple-300">📊 Poll questions show live voting results with animated percentage bars after voting.</p>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium text-gray-500">Poll Options</label>
+                            {q.options.map((opt, oi) => (
+                              <div key={oi} className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-purple-500 w-4">{oi + 1}.</span>
+                                <input className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500"
+                                  placeholder={`Poll option ${oi + 1}`}
+                                  value={opt.label} onChange={e => handleUpdateOption(qi, oi, e.target.value)} />
+                                <button onClick={() => handleRemoveOption(qi, oi)} className="p-1 text-gray-400 hover:text-red-500"><X className="w-3.5 h-3.5" /></button>
+                              </div>
+                            ))}
+                            {q.options.length < 8 && (
+                              <button onClick={() => handleAddOption(qi)} className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-700 font-medium mt-1">
+                                <Plus className="w-3 h-3" /> Add Poll Option
+                              </button>
+                            )}
+                          </div>
+                          <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                            <input type="checkbox" checked={q.allowMultiple || false} onChange={e => handleUpdateQuestion(qi, { allowMultiple: e.target.checked })} className="rounded border-gray-300 text-purple-600" />
+                            Allow multiple selections
+                          </label>
+                        </div>
+                      )}
+
+                      {/* Rating Scale */}
+                      {q.question_type === 'rating' && (
+                        <div className="space-y-3">
+                          <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                            <p className="text-xs text-yellow-700 dark:text-yellow-300">⭐ Rating questions let users rate on a scale. Great for course feedback and satisfaction surveys.</p>
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-gray-500 block mb-2">Rating Scale</label>
+                            <div className="flex gap-3">
+                              {[5, 10].map(scale => (
+                                <label key={scale} className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border cursor-pointer transition ${q.ratingScale === scale ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' : 'border-gray-200 dark:border-gray-800 hover:border-gray-300'}`}>
+                                  <input type="radio" name={`rating-scale-${qi}`} checked={q.ratingScale === scale} onChange={() => handleUpdateQuestion(qi, { ratingScale: scale })} className="text-yellow-600" />
+                                  <span className="text-sm font-medium">1-{scale} Stars</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 text-yellow-500">
+                            {Array.from({ length: q.ratingScale || 5 }).map((_, i) => (
+                              <span key={i} className="text-lg">⭐</span>
+                            ))}
+                            <span className="text-xs text-gray-500 ml-2">Preview</span>
+                          </div>
                         </div>
                       )}
 
