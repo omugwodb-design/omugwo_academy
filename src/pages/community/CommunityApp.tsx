@@ -660,7 +660,7 @@ const PostCard: React.FC<{ post: Post; deepLinkPostId?: string }> = ({ post, dee
   const [showReplies, setShowReplies] = useState(false);
   const [liked, setLiked] = useState(post.isLiked);
   const [bookmarked, setBookmarked] = useState(post.isBookmarked);
-@@
+
   useEffect(() => {
     if (deepLinkPostId && deepLinkPostId === post.id) {
       setShowReplies(true);
