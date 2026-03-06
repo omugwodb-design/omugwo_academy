@@ -1,4 +1,4 @@
-# Password Reset Fix Instructions...
+# Password Reset Fix Instructions
 
 ## Issue
 - Password reset email links to `localhost:3000` instead of `localhost:3000/reset-password`
