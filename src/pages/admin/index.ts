@@ -9,5 +9,6 @@ export * from './AdminCommunity';
 export * from './AdminLeads';
 export * from './AdminCertificates';
 export * from './AdminSettings';
+export * from './AdminSystemeIntegration';
 export * from './AdminPayments';
 export * from './AdminCourseAnalytics';

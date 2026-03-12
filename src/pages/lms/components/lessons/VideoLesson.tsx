@@ -13,7 +13,7 @@ interface VideoLessonProps {
 export const VideoLesson: React.FC<VideoLessonProps> = ({ url, poster, onProgress, onEnded }) => {
   const isYoutube = url.includes('youtube') || url.includes('youtu.be');
   const isVimeo = url.includes('vimeo');
-  
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -72,26 +72,38 @@ export const VideoLesson: React.FC<VideoLessonProps> = ({ url, poster, onProgres
   };
 
   if (isYoutube) {
-    const embedUrl = url.replace('watch?v=', 'embed/').split('&')[0] + '?rel=0&modestbranding=1';
+    const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtu\.be\/)([^&\s?]+)/)?.[1];
+    const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1` : url;
     return (
       <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative group">
-        <iframe src={embedUrl} className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen frameBorder="0" title="Video Lesson" />
+        <iframe
+          src={embedUrl}
+          className="w-full h-full border-0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          title="Video Lesson"
+        />
       </div>
     );
   }
 
   if (isVimeo) {
-    const embedUrl = url.replace('vimeo.com/', 'player.vimeo.com/video/');
+    const videoId = url.match(/vimeo\.com\/(\d+)/)?.[1];
+    const embedUrl = videoId ? `https://player.vimeo.com/video/${videoId}` : url;
     return (
       <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative group">
-        <iframe src={embedUrl} className="w-full h-full" allow="autoplay; fullscreen" allowFullScreen frameBorder="0" title="Video Lesson" />
+        <iframe
+          src={embedUrl}
+          className="w-full h-full border-0"
+          allow="autoplay; fullscreen; picture-in-picture"
+          title="Video Lesson"
+        />
       </div>
     );
   }
 
   return (
     <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl relative group flex flex-col">
-      <video 
+      <video
         ref={videoRef}
         src={url}
         poster={poster}
@@ -109,7 +121,7 @@ export const VideoLesson: React.FC<VideoLessonProps> = ({ url, poster, onProgres
         "absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6 transition-opacity duration-300",
         isPlaying ? "opacity-0 group-hover:opacity-100" : "opacity-100"
       )}>
-        
+
         {/* Big Play Button Center */}
         {!isPlaying && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -121,7 +133,7 @@ export const VideoLesson: React.FC<VideoLessonProps> = ({ url, poster, onProgres
 
         {/* Progress Bar */}
         <div className="w-full h-1.5 bg-white/30 rounded-full mb-6 overflow-hidden cursor-pointer group/progress">
-          <motion.div 
+          <motion.div
             className="h-full bg-primary-500 rounded-full group-hover/progress:bg-primary-400"
             style={{ width: `${progress}%` }}
           />
@@ -137,7 +149,7 @@ export const VideoLesson: React.FC<VideoLessonProps> = ({ url, poster, onProgres
               {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
             </button>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <span className="text-xs font-medium font-mono">
               {videoRef.current ? formatTime(videoRef.current.currentTime) : '0:00'} / {videoRef.current ? formatTime(videoRef.current.duration) : '0:00'}

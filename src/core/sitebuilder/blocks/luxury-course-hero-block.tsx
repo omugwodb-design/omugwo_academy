@@ -45,11 +45,11 @@ export const LuxuryCourseHeroBlock: React.FC<BlockComponentProps> = ({ block, on
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#2C2C2C] font-serif selection:bg-[#D4AF37]/30">
-      
+    <div className="bg-[#FDFBF7] text-[#2C2C2C] font-serif selection:bg-[#D4AF37]/30">
+
       {/* Refined Navigation */}
-      <nav className="absolute top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-gradient-to-b from-black/50 to-transparent text-white">
-        <div 
+      <nav className="relative z-50 px-8 py-6 flex justify-between items-center bg-[#2C2C2C] text-white">
+        <div
           className="tracking-[0.3em] text-sm uppercase"
           contentEditable={selected}
           suppressContentEditableWarning
@@ -57,7 +57,7 @@ export const LuxuryCourseHeroBlock: React.FC<BlockComponentProps> = ({ block, on
         >
           {brandName}
         </div>
-        <button 
+        <button
           className="text-xs uppercase tracking-[0.2em] border border-white/30 px-6 py-2 rounded-sm hover:bg-white hover:text-black transition-colors"
           onClick={(e) => {
             if (selected) {
@@ -78,29 +78,23 @@ export const LuxuryCourseHeroBlock: React.FC<BlockComponentProps> = ({ block, on
       </nav>
 
       {/* Hero: Luxury Magazine Style */}
-      <div className="h-screen relative overflow-hidden flex items-center">
-        <motion.div 
-          initial={{ scale: 1.05 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1.5 }}
-          className="absolute inset-0 z-0"
-        >
-          <img 
-            src={heroImage} 
-            alt="Luxury Motherhood" 
+      <div className="relative overflow-hidden flex items-center py-24 md:py-32">
+        <div className="absolute inset-0 z-0">
+          <img
+            src={heroImage}
+            alt="Luxury Motherhood"
             className="w-full h-full object-cover object-top"
           />
           <div className="absolute inset-0 bg-[#2C2C2C]/40 mix-blend-multiply" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#FDFBF7]" />
-        </motion.div>
+        </div>
 
-        <div className="relative z-10 w-full px-8 md:px-16 text-center mt-32">
+        <div className="relative z-10 w-full px-8 md:px-16 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, ease: "easeOut" }}
           >
-            <h2 
+            <h2
               className="text-[#D4AF37] tracking-[0.4em] text-xs uppercase mb-8 font-sans"
               contentEditable={selected}
               suppressContentEditableWarning
@@ -117,7 +111,7 @@ export const LuxuryCourseHeroBlock: React.FC<BlockComponentProps> = ({ block, on
                 {title}
               </span>
               <br />
-              <span 
+              <span
                 className="italic font-serif"
                 contentEditable={selected}
                 suppressContentEditableWarning
@@ -126,7 +120,7 @@ export const LuxuryCourseHeroBlock: React.FC<BlockComponentProps> = ({ block, on
                 {titleItalic}
               </span>
             </h1>
-            <p 
+            <p
               className="text-white/90 font-sans font-light tracking-wide max-w-xl mx-auto text-lg md:text-xl drop-shadow"
               contentEditable={selected}
               suppressContentEditableWarning
@@ -139,11 +133,11 @@ export const LuxuryCourseHeroBlock: React.FC<BlockComponentProps> = ({ block, on
       </div>
 
       {/* The Experience Section Preview */}
-      <div className="max-w-6xl mx-auto px-8 py-32">
-        <div className="text-center mb-24">
+      <div className="max-w-6xl mx-auto px-8 py-16">
+        <div className="text-center mb-12">
           <Gem className="w-8 h-8 mx-auto text-[#D4AF37] mb-6" />
-          <h2 className="text-3xl font-light uppercase tracking-[0.2em] mb-8">The Experience</h2>
-          <div className="w-px h-16 bg-[#D4AF37] mx-auto" />
+          <h2 className="text-3xl font-light uppercase tracking-[0.2em] mb-4">The Experience</h2>
+          <div className="w-px h-8 bg-[#D4AF37] mx-auto" />
         </div>
       </div>
     </div>

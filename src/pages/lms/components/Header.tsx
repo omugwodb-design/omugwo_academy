@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Menu, Trophy } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
+import { BrandLogo } from '../../../components/branding/BrandLogo';
 
 interface HeaderProps {
   courseTitle: string;
@@ -63,11 +64,14 @@ export const Header: React.FC<HeaderProps> = ({
 
           <div className="hidden md:block h-6 w-px bg-gray-200 dark:bg-gray-800 mx-2" />
 
-          <div className="flex flex-col">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Omugwo Academy</p>
-            <h1 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1 max-w-[200px] sm:max-w-xs md:max-w-md">
-              {courseTitle || 'Loading Course...'}
-            </h1>
+          <div className="flex items-center gap-3 min-w-0">
+            <BrandLogo forceShowName={false} imageClassName="h-8 max-w-[96px]" iconClassName="w-8 h-8 rounded-xl" />
+            <div className="flex flex-col min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Learning with dynamic branding</p>
+              <h1 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1 max-w-[200px] sm:max-w-xs md:max-w-md">
+                {courseTitle || 'Loading Course...'}
+              </h1>
+            </div>
           </div>
         </div>
 

@@ -200,10 +200,14 @@ export const CourseCurriculumBlock: React.FC<BlockComponentProps> = ({ block, on
 
   const getTotalDuration = () => {
     let totalMinutes = 0;
+    if (!Array.isArray(modules)) return "0h 0m";
     modules.forEach((mod: Module) => {
-      mod.lessons.forEach(lesson => {
-        const [mins, secs] = lesson.duration.split(':').map(Number);
-        totalMinutes += mins + (secs || 0) / 60;
+      const lessons = parseLessons(mod.lessons);
+      lessons.forEach(lesson => {
+        if (lesson.duration) {
+          const [mins, secs] = lesson.duration.split(':').map(Number);
+          totalMinutes += mins + (secs || 0) / 60;
+        }
       });
     });
     const hours = Math.floor(totalMinutes / 60);
@@ -212,8 +216,10 @@ export const CourseCurriculumBlock: React.FC<BlockComponentProps> = ({ block, on
   };
 
   const getTotalLessons = () => {
+    if (!Array.isArray(modules)) return 0;
     return modules.reduce((total: number, mod: Module) => {
-      return total + mod.lessons.length;
+      const lessons = parseLessons(mod.lessons);
+      return total + lessons.length;
     }, 0);
   };
 

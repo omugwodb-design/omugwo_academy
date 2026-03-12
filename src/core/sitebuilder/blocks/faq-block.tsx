@@ -21,6 +21,13 @@ export const faqBlockSchema: PropSchema[] = [
       { name: "answer", label: "Answer", type: "textarea" },
     ], group: "Content"
   },
+  {
+    name: "textAlign", label: "Text Alignment", type: "select", options: [
+      { label: "Left", value: "left" },
+      { label: "Center", value: "center" },
+      { label: "Right", value: "right" },
+    ], group: "Layout"
+  },
   { name: "backgroundColor", label: "Background", type: "color", group: "Style" },
   ...animationSchemaFields,
   ...sizingSchemaFields,
@@ -39,6 +46,7 @@ export const FAQBlock: React.FC<BlockComponentProps> = ({ block, onChange, selec
       { question: "Can I access the course on mobile?", answer: "Absolutely! Our platform is fully responsive and works on all devices   phone, tablet, and desktop. You can also download resources for offline access." },
       { question: "Do I get a certificate?", answer: "Yes, upon completing any course, you'll receive a verified digital certificate that you can share on LinkedIn or add to your professional portfolio." },
     ],
+    textAlign = "left",
     backgroundColor,
     paddingY = "py-20",
     containerSize = "max-w-3xl",
@@ -76,7 +84,7 @@ export const FAQBlock: React.FC<BlockComponentProps> = ({ block, onChange, selec
     return (
       <section className={cn(paddingY, "px-6")} style={{ backgroundColor: backgroundColor || undefined }}>
         <div className={cn("mx-auto", containerSize)}>
-          <AnimationWrapper animation={animConfig} className="text-center mb-16">
+          <AnimationWrapper animation={animConfig} className={cn("mb-16", textAlign === "center" && "text-center", textAlign === "right" && "text-right")}>
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}>{title}</h2>
             <p className="text-lg text-gray-600" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}>{subtitle}</p>
           </AnimationWrapper>
@@ -94,7 +102,7 @@ export const FAQBlock: React.FC<BlockComponentProps> = ({ block, onChange, selec
     return (
       <section className={cn(paddingY, "px-6")} style={{ backgroundColor: backgroundColor || undefined }}>
         <div className={cn("mx-auto", containerSize)}>
-          <AnimationWrapper animation={animConfig} className="text-center mb-16">
+          <AnimationWrapper animation={animConfig} className={cn("mb-16", textAlign === "center" && "text-center", textAlign === "right" && "text-right")}>
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}>{title}</h2>
             <p className="text-lg text-gray-600" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}>{subtitle}</p>
           </AnimationWrapper>
@@ -115,7 +123,7 @@ export const FAQBlock: React.FC<BlockComponentProps> = ({ block, onChange, selec
   return (
     <section className={cn(paddingY, "px-6")} style={{ backgroundColor: backgroundColor || undefined }}>
       <div className={cn("mx-auto", containerSize)}>
-        <AnimationWrapper animation={animConfig} className="text-center mb-16 flex flex-col items-center">
+        <AnimationWrapper animation={animConfig} className={cn("mb-16 flex flex-col", textAlign === "center" && "text-center items-center", textAlign === "right" && "text-right items-end", textAlign === "left" && "text-left items-start")}>
           <h2
             className="text-3xl md:text-5xl font-black text-gray-900 mb-6"
             contentEditable={selected}

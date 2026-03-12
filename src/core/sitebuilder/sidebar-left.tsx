@@ -20,6 +20,9 @@ import {
   ChevronRight,
   Eye,
   Heart,
+  Clock,
+  ExternalLink,
+  Globe,
 } from "lucide-react";
 
 const TABS = [
@@ -80,10 +83,22 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(BLOCK_CATEGORIES.map((c) => c.id))
   );
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newPageTitle, setNewPageTitle] = useState("");
+  const [newPageSlug, setNewPageSlug] = useState("");
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
   const filteredTemplates = useMemo(() => {
     if (builderMode === 'course') {
-      return TEMPLATES.filter((t: any) => t.pageType === 'course_sales' || t.category === 'course_sales');
+      return TEMPLATES
+        .filter((t: any) => t.pageType === 'course_sales' || t.category === 'course_sales')
+        .sort((a: any, b: any) => {
+          const aIsExactLayout = String(a.id || '').startsWith('course-') && String(a.id || '').endsWith('-layout');
+          const bIsExactLayout = String(b.id || '').startsWith('course-') && String(b.id || '').endsWith('-layout');
+
+          if (aIsExactLayout === bIsExactLayout) return 0;
+          return aIsExactLayout ? -1 : 1;
+        });
     }
     return TEMPLATES.filter((t: any) => !(t.pageType === 'course_sales' || t.category === 'course_sales'));
   }, [builderMode]);
@@ -367,7 +382,12 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                   Pages ({pages.length})
                 </p>
                 <button
-                  onClick={() => addPage("New Page", "custom")}
+                  onClick={() => {
+                    setNewPageTitle("");
+                    setNewPageSlug("");
+                    setSelectedTemplateId(null);
+                    setShowCreateModal(true);
+                  }}
                   className="flex items-center gap-1 px-2 py-1 bg-primary-600 text-white rounded-lg text-[10px] font-bold"
                 >
                   <Plus className="w-3 h-3" />
@@ -398,8 +418,37 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
                             className="bg-transparent text-xs font-bold text-gray-900 border-none p-0 focus:ring-0 w-full"
                           />
                         </div>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <Globe className="w-2.5 h-2.5 text-gray-400 shrink-0" />
+                          <span className="text-[10px] text-gray-500 font-mono truncate">
+                            {page.isHomePage ? "/" : `/${page.slug || "no-slug"}`}
+                          </span>
+                          <a
+                            href={page.isHomePage ? "/" : `/${page.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-gray-400 hover:text-primary-600 transition-colors"
+                            title="View live page"
+                          >
+                            <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        </div>
+                        {page.updatedAt && (
+                          <div className="flex items-center gap-1 mt-1">
+                            <Clock className="w-2.5 h-2.5 text-gray-400 shrink-0" />
+                            <span className="text-[9px] text-gray-400">
+                              {new Date(page.updatedAt).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </div>
+                        )}
                         <div className="flex items-center gap-1 mt-0.5">
-                          <span className="text-[10px] text-gray-400 font-mono">/{page.slug || ""}</span>
+                          <span className="text-[9px] text-gray-400 capitalize">{page.pageType}</span>
                           <div className="flex items-center gap-1 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
                             {!page.isHomePage && (
                               <button
@@ -444,6 +493,106 @@ export const SidebarLeft: React.FC<SidebarLeftProps> = ({
               </div>
             </div>
           )
+        )}
+
+        {/* Page Creation Modal */}
+        {showCreateModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-hidden">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 className="text-sm font-black text-gray-900 dark:text-white">Create New Page</h3>
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                >
+                  <Trash2 className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
+              <div className="p-4 space-y-4 overflow-y-auto max-h-[60vh]">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Page Title</label>
+                  <input
+                    type="text"
+                    value={newPageTitle}
+                    onChange={(e) => {
+                      setNewPageTitle(e.target.value);
+                      if (!newPageSlug) {
+                        setNewPageSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
+                      }
+                    }}
+                    placeholder="e.g., About Us"
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">URL Slug</label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">/</span>
+                    <input
+                      type="text"
+                      value={newPageSlug}
+                      onChange={(e) => setNewPageSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
+                      placeholder="about-us"
+                      className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white font-mono focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Start from Template</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {TEMPLATES.filter(t => t.pageType !== 'course_sales').slice(0, 8).map((template) => (
+                      <button
+                        key={template.id}
+                        onClick={() => setSelectedTemplateId(template.id)}
+                        className={cn(
+                          "p-2 rounded-lg border-2 text-left transition-all",
+                          selectedTemplateId === template.id
+                            ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
+                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                        )}
+                      >
+                        <div className="text-[10px] font-bold text-gray-900 dark:text-white truncate">{template.name}</div>
+                        <div className="text-[9px] text-gray-500 dark:text-gray-400 capitalize">{template.pageType}</div>
+                      </button>
+                    ))}
+                  </div>
+                  {selectedTemplateId && (
+                    <button
+                      onClick={() => setSelectedTemplateId(null)}
+                      className="mt-2 text-[10px] text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
+                      Clear selection (start blank)
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-3 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (!newPageTitle.trim()) return;
+                    const pageId = addPage(newPageTitle, "custom", newPageSlug || undefined);
+                    if (selectedTemplateId) {
+                      const template = TEMPLATES.find(t => t.id === selectedTemplateId);
+                      if (template) {
+                        applyTemplate(template.blocks);
+                      }
+                    }
+                    setShowCreateModal(false);
+                  }}
+                  disabled={!newPageTitle.trim()}
+                  className="px-3 py-1.5 bg-primary-600 text-white text-xs font-bold rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Create Page
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {leftPanel === "templates" && (
@@ -511,11 +660,11 @@ const TemplatePanel: React.FC<{
 
       {previewingTemplate && (
         <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex flex-col animate-in fade-in duration-300">
-          <div className="h-16 flex items-center justify-between px-8 bg-gray-900 border-b border-gray-700 shrink-0 shadow-lg">
+          <div className="h-16 flex items-center justify-between px-8 bg-gray-900 border-b border-gray-700 shrink-0 shadow-lg relative z-10">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setPreviewingTemplate(null)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors border border-gray-600"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors border border-gray-600 cursor-pointer"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -533,7 +682,7 @@ const TemplatePanel: React.FC<{
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setPreviewingTemplate(null)}
-                className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors border border-gray-600"
+                className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-lg transition-colors border border-gray-600 cursor-pointer"
               >
                 Cancel
               </button>
@@ -542,14 +691,14 @@ const TemplatePanel: React.FC<{
                   onApply(previewingTemplate.blocks);
                   setPreviewingTemplate(null);
                 }}
-                className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black shadow-2xl shadow-primary-500/50 transition-colors"
+                className="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black shadow-2xl shadow-primary-500/50 transition-colors cursor-pointer"
               >
                 Apply Template
               </button>
             </div>
           </div>
-          <div className="flex-1 overflow-hidden p-8 flex justify-center">
-            <div className="w-full max-w-5xl h-full bg-white rounded-t-3xl shadow-2xl overflow-y-auto scrollbar-hide border-x-[12px] border-t-[12px] border-white">
+          <div className="flex-1 overflow-hidden p-8 flex justify-center pointer-events-none">
+            <div className="w-full max-w-5xl h-full bg-white rounded-t-3xl shadow-2xl overflow-y-auto scrollbar-hide border-x-[12px] border-t-[12px] border-white pointer-events-auto">
               <SiteRenderer blocks={previewingTemplate.blocks} globalStyles={globalStyles} />
             </div>
           </div>

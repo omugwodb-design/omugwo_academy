@@ -1,0 +1,11 @@
+[
+  "id",
+  "name",
+  "global_styles",
+  "published_at",
+  "created_at",
+  "updated_at",
+  "navbar_config",
+  "footer_config",
+  "site_id"
+]

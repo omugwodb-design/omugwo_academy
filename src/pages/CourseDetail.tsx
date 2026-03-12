@@ -1,10 +1,10 @@
-
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { SiteRenderer } from '../core/sitebuilder/renderer';
 import { TEMPLATES } from '../core/sitebuilder/templates';
+import { COURSE_LAYOUT_TEMPLATES } from '../core/sitebuilder/course-layout-templates';
 
 export const CourseDetail: React.FC = () => {
   const { slug, courseId } = useParams<{ slug?: string; courseId?: string }>();
@@ -16,9 +16,11 @@ export const CourseDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fallbackBlocks = useMemo(() => {
-    const byType = TEMPLATES.find((t) => t.pageType === 'course_sales');
+    const byLuxuryLayout = COURSE_LAYOUT_TEMPLATES.find((t) => t.id === 'course-luxury-layout');
+    const byLayoutType = COURSE_LAYOUT_TEMPLATES.find((t) => t.pageType === 'course_sales');
     const byId = TEMPLATES.find((t) => t.id === 'course-sales-premium');
-    return (byType || byId)?.blocks || [];
+    const byType = TEMPLATES.find((t) => t.pageType === 'course_sales');
+    return (byLuxuryLayout || byLayoutType || byId || byType)?.blocks || [];
   }, []);
 
   useEffect(() => {

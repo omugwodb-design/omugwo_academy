@@ -230,6 +230,18 @@ export const paymentService = {
 
       if (enrollError) throw enrollError;
 
+      await fetch('/api/systeme/push-enrollment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          enrollmentId: enrollment.id,
+          userId,
+          courseId,
+        }),
+      }).catch(() => null);
+
       // Update payment with enrollment reference
       await supabase
         .from('payments')

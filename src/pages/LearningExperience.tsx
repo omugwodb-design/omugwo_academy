@@ -160,9 +160,9 @@ export const LearningExperience: React.FC = () => {
     } catch { toast.error('Failed to add note'); }
   };
 
-  const handleDeleteSticky = async (id: string) => { try { await supabase.from('sticky_notes').delete().eq('id', id); setStickyNotes(p => p.filter(s => s.id !== id)); } catch {} };
+  const handleDeleteSticky = async (id: string) => { try { await supabase.from('sticky_notes').delete().eq('id', id); setStickyNotes(p => p.filter(s => s.id !== id)); } catch { } };
 
-  useEffect(() => { if (user && courseId && progressPercent >= 100) getCertificate(user.id, courseId).then(c => setCertificate(c)).catch(() => {}); }, [progressPercent]);
+  useEffect(() => { if (user && courseId && progressPercent >= 100) getCertificate(user.id, courseId).then(c => setCertificate(c)).catch(() => { }); }, [progressPercent]);
 
   const iconForType = (t: string) => { const m: Record<string, any> = { video: Play, text: FileText, pdf: FileText, quiz: HelpCircle, assignment: ClipboardList, reflection: PenTool, live_session: ExternalLink }; return m[t] || BookOpen; };
 
@@ -219,9 +219,27 @@ export const LearningExperience: React.FC = () => {
           {currentLesson.type === 'video' && currentLesson.video_url ? (
             <div className="relative bg-black aspect-video max-h-[70vh]">
               {currentLesson.video_url.includes('youtube') || currentLesson.video_url.includes('youtu.be') ? (
-                <iframe src={currentLesson.video_url.replace('watch?v=', 'embed/').split('&')[0] + '?rel=0'} className="w-full h-full" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen frameBorder="0" title={currentLesson.title} />
+                <iframe
+                  src={(() => {
+                    const videoId = currentLesson.video_url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtu\.be\/)([^&\s?]+)/)?.[1];
+                    return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : currentLesson.video_url;
+                  })()}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                  frameBorder="0"
+                  title={currentLesson.title}
+                />
               ) : currentLesson.video_url.includes('vimeo') ? (
-                <iframe src={currentLesson.video_url.replace('vimeo.com/', 'player.vimeo.com/video/')} className="w-full h-full" allow="autoplay; fullscreen" allowFullScreen frameBorder="0" title={currentLesson.title} />
+                <iframe
+                  src={(() => {
+                    const videoId = currentLesson.video_url.match(/vimeo\.com\/(\d+)/)?.[1];
+                    return videoId ? `https://player.vimeo.com/video/${videoId}` : currentLesson.video_url;
+                  })()}
+                  className="w-full h-full"
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  frameBorder="0"
+                  title={currentLesson.title}
+                />
               ) : (
                 <video ref={videoRef} className="w-full h-full" poster={course.thumbnail_url} controls><source src={currentLesson.video_url} type="video/mp4" /></video>
               )}

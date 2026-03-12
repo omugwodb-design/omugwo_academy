@@ -3,6 +3,7 @@ import { cn } from "../../../lib/utils";
 import { BlockComponentProps, PropSchema } from "../types";
 import { Heart, Facebook, Twitter, Instagram, Youtube, MapPin, Mail, Phone } from "lucide-react";
 import { AnimationWrapper, animationSchemaFields, getAnimationConfig, sizingSchemaFields } from "./animation-wrapper";
+import { BrandLogo } from "../../../components/branding/BrandLogo";
 
 export const footerBlockSchema: PropSchema[] = [
   { name: "brandName", label: "Brand Name", type: "text", group: "Content" },
@@ -120,18 +121,24 @@ export const FooterBlock: React.FC<BlockComponentProps> = ({ block, onChange, se
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
           <div className="col-span-2">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-600 rounded-2xl flex items-center justify-center">
-                <Heart className="w-5 h-5 text-white fill-white" />
-              </div>
-              <span className={cn("font-bold text-xl", heading)}>
-                <span
-                  contentEditable={selected}
-                  suppressContentEditableWarning
-                  onBlur={(e) => handleChange("brandName", e.currentTarget.textContent || "")}
-                >
-                  {brandName}
-                </span>
-              </span>
+              {selected ? (
+                <>
+                  <div className="w-10 h-10 bg-primary-600 rounded-2xl flex items-center justify-center">
+                    <Heart className="w-5 h-5 text-white fill-white" />
+                  </div>
+                  <span className={cn("font-bold text-xl", heading)}>
+                    <span
+                      contentEditable={selected}
+                      suppressContentEditableWarning
+                      onBlur={(e) => handleChange("brandName", e.currentTarget.textContent || "")}
+                    >
+                      {brandName}
+                    </span>
+                  </span>
+                </>
+              ) : (
+                <BrandLogo nameClassName={cn("font-bold text-xl", heading)} />
+              )}
             </div>
             <p
               className={cn("text-sm leading-relaxed mb-6", text)}

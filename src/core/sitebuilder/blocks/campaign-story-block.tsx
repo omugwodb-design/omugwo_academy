@@ -3,6 +3,7 @@ import { cn } from "../../../lib/utils";
 import { BlockComponentProps, PropSchema } from "../types";
 import { CheckCircle } from "lucide-react";
 import { AnimationWrapper, animationSchemaFields, getAnimationConfig, sizingSchemaFields } from "./animation-wrapper";
+import { ShareStoryForm } from "../../../components/story/ShareStoryForm";
 
 export const campaignStoryBlockSchema: PropSchema[] = [
   { name: "badgeText", label: "Badge Text", type: "text", group: "Content" },
@@ -88,11 +89,19 @@ export const CampaignStoryBlock: React.FC<BlockComponentProps> = ({ block, onCha
               ))}
             </ul>
             {ctaText && (
-              <a href={ctaLink} onClick={(e) => e.preventDefault()} className="inline-flex items-center px-8 py-4 bg-primary-300 hover:bg-primary-400 text-white font-bold tracking-wider rounded-full transition-colors shadow-lg">
-                <span contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("ctaText", e.currentTarget.textContent || "")}>
-                  {ctaText}
-                </span>
-              </a>
+              selected ? (
+                <a href={ctaLink} onClick={(e) => e.preventDefault()} className="inline-flex items-center px-8 py-4 bg-primary-300 hover:bg-primary-400 text-white font-bold tracking-wider rounded-full transition-colors shadow-lg">
+                  <span contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("ctaText", e.currentTarget.textContent || "")}>
+                    {ctaText}
+                  </span>
+                </a>
+              ) : (
+                <ShareStoryForm
+                  source="campaign_story_block"
+                  triggerLabel={ctaText}
+                  triggerClassName="px-8 py-4 bg-primary-300 hover:bg-primary-400 text-white shadow-lg"
+                />
+              )
             )}
           </div>
         </AnimationWrapper>

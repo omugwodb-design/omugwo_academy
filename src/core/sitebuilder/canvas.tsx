@@ -35,6 +35,71 @@ import { DeviceProvider } from "./device-context";
 import { InlineTextToolbar } from "./components/InlineTextToolbar";
 import type { Block } from "./types";
 
+// --- UNIVERSAL BLOCK CONTAINER ---
+const BlockContainer = ({ block, children }: { block: Block; children: React.ReactNode }) => {
+  const props = block.props || {};
+
+  // Padding & Margin
+  const padding = props.padding || {};
+  const margin = props.margin || {};
+
+  const style: React.CSSProperties = {
+    // Spacing
+    paddingTop: padding.top ? `${padding.top}px` : undefined,
+    paddingBottom: padding.bottom ? `${padding.bottom}px` : undefined,
+    paddingLeft: padding.left ? `${padding.left}px` : undefined,
+    paddingRight: padding.right ? `${padding.right}px` : undefined,
+
+    marginTop: margin.top ? `${margin.top}px` : undefined,
+    marginBottom: margin.bottom ? `${margin.bottom}px` : undefined,
+    marginLeft: margin.left ? `${margin.left}px` : undefined,
+    marginRight: margin.right ? `${margin.right}px` : undefined,
+
+    // Background
+    backgroundColor: props.backgroundColor || undefined,
+    backgroundImage: props.backgroundImage ? `url(${props.backgroundImage})` : undefined,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+
+    // Border & Radius
+    borderRadius: props.borderRadius?.borderRadius ? `${props.borderRadius.borderRadius}px` : undefined,
+    borderWidth: props.borderWidth ? `${props.borderWidth}px` : undefined,
+    borderStyle: props.borderWidth ? 'solid' : undefined,
+    borderColor: props.borderColor || undefined,
+  };
+
+  // Shadow Mapping
+  const shadows: Record<string, string> = {
+    'none': 'none',
+    'sm': 'var(--shadow-sm)',
+    'md': 'var(--shadow-md)',
+    'lg': 'var(--shadow-lg)',
+    'xl': 'var(--shadow-xl)',
+    '2xl': 'var(--shadow-2xl)',
+    'inner': 'var(--shadow-inner)',
+  };
+  if (props.shadow && shadows[props.shadow]) {
+    style.boxShadow = shadows[props.shadow];
+  }
+
+  return (
+    <div
+      className={cn(
+        "w-full transition-all duration-300",
+        props.animation === 'fadeIn' && "animate-in fade-in duration-700",
+        props.animation === 'slideUp' && "animate-in fade-in slide-in-from-bottom-10 duration-700",
+        props.animation === 'scaleUp' && "animate-in fade-in zoom-in-95 duration-700",
+      )}
+      style={style}
+    >
+      <div className={cn("mx-auto", props.maxWidth || "max-w-screen-xl")}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+
 //  Sortable Block Wrapper 
 const SortableBlock = ({ block }: { block: Block }) => {
   const {
@@ -157,11 +222,13 @@ const SortableBlock = ({ block }: { block: Block }) => {
         </div>
       )}
 
-      <Component
-        block={block}
-        onChange={(id: string, props: any) => updateBlockProps(id, props)}
-        selected={isSelected}
-      />
+      <BlockContainer block={block}>
+        <Component
+          block={block}
+          onChange={(id: string, props: any) => updateBlockProps(id, props)}
+          selected={isSelected}
+        />
+      </BlockContainer>
     </div>
   );
 };

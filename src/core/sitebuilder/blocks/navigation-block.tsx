@@ -3,6 +3,7 @@ import { cn } from "../../../lib/utils";
 import { BlockComponentProps, PropSchema } from "../types";
 import { Heart, Menu } from "lucide-react";
 import { AnimationWrapper, animationSchemaFields, getAnimationConfig, sizingSchemaFields } from "./animation-wrapper";
+import { BrandLogo } from "../../../components/branding/BrandLogo";
 
 export const navigationBlockSchema: PropSchema[] = [
   { name: "brandName", label: "Brand Name", type: "text", group: "Content" },
@@ -61,18 +62,28 @@ export const NavigationBlock: React.FC<BlockComponentProps> = ({ block, onChange
     <nav className={cn(paddingY, "px-6 border-b", bg, variant === "light" && "border-gray-100", variant !== "light" && "border-white/10")}>
       <div className={cn("mx-auto flex items-center justify-between", containerSize)}>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary-600 rounded-xl flex items-center justify-center">
-            <Heart className="w-4 h-4 text-white fill-white" />
-          </div>
-          <span className={cn("font-bold text-lg", variant === "light" ? "text-gray-900" : "text-white")}>
-            <span
-              contentEditable={selected}
-              suppressContentEditableWarning
-              onBlur={(e) => handleChange("brandName", e.currentTarget.textContent || "")}
-            >
-              {brandName}
-            </span>
-          </span>
+          {selected ? (
+            <>
+              <div className="w-8 h-8 bg-primary-600 rounded-xl flex items-center justify-center">
+                <Heart className="w-4 h-4 text-white fill-white" />
+              </div>
+              <span className={cn("font-bold text-lg", variant === "light" ? "text-gray-900" : "text-white")}>
+                <span
+                  contentEditable={selected}
+                  suppressContentEditableWarning
+                  onBlur={(e) => handleChange("brandName", e.currentTarget.textContent || "")}
+                >
+                  {brandName}
+                </span>
+              </span>
+            </>
+          ) : (
+            <BrandLogo
+              imageClassName="h-8 max-w-[120px]"
+              iconClassName="w-8 h-8 rounded-xl"
+              nameClassName={cn("font-bold text-lg", variant === "light" ? "text-gray-900" : "text-white")}
+            />
+          )}
         </div>
         <div className="hidden md:flex items-center gap-8 relative">
           {menuItems.map((menuItem: any, idx: number) => (

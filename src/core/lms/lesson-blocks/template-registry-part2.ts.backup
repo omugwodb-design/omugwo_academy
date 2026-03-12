@@ -1,0 +1,1061 @@
+/**
+ * Interactive Scene-Based Lesson Template Registry - Part 2
+ * 
+ * Categories 5-12: Assessment, Visual, Media-Driven, Practice, Microlearning, Immersive, Gamified, Hybrid
+ */
+
+import {
+  LessonTemplate,
+  createScene,
+  createPlaceholder,
+  DEFAULT_TEMPLATE_SETTINGS,
+} from './template-types';
+import { SceneSection } from './scene-types';
+
+// ============================================
+// HELPER FUNCTIONS (repeated for this file)
+// ============================================
+
+function createBlock(
+  id: string,
+  type: string,
+  props: Record<string, any>
+): { id: string; type: string; props: Record<string, any> } {
+  return { id, type, props };
+}
+
+function createSection(
+  id: string,
+  title?: string,
+  blocks: any[] = []
+): SceneSection {
+  return { id, title, blocks };
+}
+
+// ============================================
+// CATEGORY 5: ASSESSMENT TEMPLATES
+// ============================================
+
+// Template 13: Embedded Knowledge Check Lesson
+const embeddedKnowledgeCheck: LessonTemplate = {
+  metadata: {
+    id: 'embedded-knowledge-check',
+    name: 'Embedded Knowledge Check Lesson',
+    description: 'Quiz questions appear throughout the lesson with instant feedback',
+    longDescription: 'Content is interspersed with knowledge checks. Great for maintaining engagement and verifying understanding as learners progress.',
+    category: 'assessment',
+    difficulty: 'beginner',
+    tags: ['quiz', 'assessment', 'feedback', 'interactive'],
+    components: ['quiz', 'text', 'image', 'score'],
+    estimatedTime: 12,
+    sceneCount: 4,
+    hasBranching: false,
+    hasAssessment: true,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/embedded-quiz-thumb.png',
+    featured: true,
+  },
+  content: {
+    title: 'Knowledge Check Lesson',
+    description: 'Learn and test your understanding as you go',
+    theme: 'infographic',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#dc2626', '#b91c1c'] } },
+        sections: [
+          createSection('intro-sec', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'Learn & Check' }),
+            createBlock('intro-text', 'text', { text: 'In this lesson, you\'ll learn key concepts and test your understanding along the way. Each section includes a knowledge check to reinforce your learning.' }),
+          ]),
+        ],
+      }),
+      createScene('section1', 'Concept 1', {
+        type: 'concept',
+        background: { type: 'solid', color: '#fef2f2' },
+        sections: [
+          createSection('s1-sec', 'First Concept', [
+            createBlock('s1-content', 'text', { text: 'Explanation of the first key concept. This content teaches the foundational knowledge you need.' }),
+            createBlock('s1-quiz', 'quiz', {
+              question: 'What is the main idea of this concept?',
+              options: [
+                { text: 'Correct answer', correct: true },
+                { text: 'Incorrect option A', correct: false },
+                { text: 'Incorrect option B', correct: false },
+              ],
+              feedback: { correct: 'Great job! You understood the concept.', incorrect: 'Review the content above and try again.' },
+            }),
+          ]),
+        ],
+      }),
+      createScene('section2', 'Concept 2', {
+        type: 'concept',
+        background: { type: 'solid', color: '#fee2e2' },
+        sections: [
+          createSection('s2-sec', 'Second Concept', [
+            createBlock('s2-content', 'text', { text: 'Explanation of the second key concept. Building on what you learned, this section expands your understanding.' }),
+            createBlock('s2-quiz', 'quiz', {
+              question: 'How does this concept relate to the first?',
+              options: [
+                { text: 'Correct relationship', correct: true },
+                { text: 'Incorrect relationship A', correct: false },
+                { text: 'Incorrect relationship B', correct: false },
+              ],
+              feedback: { correct: 'Excellent! You see the connection.', incorrect: 'Think about how the concepts build on each other.' },
+            }),
+          ]),
+        ],
+      }),
+      createScene('summary', 'Summary', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#b91c1c', '#991b1b'] } },
+        sections: [
+          createSection('sum-sec', 'Complete', [
+            createBlock('sum-title', 'heading', { level: 2, text: 'Lesson Complete' }),
+            createBlock('sum-score', 'score-display', { label: 'Your Score' }),
+            createBlock('sum-text', 'text', { text: 'You\'ve completed all knowledge checks. Review any sections where you struggled, and celebrate your success!' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('concept1-text', 'text', 'Concept 1 Explanation', { sceneId: 'section1', sectionId: 's1-sec', blockId: 's1-content', property: 'text' }),
+    createPlaceholder('q1-text', 'text', 'Question 1', { sceneId: 'section1', sectionId: 's1-sec', blockId: 's1-quiz', property: 'question' }),
+  ],
+};
+
+// Template 14: End-of-Lesson Quiz
+const endOfLessonQuiz: LessonTemplate = {
+  metadata: {
+    id: 'end-of-lesson-quiz',
+    name: 'End-of-Lesson Quiz',
+    description: 'Traditional assessment at the end of learning content',
+    longDescription: 'Content first, then quiz. Perfect for formal assessments, certification prep, or when you need a clear pass/fail outcome.',
+    category: 'assessment',
+    difficulty: 'beginner',
+    tags: ['quiz', 'assessment', 'formal', 'scoring'],
+    components: ['quiz', 'text', 'score', 'badge'],
+    estimatedTime: 15,
+    sceneCount: 4,
+    hasBranching: false,
+    hasAssessment: true,
+    hasGamification: true,
+    isInteractive: true,
+    thumbnail: '/templates/end-quiz-thumb.png',
+  },
+  content: {
+    title: 'Lesson with Final Quiz',
+    description: 'Learn the material then test your knowledge',
+    theme: 'infographic',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('content', 'Learning Content', {
+        type: 'concept',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#0891b2', '#0e7490'] } },
+        sections: [
+          createSection('cont-sec', 'Study Material', [
+            createBlock('cont-title', 'heading', { level: 1, text: 'Learn This Topic' }),
+            createBlock('cont-text', 'text', { text: 'This section contains the learning material. Study it carefully before taking the quiz.' }),
+            createBlock('cont-list', 'list', {
+              items: [
+                'Key point 1 to remember',
+                'Key point 2 to remember',
+                'Key point 3 to remember',
+                'Key point 4 to remember',
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('quiz', 'Final Quiz', {
+        type: 'assessment',
+        background: { type: 'solid', color: '#ecfeff' },
+        sections: [
+          createSection('quiz-sec', 'Test Your Knowledge', [
+            createBlock('quiz-title', 'heading', { level: 2, text: 'Final Assessment' }),
+            createBlock('quiz-q1', 'quiz', {
+              question: 'Question 1: [Insert question here]',
+              options: [
+                { text: 'Correct answer', correct: true },
+                { text: 'Incorrect option', correct: false },
+                { text: 'Another incorrect option', correct: false },
+              ],
+            }),
+            createBlock('quiz-q2', 'quiz', {
+              question: 'Question 2: [Insert question here]',
+              options: [
+                { text: 'Correct answer', correct: true },
+                { text: 'Incorrect option', correct: false },
+                { text: 'Another incorrect option', correct: false },
+              ],
+            }),
+            createBlock('quiz-q3', 'quiz', {
+              question: 'Question 3: [Insert question here]',
+              options: [
+                { text: 'Correct answer', correct: true },
+                { text: 'Incorrect option', correct: false },
+                { text: 'Another incorrect option', correct: false },
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('results', 'Results', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#0e7490', '#155e75'] } },
+        sections: [
+          createSection('res-sec', 'Your Results', [
+            createBlock('res-score', 'score-display', { label: 'Final Score', showPercentage: true }),
+            createBlock('res-feedback', 'text', { text: 'Based on your score, here\'s personalized feedback on your performance.' }),
+            createBlock('res-retry', 'callout', { type: 'info', text: 'You can retry the quiz to improve your score.' }),
+          ]),
+        ],
+      }),
+      createScene('badge', 'Achievement', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#155e75', '#164e63'] } },
+        sections: [
+          createSection('badge-sec', 'Congratulations!', [
+            createBlock('badge-earned', 'badge', { name: 'Quiz Master', icon: 'award', description: 'Completed the lesson quiz successfully' }),
+            createBlock('badge-text', 'text', { text: 'You\'ve earned this badge for completing the lesson. Keep learning to earn more!' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('content-text', 'text', 'Learning Content', { sceneId: 'content', sectionId: 'cont-sec', blockId: 'cont-text', property: 'text' }),
+    createPlaceholder('q1', 'text', 'Question 1', { sceneId: 'quiz', sectionId: 'quiz-sec', blockId: 'quiz-q1', property: 'question' }),
+  ],
+};
+
+// Template 15: Gamified Quiz Lesson
+const gamifiedQuizLesson: LessonTemplate = {
+  metadata: {
+    id: 'gamified-quiz',
+    name: 'Gamified Quiz Lesson',
+    description: 'Quiz with score meter, progress indicators, and badges',
+    longDescription: 'Make assessment fun with game mechanics. Includes score tracking, streaks, achievements, and celebratory feedback.',
+    category: 'assessment',
+    difficulty: 'intermediate',
+    tags: ['gamified', 'quiz', 'engaging', 'badges'],
+    components: ['quiz', 'score', 'badge', 'progress-tracker'],
+    estimatedTime: 10,
+    sceneCount: 4,
+    hasBranching: false,
+    hasAssessment: true,
+    hasGamification: true,
+    isInteractive: true,
+    thumbnail: '/templates/gamified-quiz-thumb.png',
+    featured: true,
+  },
+  content: {
+    title: 'Quiz Challenge',
+    description: 'Test your knowledge and earn rewards',
+    theme: 'illustrated',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Challenge Start', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#f59e0b', '#d97706'] } },
+        sections: [
+          createSection('intro-sec', 'Ready?', [
+            createBlock('intro-title', 'heading', { level: 1, text: '🎮 Quiz Challenge' }),
+            createBlock('intro-text', 'text', { text: 'Answer questions correctly to earn points and badges. Can you get a perfect score?' }),
+            createBlock('intro-rules', 'list', {
+              items: [
+                '🏅 Each correct answer = 10 points',
+                '🔥 Build streaks for bonus points',
+                '🏆 Earn badges for achievements',
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('questions', 'Questions', {
+        type: 'assessment',
+        background: { type: 'solid', color: '#fffbeb' },
+        sections: [
+          createSection('q-sec', 'Answer These', [
+            createBlock('q-progress', 'progress-bar', { label: 'Progress', showPercentage: true }),
+            createBlock('q-streak', 'streak-counter', { label: 'Current Streak' }),
+            createBlock('q1', 'quiz', {
+              question: 'Challenge Question 1',
+              options: [
+                { text: 'Correct', correct: true, points: 10 },
+                { text: 'Wrong', correct: false },
+                { text: 'Wrong', correct: false },
+              ],
+            }),
+            createBlock('q2', 'quiz', {
+              question: 'Challenge Question 2',
+              options: [
+                { text: 'Correct', correct: true, points: 10 },
+                { text: 'Wrong', correct: false },
+                { text: 'Wrong', correct: false },
+              ],
+            }),
+            createBlock('q3', 'quiz', {
+              question: 'Challenge Question 3',
+              options: [
+                { text: 'Correct', correct: true, points: 10 },
+                { text: 'Wrong', correct: false },
+                { text: 'Wrong', correct: false },
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('results', 'Results', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#d97706', '#b45309'] } },
+        sections: [
+          createSection('res-sec', 'Your Score', [
+            createBlock('res-score', 'score-display', { label: 'Total Points', animate: true }),
+            createBlock('res-stats', 'text', { text: 'You answered X out of Y questions correctly with a best streak of Z!' }),
+          ]),
+        ],
+      }),
+      createScene('achievements', 'Achievements', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#b45309', '#92400e'] } },
+        sections: [
+          createSection('ach-sec', 'Badges Earned', [
+            createBlock('ach-title', 'heading', { level: 2, text: '🏆 Achievements Unlocked' }),
+            createBlock('ach-badge1', 'badge', { name: 'Quiz Starter', icon: 'star' }),
+            createBlock('ach-badge2', 'badge', { name: 'Perfect Score', icon: 'award' }),
+            createBlock('ach-share', 'callout', { type: 'success', text: 'Share your achievement with friends!' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('challenge-name', 'text', 'Challenge Name', { sceneId: 'intro', property: 'title' }),
+    createPlaceholder('q1-text', 'text', 'Question 1', { sceneId: 'questions', sectionId: 'q-sec', blockId: 'q1', property: 'question' }),
+  ],
+};
+
+// ============================================
+// CATEGORY 6: VISUAL LEARNING TEMPLATES
+// ============================================
+
+// Template 16: Infographic Lesson
+const infographicLesson: LessonTemplate = {
+  metadata: {
+    id: 'infographic-lesson',
+    name: 'Infographic Lesson',
+    description: 'Data-driven visual learning with animated infographic panels',
+    longDescription: 'Present complex information through beautiful infographics. Great for statistics, comparisons, research data, or any content that benefits from visual representation.',
+    category: 'visual',
+    difficulty: 'intermediate',
+    tags: ['infographic', 'data', 'visual', 'animated'],
+    components: ['infographic', 'text', 'image', 'accordion'],
+    estimatedTime: 8,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/infographic-thumb.png',
+    featured: true,
+  },
+  content: {
+    title: 'Infographic Learning',
+    description: 'Visualize the data',
+    theme: 'infographic',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Overview', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#06b6d4', '#0891b2'] } },
+        sections: [
+          createSection('intro-sec', 'The Data', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'By The Numbers' }),
+            createBlock('intro-text', 'text', { text: 'Explore the key statistics and facts presented in this visual format.' }),
+          ]),
+        ],
+      }),
+      createScene('infographic', 'Infographic', {
+        type: 'exploration',
+        background: { type: 'solid', color: '#f0fdfa' },
+        sections: [
+          createSection('info-sec', 'Visual Data', [
+            createBlock('info-stat1', 'stat-card', { value: '75%', label: 'Percentage of X', icon: 'trending-up' }),
+            createBlock('info-stat2', 'stat-card', { value: '2.5M', label: 'Number of Y', icon: 'users' }),
+            createBlock('info-stat3', 'stat-card', { value: '3x', label: 'Improvement in Z', icon: 'zap' }),
+            createBlock('info-chart', 'chart', { type: 'bar', data: [
+              { label: 'Category A', value: 45 },
+              { label: 'Category B', value: 30 },
+              { label: 'Category C', value: 25 },
+            ]}),
+          ]),
+        ],
+      }),
+      createScene('details', 'Deep Dive', {
+        type: 'exploration',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#0891b2', '#0e7490'] } },
+        sections: [
+          createSection('det-sec', 'Learn More', [
+            createBlock('det-title', 'heading', { level: 2, text: 'Key Insights' }),
+            createBlock('det-accordion', 'accordion', {
+              items: [
+                { title: 'Insight 1', content: 'Detailed explanation of the first key insight from the data.' },
+                { title: 'Insight 2', content: 'Detailed explanation of the second key insight from the data.' },
+                { title: 'Insight 3', content: 'Detailed explanation of the third key insight from the data.' },
+              ],
+            }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('stat1-value', 'text', 'Statistic 1 Value', { sceneId: 'infographic', sectionId: 'info-sec', blockId: 'info-stat1', property: 'value' }),
+    createPlaceholder('stat1-label', 'text', 'Statistic 1 Label', { sceneId: 'infographic', sectionId: 'info-sec', blockId: 'info-stat1', property: 'label' }),
+  ],
+};
+
+// Template 17: Timeline Lesson
+const timelineLesson: LessonTemplate = {
+  metadata: {
+    id: 'timeline-lesson',
+    name: 'Timeline Lesson',
+    description: 'Navigate through events with timeline navigation',
+    longDescription: 'Perfect for history, processes, development stages, or any content with a chronological flow. Interactive timeline lets learners explore at their own pace.',
+    category: 'visual',
+    difficulty: 'beginner',
+    tags: ['timeline', 'chronological', 'history', 'navigation'],
+    components: ['timeline', 'text', 'image', 'accordion'],
+    estimatedTime: 10,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/timeline-thumb.png',
+  },
+  content: {
+    title: 'Timeline Journey',
+    description: 'Explore events through time',
+    theme: 'infographic',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Timeline Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#8b5cf6', '#7c3aed'] } },
+        sections: [
+          createSection('intro-sec', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'Through Time' }),
+            createBlock('intro-text', 'text', { text: 'Journey through key events and milestones. Click on timeline items to learn more about each moment.' }),
+          ]),
+        ],
+      }),
+      createScene('timeline', 'Interactive Timeline', {
+        type: 'exploration',
+        background: { type: 'solid', color: '#faf5ff' },
+        sections: [
+          createSection('time-sec', 'Events', [
+            createBlock('time-timeline', 'timeline', {
+              events: [
+                { date: 'Year 1', title: 'First Event', description: 'Description of what happened in the first event.', icon: 'flag' },
+                { date: 'Year 2', title: 'Second Event', description: 'Description of what happened in the second event.', icon: 'star' },
+                { date: 'Year 3', title: 'Third Event', description: 'Description of what happened in the third event.', icon: 'award' },
+                { date: 'Year 4', title: 'Fourth Event', description: 'Description of what happened in the fourth event.', icon: 'check-circle' },
+              ],
+              orientation: 'horizontal',
+              style: 'cards',
+              interactive: true,
+            }),
+          ]),
+        ],
+      }),
+      createScene('summary', 'Key Takeaways', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#7c3aed', '#6d28d9'] } },
+        sections: [
+          createSection('sum-sec', 'Summary', [
+            createBlock('sum-title', 'heading', { level: 2, text: 'What You Learned' }),
+            createBlock('sum-text', 'text', { text: 'You\'ve explored the key events. Understanding this timeline helps you see how each moment contributed to the bigger picture.' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('timeline-title', 'text', 'Timeline Title', { sceneId: 'intro', property: 'title' }),
+    createPlaceholder('event1-title', 'text', 'Event 1 Title', { sceneId: 'timeline', sectionId: 'time-sec', blockId: 'time-timeline', property: 'events[0].title' }),
+  ],
+};
+
+// Template 18: Comparison Lesson
+const comparisonLesson: LessonTemplate = {
+  metadata: {
+    id: 'comparison-lesson',
+    name: 'Comparison Lesson',
+    description: 'Side-by-side panels with interactive toggles',
+    longDescription: 'Compare two or more concepts, approaches, or options. Interactive toggles let learners explore differences and similarities.',
+    category: 'visual',
+    difficulty: 'beginner',
+    tags: ['comparison', 'side-by-side', 'contrast', 'interactive'],
+    components: ['tabs', 'text', 'image', 'comparison'],
+    estimatedTime: 8,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/comparison-thumb.png',
+  },
+  content: {
+    title: 'Compare & Contrast',
+    description: 'Explore the differences',
+    theme: 'infographic',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#ec4899', '#db2777'] } },
+        sections: [
+          createSection('intro-sec', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'A vs B' }),
+            createBlock('intro-text', 'text', { text: 'Explore the key differences between these two concepts. Understanding both helps you make informed decisions.' }),
+          ]),
+        ],
+      }),
+      createScene('compare', 'Side-by-Side', {
+        type: 'exploration',
+        background: { type: 'solid', color: '#fdf2f8' },
+        sections: [
+          createSection('comp-sec', 'Compare', [
+            createBlock('comp-table', 'comparison-table', {
+              columns: ['Aspect', 'Option A', 'Option B'],
+              rows: [
+                ['Feature 1', 'Characteristic A1', 'Characteristic B1'],
+                ['Feature 2', 'Characteristic A2', 'Characteristic B2'],
+                ['Feature 3', 'Characteristic A3', 'Characteristic B3'],
+                ['Best For', 'Use case A', 'Use case B'],
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('decision', 'Making the Choice', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#db2777', '#be185d'] } },
+        sections: [
+          createSection('dec-sec', 'Summary', [
+            createBlock('dec-title', 'heading', { level: 2, text: 'Which is Right for You?' }),
+            createBlock('dec-tabs', 'tabs', {
+              tabs: [
+                { label: 'Choose A When', content: 'List situations where Option A is the better choice.' },
+                { label: 'Choose B When', content: 'List situations where Option B is the better choice.' },
+              ],
+            }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('option-a', 'text', 'Option A Name', { sceneId: 'intro', sectionId: 'intro-sec', blockId: 'intro-title', property: 'text' }),
+    createPlaceholder('option-b', 'text', 'Option B Name', { sceneId: 'compare', sectionId: 'comp-sec', blockId: 'comp-table', property: 'columns[2]' }),
+  ],
+};
+
+// ============================================
+// CATEGORY 7: MEDIA-DRIVEN TEMPLATES
+// ============================================
+
+// Template 19: Video-Led Lesson
+const videoLedLesson: LessonTemplate = {
+  metadata: {
+    id: 'video-led-lesson',
+    name: 'Video-Led Lesson',
+    description: 'Learning through video with interactive pauses',
+    longDescription: 'Primary content delivered through video with interactive checkpoints. Great for demonstrations, lectures, or any content best shown in motion.',
+    category: 'media-driven',
+    difficulty: 'beginner',
+    tags: ['video', 'demonstration', 'interactive', 'media'],
+    components: ['video', 'text', 'quiz', 'image'],
+    estimatedTime: 12,
+    sceneCount: 4,
+    hasBranching: false,
+    hasAssessment: true,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/video-led-thumb.png',
+    featured: true,
+  },
+  content: {
+    title: 'Video Learning',
+    description: 'Watch and learn',
+    theme: 'immersive',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#6366f1', '#4f46e5'] } },
+        sections: [
+          createSection('intro-sec', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'Watch & Learn' }),
+            createBlock('intro-text', 'text', { text: 'This lesson is delivered through video. Watch carefully and answer questions at each checkpoint.' }),
+          ]),
+        ],
+      }),
+      createScene('video1', 'Part 1', {
+        type: 'concept',
+        background: { type: 'solid', color: '#1e1b4b' },
+        sections: [
+          createSection('vid1-sec', 'Video', [
+            createBlock('vid1-player', 'video', {
+              src: '/placeholder-video-1.mp4',
+              poster: '/placeholder-poster-1.jpg',
+              interactivePoints: [
+                { time: 30, type: 'quiz', question: 'What did you just see?', options: [{ text: 'Correct', correct: true }, { text: 'Wrong', correct: false }] },
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('video2', 'Part 2', {
+        type: 'concept',
+        background: { type: 'solid', color: '#1e1b4b' },
+        sections: [
+          createSection('vid2-sec', 'Video', [
+            createBlock('vid2-player', 'video', {
+              src: '/placeholder-video-2.mp4',
+              poster: '/placeholder-poster-2.jpg',
+              interactivePoints: [
+                { time: 45, type: 'quiz', question: 'What is the key takeaway?', options: [{ text: 'Correct', correct: true }, { text: 'Wrong', correct: false }] },
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('summary', 'Summary', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#4f46e5', '#4338ca'] } },
+        sections: [
+          createSection('sum-sec', 'Complete', [
+            createBlock('sum-title', 'heading', { level: 2, text: 'Video Complete' }),
+            createBlock('sum-text', 'text', { text: 'You\'ve watched all the videos and answered the checkpoint questions. Great job!' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('video1-src', 'video', 'Video 1 Source', { sceneId: 'video1', sectionId: 'vid1-sec', blockId: 'vid1-player', property: 'src' }),
+    createPlaceholder('video2-src', 'video', 'Video 2 Source', { sceneId: 'video2', sectionId: 'vid2-sec', blockId: 'vid2-player', property: 'src' }),
+  ],
+};
+
+// Template 20: Audio Podcast Lesson
+const audioPodcastLesson: LessonTemplate = {
+  metadata: {
+    id: 'audio-podcast-lesson',
+    name: 'Audio Podcast Lesson',
+    description: 'Audio-focused learning with visual highlights',
+    longDescription: 'Perfect for interviews, discussions, or content best consumed through listening. Visual elements complement the audio.',
+    category: 'media-driven',
+    difficulty: 'beginner',
+    tags: ['audio', 'podcast', 'listening', 'interview'],
+    components: ['audio', 'text', 'image', 'quote'],
+    estimatedTime: 15,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/audio-thumb.png',
+  },
+  content: {
+    title: 'Audio Learning',
+    description: 'Listen and learn',
+    theme: 'storytelling',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Episode Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#059669', '#047857'] } },
+        sections: [
+          createSection('intro-sec', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: '🎧 Audio Episode' }),
+            createBlock('intro-text', 'text', { text: 'This lesson is delivered through audio. Listen to the episode and follow along with the visual highlights.' }),
+          ]),
+        ],
+      }),
+      createScene('audio', 'Listen', {
+        type: 'concept',
+        background: { type: 'solid', color: '#f0fdf4' },
+        sections: [
+          createSection('aud-sec', 'Episode', [
+            createBlock('aud-player', 'audio', {
+              src: '/placeholder-audio.mp3',
+              title: 'Episode Title',
+              duration: '10:30',
+              showTranscript: true,
+              transcript: 'Full transcript of the audio content appears here...',
+            }),
+            createBlock('aud-quote', 'quote', { text: '"Key quote from the audio"', author: 'Speaker Name' }),
+          ]),
+        ],
+      }),
+      createScene('highlights', 'Key Highlights', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#047857', '#065f46'] } },
+        sections: [
+          createSection('high-sec', 'Takeaways', [
+            createBlock('high-title', 'heading', { level: 2, text: 'Key Points' }),
+            createBlock('high-list', 'list', {
+              items: [
+                'First key point from the audio',
+                'Second key point from the audio',
+                'Third key point from the audio',
+              ],
+            }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('audio-src', 'audio', 'Audio Source', { sceneId: 'audio', sectionId: 'aud-sec', blockId: 'aud-player', property: 'src' }),
+    createPlaceholder('episode-title', 'text', 'Episode Title', { sceneId: 'audio', sectionId: 'aud-sec', blockId: 'aud-player', property: 'title' }),
+  ],
+};
+
+// Template 21: Media Gallery Lesson
+const mediaGalleryLesson: LessonTemplate = {
+  metadata: {
+    id: 'media-gallery-lesson',
+    name: 'Media Gallery Lesson',
+    description: 'Image collections with visual exploration',
+    longDescription: 'Curated image gallery with descriptions. Great for visual portfolios, case studies, product showcases, or any content where images tell the story.',
+    category: 'media-driven',
+    difficulty: 'beginner',
+    tags: ['gallery', 'images', 'visual', 'portfolio'],
+    components: ['gallery', 'image', 'text', 'carousel'],
+    estimatedTime: 8,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/gallery-thumb.png',
+  },
+  content: {
+    title: 'Visual Gallery',
+    description: 'Explore the images',
+    theme: 'illustrated',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Gallery Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#f97316', '#ea580c'] } },
+        sections: [
+          createSection('intro-sec', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: '📷 Visual Gallery' }),
+            createBlock('intro-text', 'text', { text: 'Explore this collection of images. Click on each to learn more.' }),
+          ]),
+        ],
+      }),
+      createScene('gallery', 'Gallery', {
+        type: 'exploration',
+        background: { type: 'solid', color: '#fff7ed' },
+        sections: [
+          createSection('gal-sec', 'Images', [
+            createBlock('gal-carousel', 'carousel', {
+              items: [
+                { image: '/placeholder-1.jpg', title: 'Image 1', description: 'Description of the first image.' },
+                { image: '/placeholder-2.jpg', title: 'Image 2', description: 'Description of the second image.' },
+                { image: '/placeholder-3.jpg', title: 'Image 3', description: 'Description of the third image.' },
+                { image: '/placeholder-4.jpg', title: 'Image 4', description: 'Description of the fourth image.' },
+              ],
+              style: 'cards',
+            }),
+          ]),
+        ],
+      }),
+      createScene('summary', 'Gallery Summary', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#ea580c', '#c2410c'] } },
+        sections: [
+          createSection('sum-sec', 'Complete', [
+            createBlock('sum-title', 'heading', { level: 2, text: 'Gallery Complete' }),
+            createBlock('sum-text', 'text', { text: 'You\'ve viewed all images in the gallery. What stood out to you?' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('image1-src', 'image', 'Image 1', { sceneId: 'gallery', sectionId: 'gal-sec', blockId: 'gal-carousel', property: 'items[0].image' }),
+    createPlaceholder('image1-title', 'text', 'Image 1 Title', { sceneId: 'gallery', sectionId: 'gal-sec', blockId: 'gal-carousel', property: 'items[0].title' }),
+  ],
+};
+
+// ============================================
+// CATEGORY 8: PRACTICE & ACTIVITY TEMPLATES
+// ============================================
+
+// Template 22: Guided Practice Lesson
+const guidedPracticeLesson: LessonTemplate = {
+  metadata: {
+    id: 'guided-practice',
+    name: 'Guided Practice Lesson',
+    description: 'Step-by-step practice with interactive prompts',
+    longDescription: 'Hands-on practice with guidance. Perfect for exercises, techniques, or any skill that requires practice with feedback.',
+    category: 'practice',
+    difficulty: 'intermediate',
+    tags: ['practice', 'hands-on', 'exercise', 'guided'],
+    components: ['text', 'image', 'checklist', 'timer'],
+    estimatedTime: 15,
+    sceneCount: 4,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/practice-thumb.png',
+  },
+  content: {
+    title: 'Guided Practice',
+    description: 'Practice with guidance',
+    theme: 'illustrated',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Practice Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#10b981', '#059669'] } },
+        sections: [
+          createSection('intro-sec', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'Let\'s Practice' }),
+            createBlock('intro-text', 'text', { text: 'In this lesson, you\'ll practice the skill with step-by-step guidance. Follow the instructions and check off each step.' }),
+          ]),
+        ],
+      }),
+      createScene('exercise1', 'Exercise 1', {
+        type: 'activity',
+        background: { type: 'solid', color: '#ecfdf5' },
+        sections: [
+          createSection('ex1-sec', 'First Exercise', [
+            createBlock('ex1-title', 'heading', { level: 2, text: 'Exercise 1: [Name]' }),
+            createBlock('ex1-instructions', 'text', { text: 'Follow these instructions for the first exercise.' }),
+            createBlock('ex1-checklist', 'checklist', {
+              items: [
+                { id: 'step1', text: 'Complete step 1', completed: false },
+                { id: 'step2', text: 'Complete step 2', completed: false },
+                { id: 'step3', text: 'Complete step 3', completed: false },
+              ],
+            }),
+            createBlock('ex1-timer', 'timer', { duration: 120, label: 'Time Remaining' }),
+          ]),
+        ],
+      }),
+      createScene('exercise2', 'Exercise 2', {
+        type: 'activity',
+        background: { type: 'solid', color: '#d1fae5' },
+        sections: [
+          createSection('ex2-sec', 'Second Exercise', [
+            createBlock('ex2-title', 'heading', { level: 2, text: 'Exercise 2: [Name]' }),
+            createBlock('ex2-instructions', 'text', { text: 'Follow these instructions for the second exercise.' }),
+            createBlock('ex2-checklist', 'checklist', {
+              items: [
+                { id: 'step1', text: 'Complete step 1', completed: false },
+                { id: 'step2', text: 'Complete step 2', completed: false },
+                { id: 'step3', text: 'Complete step 3', completed: false },
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('complete', 'Practice Complete', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#059669', '#047857'] } },
+        sections: [
+          createSection('comp-sec', 'Done!', [
+            createBlock('comp-title', 'heading', { level: 2, text: 'Practice Complete!' }),
+            createBlock('comp-text', 'text', { text: 'You\'ve completed the guided practice. Continue practicing on your own to build mastery.' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('exercise1-name', 'text', 'Exercise 1 Name', { sceneId: 'exercise1', sectionId: 'ex1-sec', blockId: 'ex1-title', property: 'text' }),
+    createPlaceholder('exercise1-instructions', 'text', 'Exercise 1 Instructions', { sceneId: 'exercise1', sectionId: 'ex1-sec', blockId: 'ex1-instructions', property: 'text' }),
+  ],
+};
+
+// Template 23: Reflection Journal Lesson
+const reflectionJournalLesson: LessonTemplate = {
+  metadata: {
+    id: 'reflection-journal',
+    name: 'Reflection Journal Lesson',
+    description: 'Guided writing prompts for reflection',
+    longDescription: 'Structured reflection with journaling prompts. Great for processing experiences, setting goals, or deep learning through writing.',
+    category: 'practice',
+    difficulty: 'beginner',
+    tags: ['reflection', 'journal', 'writing', 'prompts'],
+    components: ['reflection', 'text', 'journal', 'prompt'],
+    estimatedTime: 15,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/journal-thumb.png',
+  },
+  content: {
+    title: 'Reflection Journal',
+    description: 'Reflect and write',
+    theme: 'storytelling',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Journal Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#6366f1', '#4f46e5'] } },
+        sections: [
+          createSection('intro-sec', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: '📝 Reflection Journal' }),
+            createBlock('intro-text', 'text', { text: 'Take time to reflect on your learning. Write your thoughts in response to each prompt.' }),
+          ]),
+        ],
+      }),
+      createScene('prompts', 'Reflection Prompts', {
+        type: 'reflection',
+        background: { type: 'solid', color: '#eef2ff' },
+        sections: [
+          createSection('prompts-sec', 'Write Your Thoughts', [
+            createBlock('prompt1', 'reflection', { prompt: 'What did you learn that surprised you?', placeholder: 'Write your reflection here...' }),
+            createBlock('prompt2', 'reflection', { prompt: 'How will you apply what you learned?', placeholder: 'Write your reflection here...' }),
+            createBlock('prompt3', 'reflection', { prompt: 'What questions do you still have?', placeholder: 'Write your reflection here...' }),
+          ]),
+        ],
+      }),
+      createScene('complete', 'Reflection Complete', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#4f46e5', '#4338ca'] } },
+        sections: [
+          createSection('comp-sec', 'Done', [
+            createBlock('comp-title', 'heading', { level: 2, text: 'Reflection Complete' }),
+            createBlock('comp-text', 'text', { text: 'Thank you for taking time to reflect. Your insights will help deepen your learning.' }),
+            createBlock('comp-download', 'callout', { type: 'info', text: 'You can download or save your reflections for future reference.' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('prompt1', 'text', 'Prompt 1', { sceneId: 'prompts', sectionId: 'prompts-sec', blockId: 'prompt1', property: 'prompt' }),
+    createPlaceholder('prompt2', 'text', 'Prompt 2', { sceneId: 'prompts', sectionId: 'prompts-sec', blockId: 'prompt2', property: 'prompt' }),
+  ],
+};
+
+// Template 24: Worksheet Lesson
+const worksheetLesson: LessonTemplate = {
+  metadata: {
+    id: 'worksheet-lesson',
+    name: 'Worksheet Lesson',
+    description: 'Fillable sections with downloadable worksheets',
+    longDescription: 'Interactive worksheet with fillable fields. Great for planning, analysis, or structured thinking exercises.',
+    category: 'practice',
+    difficulty: 'beginner',
+    tags: ['worksheet', 'fillable', 'planning', 'downloadable'],
+    components: ['worksheet', 'text', 'input', 'download'],
+    estimatedTime: 20,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/worksheet-thumb.png',
+  },
+  content: {
+    title: 'Interactive Worksheet',
+    description: 'Fill out and learn',
+    theme: 'infographic',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Worksheet Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#14b8a6', '#0d9488'] } },
+        sections: [
+          createSection('intro-sec', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: '📋 Worksheet' }),
+            createBlock('intro-text', 'text', { text: 'Complete this interactive worksheet. Your answers will help you apply what you\'ve learned.' }),
+          ]),
+        ],
+      }),
+      createScene('worksheet', 'Fill Out Worksheet', {
+        type: 'activity',
+        background: { type: 'solid', color: '#f0fdfa' },
+        sections: [
+          createSection('work-sec', 'Your Answers', [
+            createBlock('work-section1', 'worksheet-section', {
+              title: 'Section 1: Analysis',
+              fields: [
+                { id: 'field1', label: 'What is the main problem?', type: 'text' },
+                { id: 'field2', label: 'What are the root causes?', type: 'textarea' },
+              ],
+            }),
+            createBlock('work-section2', 'worksheet-section', {
+              title: 'Section 2: Planning',
+              fields: [
+                { id: 'field3', label: 'What is your goal?', type: 'text' },
+                { id: 'field4', label: 'What steps will you take?', type: 'textarea' },
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('complete', 'Worksheet Complete', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#0d9488', '#0f766e'] } },
+        sections: [
+          createSection('comp-sec', 'Done', [
+            createBlock('comp-title', 'heading', { level: 2, text: 'Worksheet Complete' }),
+            createBlock('comp-download', 'download', { label: 'Download Your Worksheet', format: 'pdf' }),
+            createBlock('comp-text', 'text', { text: 'Save your completed worksheet for future reference or share it with others.' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('section1-title', 'text', 'Section 1 Title', { sceneId: 'worksheet', sectionId: 'work-sec', blockId: 'work-section1', property: 'title' }),
+    createPlaceholder('field1-label', 'text', 'Field 1 Label', { sceneId: 'worksheet', sectionId: 'work-sec', blockId: 'work-section1', property: 'fields[0].label' }),
+  ],
+};
+
+// ============================================
+// EXPORT PART 2 TEMPLATES
+// ============================================
+
+export const TEMPLATES_PART_2: Record<string, LessonTemplate> = {
+  // Category 5: Assessment
+  'embedded-knowledge-check': embeddedKnowledgeCheck,
+  'end-of-lesson-quiz': endOfLessonQuiz,
+  'gamified-quiz': gamifiedQuizLesson,
+  
+  // Category 6: Visual
+  'infographic-lesson': infographicLesson,
+  'timeline-lesson': timelineLesson,
+  'comparison-lesson': comparisonLesson,
+  
+  // Category 7: Media-Driven
+  'video-led-lesson': videoLedLesson,
+  'audio-podcast-lesson': audioPodcastLesson,
+  'media-gallery-lesson': mediaGalleryLesson,
+  
+  // Category 8: Practice
+  'guided-practice': guidedPracticeLesson,
+  'reflection-journal': reflectionJournalLesson,
+  'worksheet-lesson': worksheetLesson,
+};
+
+export default TEMPLATES_PART_2;

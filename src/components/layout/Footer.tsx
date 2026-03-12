@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Instagram, Twitter, Facebook, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Instagram, Twitter, Facebook, Youtube, Mail, Phone, MapPin } from 'lucide-react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
+import { BrandLogo } from '../branding/BrandLogo';
 
 const footerLinks = {
   courses: [
@@ -70,12 +71,7 @@ export const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary-600 rounded-2xl flex items-center justify-center">
-                <Heart className="w-5 h-5 text-white fill-white" />
-              </div>
-              <span className="text-xl font-bold">
-                Omugwo<span className="text-primary-400">Academy</span>
-              </span>
+              <BrandLogo nameClassName="text-xl font-bold text-white" />
             </Link>
             <p className="text-gray-400 text-sm mb-6 leading-relaxed">
               Modern postnatal education for African families. Bridging tradition and science for a healthier motherhood journey.

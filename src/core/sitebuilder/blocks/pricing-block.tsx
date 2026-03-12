@@ -4,24 +4,27 @@ import { BlockComponentProps, PropSchema } from "../types";
 import { Check, Star } from "lucide-react";
 import { getResponsiveGridClasses, useDevice } from "../device-context";
 import { AnimationWrapper, animationSchemaFields, getAnimationConfig } from "./animation-wrapper";
+import { InlineText } from "../components/InlineText";
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useCartStore } from '../../../stores/cartStore';
 
 export const pricingBlockSchema: PropSchema[] = [
   { name: "title", label: "Title", type: "text", group: "Content" },
   { name: "subtitle", label: "Subtitle", type: "textarea", group: "Content" },
-  { name: "plans", label: "Plans", type: "array", arrayItemSchema: [
-    { name: "name", label: "Plan Name", type: "text" },
-    { name: "price", label: "Price", type: "text" },
-    { name: "originalPrice", label: "Original Price", type: "text" },
-    { name: "period", label: "Period", type: "text" },
-    { name: "description", label: "Description", type: "textarea" },
-    { name: "features", label: "Features (comma separated)", type: "textarea" },
-    { name: "ctaText", label: "Button Text", type: "text" },
-    { name: "ctaLink", label: "Button Link", type: "text" },
-    { name: "highlighted", label: "Highlighted", type: "boolean" },
-    { name: "badge", label: "Badge", type: "text" },
-  ], group: "Content" },
+  {
+    name: "plans", label: "Plans", type: "array", arrayItemSchema: [
+      { name: "name", label: "Plan Name", type: "text" },
+      { name: "price", label: "Price", type: "text" },
+      { name: "originalPrice", label: "Original Price", type: "text" },
+      { name: "period", label: "Period", type: "text" },
+      { name: "description", label: "Description", type: "textarea" },
+      { name: "features", label: "Features (comma separated)", type: "textarea" },
+      { name: "ctaText", label: "Button Text", type: "text" },
+      { name: "ctaLink", label: "Button Link", type: "text" },
+      { name: "highlighted", label: "Highlighted", type: "boolean" },
+      { name: "badge", label: "Badge", type: "text" },
+    ], group: "Content"
+  },
   { name: "backgroundColor", label: "Background", type: "color", group: "Style" },
   ...animationSchemaFields,
 ];
@@ -103,22 +106,20 @@ export const PricingBlock: React.FC<BlockComponentProps> = ({ block, onChange, s
     <section className={cn("py-20 px-6")} style={{ backgroundColor: backgroundColor || undefined }}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2
+          <InlineText
+            element="h2"
             className="text-3xl md:text-4xl font-black text-gray-900 mb-4"
-            contentEditable={selected}
-            suppressContentEditableWarning
-            onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}
-          >
-            {title}
-          </h2>
-          <p
+            value={title}
+            onChange={(val) => handleChange("title", val)}
+            selected={selected}
+          />
+          <InlineText
+            element="p"
             className="text-lg text-gray-600"
-            contentEditable={selected}
-            suppressContentEditableWarning
-            onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}
-          >
-            {subtitle}
-          </p>
+            value={subtitle}
+            onChange={(val) => handleChange("subtitle", val)}
+            selected={selected}
+          />
         </div>
         <div className={cn("grid gap-8 max-w-5xl mx-auto", getResponsiveGridClasses(3, device))}>
           {plans.map((plan: any, idx: number) => {
@@ -140,58 +141,52 @@ export const PricingBlock: React.FC<BlockComponentProps> = ({ block, onChange, s
                     "absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 text-xs font-bold rounded-full",
                     plan.highlighted ? "bg-yellow-400 text-yellow-900" : "bg-primary-100 text-primary-700"
                   )}>
-                    <span
-                      contentEditable={selected}
-                      suppressContentEditableWarning
-                      onBlur={(e) => updatePlan(idx, "badge", e.currentTarget.textContent || "")}
-                    >
-                      {plan.badge}
-                    </span>
+                    <InlineText
+                      element="span"
+                      value={plan.badge}
+                      onChange={(val) => updatePlan(idx, "badge", val)}
+                      selected={selected}
+                    />
                   </span>
                 )}
-                <h3
+                <InlineText
+                  element="h3"
                   className={cn("text-xl font-bold mb-2", plan.highlighted ? "text-white" : "text-gray-900")}
-                  contentEditable={selected}
-                  suppressContentEditableWarning
-                  onBlur={(e) => updatePlan(idx, "name", e.currentTarget.textContent || "")}
-                >
-                  {plan.name}
-                </h3>
-                <p
+                  value={plan.name}
+                  onChange={(val) => updatePlan(idx, "name", val)}
+                  selected={selected}
+                />
+                <InlineText
+                  element="p"
                   className={cn("text-sm mb-4", plan.highlighted ? "text-white/70" : "text-gray-500")}
-                  contentEditable={selected}
-                  suppressContentEditableWarning
-                  onBlur={(e) => updatePlan(idx, "description", e.currentTarget.textContent || "")}
-                >
-                  {plan.description}
-                </p>
+                  value={plan.description}
+                  onChange={(val) => updatePlan(idx, "description", val)}
+                  selected={selected}
+                />
                 <div className="mb-6">
-                  <span
+                  <InlineText
+                    element="span"
                     className={cn("text-4xl font-black", plan.highlighted ? "text-white" : "text-gray-900")}
-                    contentEditable={selected}
-                    suppressContentEditableWarning
-                    onBlur={(e) => updatePlan(idx, "price", e.currentTarget.textContent || "")}
-                  >
-                    {plan.price}
-                  </span>
+                    value={plan.price}
+                    onChange={(val) => updatePlan(idx, "price", val)}
+                    selected={selected}
+                  />
                   {plan.originalPrice && (
-                    <span
+                    <InlineText
+                      element="span"
                       className={cn("text-sm line-through ml-2", plan.highlighted ? "text-white/50" : "text-gray-400")}
-                      contentEditable={selected}
-                      suppressContentEditableWarning
-                      onBlur={(e) => updatePlan(idx, "originalPrice", e.currentTarget.textContent || "")}
-                    >
-                      {plan.originalPrice}
-                    </span>
+                      value={plan.originalPrice}
+                      onChange={(val) => updatePlan(idx, "originalPrice", val)}
+                      selected={selected}
+                    />
                   )}
-                  <p
+                  <InlineText
+                    element="p"
                     className={cn("text-xs mt-1", plan.highlighted ? "text-white/60" : "text-gray-400")}
-                    contentEditable={selected}
-                    suppressContentEditableWarning
-                    onBlur={(e) => updatePlan(idx, "period", e.currentTarget.textContent || "")}
-                  >
-                    {plan.period}
-                  </p>
+                    value={plan.period}
+                    onChange={(val) => updatePlan(idx, "period", val)}
+                    selected={selected}
+                  />
                 </div>
                 <ul className="space-y-3 mb-8">
                   {features.map((feature: string, fi: number) => (
@@ -224,13 +219,12 @@ export const PricingBlock: React.FC<BlockComponentProps> = ({ block, onChange, s
                     }
                   }}
                 >
-                  <span
-                    contentEditable={selected}
-                    suppressContentEditableWarning
-                    onBlur={(e) => updatePlan(idx, "ctaText", e.currentTarget.textContent || "")}
-                  >
-                    {plan.ctaText}
-                  </span>
+                  <InlineText
+                    element="span"
+                    value={plan.ctaText}
+                    onChange={(val) => updatePlan(idx, "ctaText", val)}
+                    selected={selected}
+                  />
                 </a>
               </AnimationWrapper>
             );

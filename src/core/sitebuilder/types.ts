@@ -39,6 +39,34 @@ export type BlockType =
   | "cinematic_course_page"
   | "minimalist_course_page"
   | "luxury_course_page"
+  // Platform-Specific Course Blocks
+  | "udemy_hero"
+  | "coursera_hero"
+  | "masterclass_hero"
+  | "linkedin_hero"
+  | "teachable_hero"
+  | "thinkific_hero"
+  // Playful Course Blocks
+  | "playful_hero"
+  | "playful_features"
+  | "playful_cta"
+  // Scientific Course Blocks
+  | "scientific_hero"
+  | "scientific_stats"
+  | "scientific_content"
+  | "scientific_cta"
+  // Tech Course Blocks
+  | "tech_hero"
+  | "tech_features"
+  | "tech_cta"
+  // Cultural Course Blocks
+  | "cultural_hero"
+  | "cultural_features"
+  | "cultural_cta"
+  // Sales Course Blocks
+  | "sales_hero"
+  | "sales_benefits"
+  | "sales_cta"
   // Webinar Blocks
   | "webinar_registration"
   | "webinar_countdown"

@@ -4,6 +4,7 @@ import { BlockComponentProps, PropSchema } from "../types";
 import { Heart, Shield, BookOpen, Users, Star, Zap, Award, Target } from "lucide-react";
 import { getResponsiveGridClasses, useDevice } from "../device-context";
 import { AnimationWrapper, animationSchemaFields, getAnimationConfig, sizingSchemaFields } from "./animation-wrapper";
+import { InlineText } from "../components/InlineText";
 
 const ICON_MAP: Record<string, React.FC<any>> = {
   heart: Heart, shield: Shield, book: BookOpen, users: Users,
@@ -25,6 +26,13 @@ export const featuresBlockSchema: PropSchema[] = [
   {
     name: "align", label: "Card Alignment", type: "select", options: [
       { label: "Left", value: "left" }, { label: "Center", value: "center" },
+    ], group: "Layout"
+  },
+  {
+    name: "textAlign", label: "Text Alignment", type: "select", options: [
+      { label: "Left", value: "left" },
+      { label: "Center", value: "center" },
+      { label: "Right", value: "right" },
     ], group: "Layout"
   },
   {
@@ -61,6 +69,7 @@ export const FeaturesBlock: React.FC<BlockComponentProps> = ({ block, onChange, 
     title = "Why Choose Omugwo Academy",
     subtitle = "A holistic approach to postpartum care that honors tradition while embracing modern science.",
     align = "left",
+    textAlign = "left",
     columns = "3",
     features = [
       { icon: "heart", title: "Evidence-Based Care", description: "Our curriculum is developed by medical professionals and backed by research." },
@@ -101,12 +110,20 @@ export const FeaturesBlock: React.FC<BlockComponentProps> = ({ block, onChange, 
                 {feature.badge}
               </span>
             )}
-            <h3 className="text-lg font-bold text-gray-900 mb-1" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateFeature(idx, "title", e.currentTarget.textContent || "")}>
-              {feature.title}
-            </h3>
-            <p className="text-gray-600 text-sm" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateFeature(idx, "description", e.currentTarget.textContent || "")}>
-              {feature.description}
-            </p>
+            <InlineText
+              element="h3"
+              className="text-lg font-bold text-gray-900 mb-1"
+              value={feature.title}
+              onChange={(val) => updateFeature(idx, "title", val)}
+              selected={selected}
+            />
+            <InlineText
+              element="p"
+              className="text-gray-600 text-sm"
+              value={feature.description}
+              onChange={(val) => updateFeature(idx, "description", val)}
+              selected={selected}
+            />
           </div>
         </AnimationWrapper>
       );
@@ -123,12 +140,20 @@ export const FeaturesBlock: React.FC<BlockComponentProps> = ({ block, onChange, 
               {feature.badge}
             </span>
           )}
-          <h3 className="text-lg font-bold text-gray-900 mb-2" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateFeature(idx, "title", e.currentTarget.textContent || "")}>
-            {feature.title}
-          </h3>
-          <p className="text-gray-600 text-sm" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateFeature(idx, "description", e.currentTarget.textContent || "")}>
-            {feature.description}
-          </p>
+          <InlineText
+            element="h3"
+            className="text-lg font-bold text-gray-900 mb-2"
+            value={feature.title}
+            onChange={(val) => updateFeature(idx, "title", val)}
+            selected={selected}
+          />
+          <InlineText
+            element="p"
+            className="text-gray-600 text-sm"
+            value={feature.description}
+            onChange={(val) => updateFeature(idx, "description", val)}
+            selected={selected}
+          />
         </AnimationWrapper>
       );
     }
@@ -141,12 +166,20 @@ export const FeaturesBlock: React.FC<BlockComponentProps> = ({ block, onChange, 
               {feature.badge}
             </span>
           )}
-          <h3 className="text-lg font-bold text-gray-900 mb-1" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateFeature(idx, "title", e.currentTarget.textContent || "")}>
-            {feature.title}
-          </h3>
-          <p className="text-gray-600 text-sm" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateFeature(idx, "description", e.currentTarget.textContent || "")}>
-            {feature.description}
-          </p>
+          <InlineText
+            element="h3"
+            className="text-lg font-bold text-gray-900 mb-1"
+            value={feature.title}
+            onChange={(val) => updateFeature(idx, "title", val)}
+            selected={selected}
+          />
+          <InlineText
+            element="p"
+            className="text-gray-600 text-sm"
+            value={feature.description}
+            onChange={(val) => updateFeature(idx, "description", val)}
+            selected={selected}
+          />
         </AnimationWrapper>
       );
     }
@@ -164,12 +197,20 @@ export const FeaturesBlock: React.FC<BlockComponentProps> = ({ block, onChange, 
           <div className={cn("w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 text-primary-600", align === "center" ? "mx-auto" : "")}>
             <IconComp className="w-8 h-8" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-4" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateFeature(idx, "title", e.currentTarget.textContent || "")}>
-            {feature.title}
-          </h3>
-          <p className="text-gray-600 leading-relaxed" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateFeature(idx, "description", e.currentTarget.textContent || "")}>
-            {feature.description}
-          </p>
+          <InlineText
+            element="h3"
+            className="text-2xl font-bold text-gray-900 mb-4"
+            value={feature.title}
+            onChange={(val) => updateFeature(idx, "title", val)}
+            selected={selected}
+          />
+          <InlineText
+            element="p"
+            className="text-gray-600 leading-relaxed"
+            value={feature.description}
+            onChange={(val) => updateFeature(idx, "description", val)}
+            selected={selected}
+          />
         </div>
       </AnimationWrapper>
     );
@@ -178,28 +219,26 @@ export const FeaturesBlock: React.FC<BlockComponentProps> = ({ block, onChange, 
   return (
     <section className={cn(paddingY, "px-6", backgroundColor ? "" : "bg-gray-50")} style={{ backgroundColor: backgroundColor || undefined }}>
       <div className={cn("mx-auto", containerSize)}>
-        <AnimationWrapper animation={animConfig} className="text-center max-w-3xl mx-auto mb-16">
+        <AnimationWrapper animation={animConfig} className={cn("max-w-3xl mx-auto mb-16", textAlign === "center" && "text-center", textAlign === "right" && "text-right", textAlign === "left" && "text-left")}>
           {badgeText && (
             <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-white text-primary-700 text-sm font-bold rounded-full mb-4 shadow-sm">
               {badgeText}
             </span>
           )}
-          <h2
+          <InlineText
+            element="h2"
             className="text-3xl md:text-5xl font-black text-gray-900 mb-6"
-            contentEditable={selected}
-            suppressContentEditableWarning
-            onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}
-          >
-            {title}
-          </h2>
-          <p
+            value={title}
+            onChange={(val) => handleChange("title", val)}
+            selected={selected}
+          />
+          <InlineText
+            element="p"
             className="text-xl text-gray-600"
-            contentEditable={selected}
-            suppressContentEditableWarning
-            onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}
-          >
-            {subtitle}
-          </p>
+            value={subtitle}
+            onChange={(val) => handleChange("subtitle", val)}
+            selected={selected}
+          />
         </AnimationWrapper>
         <div className={cn("grid gap-8", getResponsiveGridClasses(Number(columns || 3), device))}>
           {features.map((feature: any, idx: number) => renderFeatureItem(feature, idx))}

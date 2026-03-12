@@ -3,9 +3,68 @@ import {
   Zap, CircleHelp, BarChart3, MailPlus, BadgeDollarSign, ToggleRight,
   BookOpen, Video, Calendar, Users, Award, Target, Timer,
   PanelTopDashed, Rows4, Phone, MapPinned, GitBranch, Database,
-  GalleryHorizontalEnd, UsersRound, FileText, Megaphone, Play, Gem
+  GalleryHorizontalEnd, UsersRound, FileText, Megaphone, Play, Gem, FlaskConical, Code2, Layers, Globe, Leaf, TrendingUp, Gift
 } from "lucide-react";
-import { BlockDefinition } from "./types";
+import { BlockDefinition, PropSchema } from "./types";
+
+// --- UNIVERSAL SCHEMAS ---
+const universalSchema: PropSchema[] = [
+  // LAYOUT
+  { name: "padding", label: "Padding", type: "padding", group: "Layout" },
+  { name: "margin", label: "Margin", type: "margin", group: "Layout" },
+  {
+    name: "maxWidth", label: "Max Width", type: "select", group: "Layout", options: [
+      { label: "Small (640px)", value: "max-w-screen-sm" },
+      { label: "Medium (768px)", value: "max-w-screen-md" },
+      { label: "Large (1024px)", value: "max-w-screen-lg" },
+      { label: "XL (1280px)", value: "max-w-screen-xl" },
+      { label: "Full Width", value: "max-w-full" },
+    ], default: "max-w-screen-xl"
+  },
+
+  // STYLE
+  { name: "backgroundColor", label: "Background", type: "color", group: "Style" },
+  { name: "backgroundImage", label: "Background Image", type: "image", group: "Style" },
+  { name: "borderRadius", label: "Corner Radius", type: "border_radius", group: "Style" },
+  { name: "shadow", label: "Drop Shadow", type: "shadow", group: "Style" },
+  { name: "borderWidth", label: "Border Width", type: "number", group: "Style", min: 0, max: 20, default: 0 },
+  { name: "borderColor", label: "Border Color", type: "color", group: "Style" },
+
+  // ANIMATION
+  {
+    name: "animation", label: "Entrance Animation", type: "select", group: "Animation", options: [
+      { label: "None", value: "none" },
+      { label: "Fade In", value: "fadeIn" },
+      { label: "Slide Up", value: "slideUp" },
+      { label: "Scale Up", value: "scaleUp" },
+      { label: "Float", value: "float" },
+    ], default: "fadeIn"
+  },
+
+  // ADVANCED
+  { name: "customCss", label: "Custom CSS", type: "textarea", group: "Advanced" },
+  { name: "anchorId", label: "Section Anchor ID", type: "text", group: "Advanced" },
+];
+
+const universalDefaultProps = {
+  padding: { top: 80, bottom: 80, left: 24, right: 24, linked: false },
+  margin: { top: 0, bottom: 0, left: 0, right: 0, linked: true },
+  maxWidth: "max-w-screen-xl",
+  backgroundColor: "transparent",
+  borderRadius: { borderRadius: 0 },
+  animation: "fadeIn",
+};
+
+/**
+ * Helper to wrap block definitions with universal props
+ */
+const withUniversal = (def: Omit<BlockDefinition, "propSchema" | "defaultProps"> & { propSchema: PropSchema[], defaultProps: Record<string, any> }): BlockDefinition => {
+  return {
+    ...def,
+    defaultProps: { ...universalDefaultProps, ...def.defaultProps },
+    propSchema: [...def.propSchema, ...universalSchema],
+  };
+};
 
 import { HeroBlock, heroBlockSchema } from "./blocks/hero-block";
 import { FeaturesBlock, featuresBlockSchema } from "./blocks/features-block";
@@ -51,10 +110,21 @@ import { InteractiveCoursePageBlock, interactiveCoursePageBlockSchema } from "./
 import { CinematicCoursePageBlock, cinematicCoursePageBlockSchema } from "./blocks/cinematic-course-page-block";
 import { MinimalistCoursePageBlock, minimalistCoursePageBlockSchema } from "./blocks/minimalist-course-page-block";
 import { LuxuryCoursePageBlock, luxuryCoursePageBlockSchema } from "./blocks/luxury-course-page-block";
+import { UdemyHeroBlock, udemyHeroBlockSchema } from "./blocks/udemy-hero-block";
+import { CourseraHeroBlock, courseraHeroBlockSchema } from "./blocks/coursera-hero-block";
+import { MasterclassHeroBlock, masterclassHeroBlockSchema } from "./blocks/masterclass-hero-block";
+import { LinkedinHeroBlock, linkedinHeroBlockSchema } from "./blocks/linkedin-hero-block";
+import { TeachableHeroBlock, teachableHeroBlockSchema } from "./blocks/teachable-hero-block";
+import { ThinkificHeroBlock, thinkificHeroBlockSchema } from "./blocks/thinkific-hero-block";
+import { PlayfulHeroBlock, playfulHeroBlockSchema, PlayfulFeaturesBlock, playfulFeaturesBlockSchema, PlayfulCtaBlock, playfulCtaBlockSchema } from "./blocks/playful-course-blocks";
+import { ScientificHeroBlock, scientificHeroBlockSchema, ScientificStatsBlock, scientificStatsBlockSchema, ScientificContentBlock, scientificContentBlockSchema, ScientificCtaBlock, scientificCtaBlockSchema } from "./blocks/scientific-course-blocks";
+import { TechHeroBlock, techHeroBlockSchema, TechFeaturesBlock, techFeaturesBlockSchema, TechCtaBlock, techCtaBlockSchema } from "./blocks/tech-course-blocks";
+import { CulturalHeroBlock, culturalHeroBlockSchema, CulturalFeaturesBlock, culturalFeaturesBlockSchema, CulturalCtaBlock, culturalCtaBlockSchema } from "./blocks/cultural-course-blocks";
+import { SalesHeroBlock, salesHeroBlockSchema, SalesBenefitsBlock, salesBenefitsBlockSchema, SalesCtaBlock, salesCtaBlockSchema } from "./blocks/sales-course-blocks";
 
 export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
   //  Hero Blocks 
-  hero: {
+  hero: withUniversal({
     type: "hero",
     label: "Hero Section",
     icon: Sparkles,
@@ -75,8 +145,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       paddingY: "py-32",
     },
     propSchema: heroBlockSchema,
-  },
-  hero_split: {
+  }),
+  hero_split: withUniversal({
     type: "hero_split",
     label: "Hero (Split)",
     icon: SplitSquareHorizontal,
@@ -96,10 +166,10 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       paddingY: "py-24",
     },
     propSchema: heroBlockSchema,
-  },
+  }),
 
   //  Marketing Blocks 
-  features: {
+  features: withUniversal({
     type: "features",
     label: "Features Grid",
     icon: LayoutGrid,
@@ -111,8 +181,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       columns: "3",
     },
     propSchema: featuresBlockSchema,
-  },
-  testimonials: {
+  }),
+  testimonials: withUniversal({
     type: "testimonials",
     label: "Testimonials",
     icon: Quote,
@@ -124,8 +194,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       columns: "3",
     },
     propSchema: testimonialsBlockSchema,
-  },
-  cta: {
+  }),
+  cta: withUniversal({
     type: "cta",
     label: "Call To Action",
     icon: Zap,
@@ -142,8 +212,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       align: "center",
     },
     propSchema: ctaBlockSchema,
-  },
-  faq: {
+  }),
+  faq: withUniversal({
     type: "faq",
     label: "FAQ Accordion",
     icon: CircleHelp,
@@ -154,8 +224,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       subtitle: "Everything you need to know about our courses and platform.",
     },
     propSchema: faqBlockSchema,
-  },
-  stats: {
+  }),
+  stats: withUniversal({
     type: "stats",
     label: "Stats Counter",
     icon: BarChart3,
@@ -163,8 +233,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: StatsBlock,
     defaultProps: { variant: "light" },
     propSchema: statsBlockSchema,
-  },
-  newsletter: {
+  }),
+  newsletter: withUniversal({
     type: "newsletter",
     label: "Newsletter Signup",
     icon: MailPlus,
@@ -177,8 +247,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       variant: "primary",
     },
     propSchema: newsletterBlockSchema,
-  },
-  campaign_story: {
+  }),
+  campaign_story: withUniversal({
     type: "campaign_story",
     label: "Campaign Story",
     icon: LayoutGrid,
@@ -191,8 +261,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       titleSuffix: " Story",
     },
     propSchema: campaignStoryBlockSchema,
-  },
-  content: {
+  }),
+  content: withUniversal({
     type: "content",
     label: "Content Section",
     icon: FileText,
@@ -209,10 +279,10 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       textOffsetY: 0,
     },
     propSchema: contentBlockSchema,
-  },
+  }),
 
   //  Course Blocks 
-  course_curriculum: {
+  course_curriculum: withUniversal({
     type: "course_curriculum",
     label: "Course Curriculum",
     icon: BookOpen,
@@ -225,8 +295,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       showProgress: false,
     },
     propSchema: courseCurriculumBlockSchema,
-  },
-  course_overview: {
+  }),
+  course_overview: withUniversal({
     type: "course_overview",
     label: "Course Overview (Sidebar)",
     icon: BookOpen,
@@ -237,8 +307,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       title: "Course Description",
     },
     propSchema: courseOverviewBlockSchema,
-  },
-  course_grid: {
+  }),
+  course_grid: withUniversal({
     type: "course_grid",
     label: "Course Grid",
     icon: LayoutGrid,
@@ -256,8 +326,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       ctaLink: "/courses",
     },
     propSchema: courseGridBlockSchema,
-  },
-  pricing_table: {
+  }),
+  pricing_table: withUniversal({
     type: "pricing_table",
     label: "Pricing Table",
     icon: BadgeDollarSign,
@@ -268,9 +338,9 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       subtitle: "Invest in yourself and your family's wellbeing.",
     },
     propSchema: pricingBlockSchema,
-  },
+  }),
 
-  pricing: {
+  pricing: withUniversal({
     type: "pricing",
     label: "Pricing",
     icon: BadgeDollarSign,
@@ -281,10 +351,10 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       subtitle: "Invest in yourself and your family's wellbeing.",
     },
     propSchema: pricingBlockSchema,
-  },
+  }),
 
   //  Showcase Course Layout Blocks (Exact Replicas) 
-  interactive_course_hero: {
+  interactive_course_hero: withUniversal({
     type: "interactive_course_hero",
     label: "Interactive Course Hero",
     icon: Sparkles,
@@ -307,8 +377,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       stat2Value: "8,432 Members",
     },
     propSchema: interactiveCourseHeroBlockSchema,
-  },
-  cinematic_course_hero: {
+  }),
+  cinematic_course_hero: withUniversal({
     type: "cinematic_course_hero",
     label: "Cinematic Course Hero",
     icon: Play,
@@ -327,8 +397,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       lessons: "48",
     },
     propSchema: cinematicCourseHeroBlockSchema,
-  },
-  minimalist_course_hero: {
+  }),
+  minimalist_course_hero: withUniversal({
     type: "minimalist_course_hero",
     label: "Minimalist Course Hero",
     icon: FileText,
@@ -346,8 +416,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       brandName: "Omugwo.",
     },
     propSchema: minimalistCourseHeroBlockSchema,
-  },
-  luxury_course_hero: {
+  }),
+  luxury_course_hero: withUniversal({
     type: "luxury_course_hero",
     label: "Luxury Course Hero",
     icon: Award,
@@ -363,8 +433,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       buttonText: "Boutique",
     },
     propSchema: luxuryCourseHeroBlockSchema,
-  },
-  interactive_course_features: {
+  }),
+  interactive_course_features: withUniversal({
     type: "interactive_course_features",
     label: "Interactive Course Features",
     icon: LayoutGrid,
@@ -372,8 +442,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: InteractiveCourseFeaturesBlock,
     defaultProps: {},
     propSchema: interactiveCourseFeaturesBlockSchema,
-  },
-  interactive_course_modules: {
+  }),
+  interactive_course_modules: withUniversal({
     type: "interactive_course_modules",
     label: "Interactive Course Modules",
     icon: LayoutGrid,
@@ -381,8 +451,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: InteractiveCourseModulesBlock,
     defaultProps: {},
     propSchema: interactiveCourseModulesBlockSchema,
-  },
-  cinematic_course_body: {
+  }),
+  cinematic_course_body: withUniversal({
     type: "cinematic_course_body",
     label: "Cinematic Course Body",
     icon: Play,
@@ -390,8 +460,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: CinematicCourseBodyBlock,
     defaultProps: {},
     propSchema: cinematicCourseBodyBlockSchema,
-  },
-  minimalist_course_philosophy: {
+  }),
+  minimalist_course_philosophy: withUniversal({
     type: "minimalist_course_philosophy",
     label: "Minimalist Course Philosophy",
     icon: FileText,
@@ -399,8 +469,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: MinimalistCoursePhilosophyBlock,
     defaultProps: {},
     propSchema: minimalistCoursePhilosophyBlockSchema,
-  },
-  minimalist_course_curriculum: {
+  }),
+  minimalist_course_curriculum: withUniversal({
     type: "minimalist_course_curriculum",
     label: "Minimalist Course Curriculum",
     icon: BookOpen,
@@ -408,8 +478,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: MinimalistCourseCurriculumBlock,
     defaultProps: {},
     propSchema: minimalistCourseCurriculumBlockSchema,
-  },
-  luxury_course_experience: {
+  }),
+  luxury_course_experience: withUniversal({
     type: "luxury_course_experience",
     label: "Luxury Course Experience",
     icon: Gem,
@@ -417,8 +487,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: LuxuryCourseExperienceBlock,
     defaultProps: {},
     propSchema: luxuryCourseExperienceBlockSchema,
-  },
-  luxury_course_curriculum: {
+  }),
+  luxury_course_curriculum: withUniversal({
     type: "luxury_course_curriculum",
     label: "Luxury Course Curriculum",
     icon: BookOpen,
@@ -426,8 +496,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: LuxuryCourseCurriculumBlock,
     defaultProps: {},
     propSchema: luxuryCourseCurriculumBlockSchema,
-  },
-  luxury_course_investment: {
+  }),
+  luxury_course_investment: withUniversal({
     type: "luxury_course_investment",
     label: "Luxury Course Investment",
     icon: BadgeDollarSign,
@@ -435,8 +505,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: LuxuryCourseInvestmentBlock,
     defaultProps: {},
     propSchema: luxuryCourseInvestmentBlockSchema,
-  },
-  interactive_course_page: {
+  }),
+  interactive_course_page: withUniversal({
     type: "interactive_course_page",
     label: "Interactive Course Page (Exact)",
     icon: Sparkles,
@@ -444,8 +514,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: InteractiveCoursePageBlock,
     defaultProps: {},
     propSchema: interactiveCoursePageBlockSchema,
-  },
-  cinematic_course_page: {
+  }),
+  cinematic_course_page: withUniversal({
     type: "cinematic_course_page",
     label: "Cinematic Course Page (Exact)",
     icon: Play,
@@ -453,8 +523,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: CinematicCoursePageBlock,
     defaultProps: {},
     propSchema: cinematicCoursePageBlockSchema,
-  },
-  minimalist_course_page: {
+  }),
+  minimalist_course_page: withUniversal({
     type: "minimalist_course_page",
     label: "Minimalist Course Page (Exact)",
     icon: FileText,
@@ -462,8 +532,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: MinimalistCoursePageBlock,
     defaultProps: {},
     propSchema: minimalistCoursePageBlockSchema,
-  },
-  luxury_course_page: {
+  }),
+  luxury_course_page: withUniversal({
     type: "luxury_course_page",
     label: "Luxury Course Page (Exact)",
     icon: Award,
@@ -471,10 +541,82 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
     component: LuxuryCoursePageBlock,
     defaultProps: {},
     propSchema: luxuryCoursePageBlockSchema,
-  },
+  }),
+
+  //  Platform-Specific Course Blocks 
+  udemy_hero: withUniversal({
+    type: "udemy_hero",
+    label: "Udemy-Style Hero",
+    icon: Sparkles,
+    category: "course",
+    component: UdemyHeroBlock,
+    defaultProps: {
+      title: "The Complete Postpartum Recovery Masterclass",
+      price: "₦49,000",
+      originalPrice: "₦129,000",
+      discountPercent: 62,
+    },
+    propSchema: udemyHeroBlockSchema,
+  }),
+  coursera_hero: withUniversal({
+    type: "coursera_hero",
+    label: "Coursera-Style Hero",
+    icon: Award,
+    category: "course",
+    component: CourseraHeroBlock,
+    defaultProps: {
+      title: "Postpartum Recovery Specialization",
+      badgeText: "PROFESSIONAL CERTIFICATE",
+    },
+    propSchema: courseraHeroBlockSchema,
+  }),
+  masterclass_hero: withUniversal({
+    type: "masterclass_hero",
+    label: "MasterClass-Style Hero",
+    icon: Play,
+    category: "course",
+    component: MasterclassHeroBlock,
+    defaultProps: {
+      title: "Dr. Megor Teaches Postpartum Recovery",
+    },
+    propSchema: masterclassHeroBlockSchema,
+  }),
+  linkedin_hero: withUniversal({
+    type: "linkedin_hero",
+    label: "LinkedIn Learning Hero",
+    icon: Users,
+    category: "course",
+    component: LinkedinHeroBlock,
+    defaultProps: {
+      title: "Essential Postnatal Care Skills",
+    },
+    propSchema: linkedinHeroBlockSchema,
+  }),
+  teachable_hero: withUniversal({
+    type: "teachable_hero",
+    label: "Teachable-Style Hero",
+    icon: FileText,
+    category: "course",
+    component: TeachableHeroBlock,
+    defaultProps: {
+      title: "The Postnatal Masterclass",
+    },
+    propSchema: teachableHeroBlockSchema,
+  }),
+  thinkific_hero: withUniversal({
+    type: "thinkific_hero",
+    label: "Thinkific-Style Hero",
+    icon: BookOpen,
+    category: "course",
+    component: ThinkificHeroBlock,
+    defaultProps: {
+      title: "The Postpartum Masterclass",
+    },
+    propSchema: thinkificHeroBlockSchema,
+  }),
 
   //  Webinar Blocks 
-  webinar_registration: {
+  webinar_registration: withUniversal({
     type: "webinar_registration",
     label: "Webinar Registration",
     icon: Video,
@@ -490,8 +632,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       spotsLeft: 47,
     },
     propSchema: webinarRegistrationBlockSchema,
-  },
-  webinar_grid: {
+  }),
+  webinar_grid: withUniversal({
     type: "webinar_grid",
     label: "Webinar Grid",
     icon: Video,
@@ -504,10 +646,10 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       webinars: [],
     },
     propSchema: webinarGridBlockSchema,
-  },
+  }),
 
   //  Community Blocks 
-  community_discussions: {
+  community_discussions: withUniversal({
     type: "community_discussions",
     label: "Community Discussions",
     icon: MessageCircleHeart,
@@ -520,9 +662,9 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       subtitle: "See what parents are talking about right now.",
     },
     propSchema: communityDiscussionsBlockSchema,
-  },
+  }),
 
-  blog_posts: {
+  blog_posts: withUniversal({
     type: "dynamic_blog" as any,
     label: "Blog Posts",
     icon: Megaphone,
@@ -536,10 +678,10 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       subtitle: "Practical postpartum guidance, cultural wisdom, and expert insights.",
     },
     propSchema: blogPostsBlockSchema,
-  },
+  }),
 
   //  New Essential Blocks 
-  team: {
+  team: withUniversal({
     type: "team",
     label: "Team Members",
     icon: UsersRound,
@@ -552,8 +694,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       columns: "3",
     },
     propSchema: teamBlockSchema,
-  },
-  video: {
+  }),
+  video: withUniversal({
     type: "video",
     label: "Video Embed",
     icon: Play,
@@ -565,8 +707,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     },
     propSchema: videoBlockSchema,
-  },
-  countdown: {
+  }),
+  countdown: withUniversal({
     type: "countdown",
     label: "Countdown Timer",
     icon: Timer,
@@ -579,8 +721,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       ctaText: "Notify Me",
     },
     propSchema: countdownBlockSchema,
-  },
-  logo_cloud: {
+  }),
+  logo_cloud: withUniversal({
     type: "logo_cloud",
     label: "Logo Cloud",
     icon: Award,
@@ -592,8 +734,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       grayscale: true,
     },
     propSchema: logoCloudBlockSchema,
-  },
-  gallery: {
+  }),
+  gallery: withUniversal({
     type: "gallery",
     label: "Image Gallery",
     icon: GalleryHorizontalEnd,
@@ -604,8 +746,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       columns: "3",
     },
     propSchema: galleryBlockSchema,
-  },
-  contact: {
+  }),
+  contact: withUniversal({
     type: "contact",
     label: "Contact Form",
     icon: Phone,
@@ -620,8 +762,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       showMessageField: true,
     },
     propSchema: contactBlockSchema,
-  },
-  contact_form: {
+  }),
+  contact_form: withUniversal({
     type: "contact_form",
     label: "Contact Form (Advanced)",
     icon: Phone,
@@ -638,8 +780,8 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       ],
     },
     propSchema: contactFormBlockSchema,
-  },
-  contact_info: {
+  }),
+  contact_info: withUniversal({
     type: "contact_info",
     label: "Contact Information",
     icon: MapPinned,
@@ -667,6 +809,389 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
       ],
     },
     propSchema: contactInfoBlockSchema,
+  }),
+
+  //  Playful Course Blocks 
+  playful_hero: withUniversal({
+    type: "playful_hero",
+    label: "Playful Hero",
+    icon: Sparkles,
+    category: "course",
+    component: PlayfulHeroBlock,
+    defaultProps: {
+      title: "Welcome to Your Postpartum Reset",
+      titleHighlight: "Postpartum",
+      subtitle: "A warm, friendly, culturally grounded roadmap that feels like a supportive village.",
+      ctaText: "Enroll Now",
+      ctaLink: "/checkout",
+      secondaryCtaText: "View Curriculum",
+      secondaryCtaLink: "#curriculum",
+      badgeText: "Fun & Friendly",
+      heroImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800",
+      primaryColor: "#22d3ee",
+      secondaryColor: "#a855f7",
+      accentColor: "#facc15",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-7xl",
+    },
+    propSchema: playfulHeroBlockSchema,
+  }),
+  playful_features: {
+    type: "playful_features",
+    label: "Playful Features",
+    icon: Zap,
+    category: "course",
+    component: PlayfulFeaturesBlock,
+    defaultProps: {
+      title: "Designed to make recovery feel lighter",
+      subtitle: "Clear steps, friendly reminders, and real support.",
+      features: [
+        { icon: "heart", title: "Gentle Guidance", description: "Supportive lessons that respect your pace." },
+        { icon: "users", title: "Community", description: "You're never doing this alone." },
+        { icon: "book", title: "Practical Resources", description: "Checklists, routines, and templates." },
+      ],
+      primaryColor: "#22d3ee",
+      secondaryColor: "#a855f7",
+      accentColor: "#facc15",
+      backgroundColor: "#ffffff",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-7xl",
+    },
+    propSchema: playfulFeaturesBlockSchema,
+  },
+  playful_cta: {
+    type: "playful_cta",
+    label: "Playful CTA",
+    icon: Target,
+    category: "course",
+    component: PlayfulCtaBlock,
+    defaultProps: {
+      title: "Ready to begin?",
+      subtitle: "Enroll now and start your recovery plan today.",
+      ctaText: "Enroll Now",
+      ctaLink: "/checkout",
+      secondaryCtaText: "View Pricing",
+      secondaryCtaLink: "#pricing",
+      primaryColor: "#22d3ee",
+      secondaryColor: "#a855f7",
+      accentColor: "#facc15",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-4xl",
+    },
+    propSchema: playfulCtaBlockSchema,
+  },
+
+  //  Scientific Course Blocks 
+  scientific_hero: {
+    type: "scientific_hero",
+    label: "Scientific Hero",
+    icon: FlaskConical,
+    category: "course",
+    component: ScientificHeroBlock,
+    defaultProps: {
+      title: "Evidence-Based Postpartum Recovery",
+      titleHighlight: "Evidence-Based",
+      subtitle: "A structured masterclass bridging tradition and modern medicine.",
+      ctaText: "Enroll Now",
+      ctaLink: "/checkout",
+      secondaryCtaText: "Course Overview",
+      secondaryCtaLink: "#overview",
+      heroImage: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&q=80&w=1200",
+      primaryColor: "#0ea5e9",
+      accentColor: "#10b981",
+      backgroundColor: "#0b1220",
+      textAlign: "left",
+      paddingY: "py-24",
+      containerSize: "max-w-7xl",
+    },
+    propSchema: scientificHeroBlockSchema,
+  },
+  scientific_stats: {
+    type: "scientific_stats",
+    label: "Scientific Stats",
+    icon: BarChart3,
+    category: "course",
+    component: ScientificStatsBlock,
+    defaultProps: {
+      stats: [
+        { value: "4.9", label: "Avg. Rating" },
+        { value: "8,432", label: "Students" },
+        { value: "12h", label: "Duration" },
+        { value: "48", label: "Lessons" },
+      ],
+      primaryColor: "#0ea5e9",
+      backgroundColor: "#0b1220",
+      paddingY: "py-12",
+      containerSize: "max-w-7xl",
+    },
+    propSchema: scientificStatsBlockSchema,
+  },
+  scientific_content: {
+    type: "scientific_content",
+    label: "Scientific Content",
+    icon: FileText,
+    category: "course",
+    component: ScientificContentBlock,
+    defaultProps: {
+      badgeText: "Clinical Summary",
+      title: "What you'll learn",
+      body: "Complete guide for new mothers covering recovery, nutrition, and baby care basics.",
+      image: "https://images.unsplash.com/photo-1516542076529-1ea3854896f2?auto=format&fit=crop&q=80&w=1200",
+      imagePosition: "right",
+      primaryColor: "#0ea5e9",
+      accentColor: "#10b981",
+      backgroundColor: "#ffffff",
+      textAlign: "left",
+      paddingY: "py-24",
+      containerSize: "max-w-7xl",
+    },
+    propSchema: scientificContentBlockSchema,
+  },
+  scientific_cta: {
+    type: "scientific_cta",
+    label: "Scientific CTA",
+    icon: Target,
+    category: "course",
+    component: ScientificCtaBlock,
+    defaultProps: {
+      title: "Start Your Evidence-Based Journey",
+      subtitle: "Join thousands of mothers who have transformed their recovery with clinically-proven methods.",
+      ctaText: "Enroll Now",
+      ctaLink: "/checkout",
+      primaryColor: "#0ea5e9",
+      backgroundColor: "#0b1220",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-4xl",
+    },
+    propSchema: scientificCtaBlockSchema,
+  },
+
+  //  Tech Course Blocks 
+  tech_hero: {
+    type: "tech_hero",
+    label: "Tech Hero",
+    icon: Code2,
+    category: "course",
+    component: TechHeroBlock,
+    defaultProps: {
+      title: "A Modern Postpartum System",
+      titleHighlight: "Modern",
+      subtitle: "A complete, culturally grounded and medically sound roadmap to help you recover, feel supported, and enjoy motherhood.",
+      ctaText: "Get Access",
+      ctaLink: "/checkout",
+      price: "₦49,000",
+      priceSubtext: "One-time payment",
+      badgeText: "New Cohort Open",
+      heroImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800",
+      instructorName: "Dr. Megor",
+      instructorRole: "Lead Instructor",
+      stat1Label: "Duration",
+      stat1Value: "12 Hours",
+      stat2Label: "Lessons",
+      stat2Value: "48",
+      primaryColor: "#8b5cf6",
+      secondaryColor: "#06b6d4",
+      backgroundColor: "#0f0f23",
+      textAlign: "left",
+      paddingY: "py-24",
+      containerSize: "max-w-7xl",
+    },
+    propSchema: techHeroBlockSchema,
+  },
+  tech_features: {
+    type: "tech_features",
+    label: "Tech Features",
+    icon: Layers,
+    category: "course",
+    component: TechFeaturesBlock,
+    defaultProps: {
+      title: "Structured, intuitive, and supportive",
+      subtitle: "Everything you need in one modern experience.",
+      features: [
+        { icon: "play", badge: "LESSONS", title: "Video-first learning", description: "Short, digestible sessions." },
+        { icon: "users", badge: "COMMUNITY", title: "Peer support", description: "Ask questions and share wins." },
+        { icon: "book", badge: "RESOURCES", title: "Downloadables", description: "Checklists and plans." },
+      ],
+      primaryColor: "#8b5cf6",
+      secondaryColor: "#06b6d4",
+      backgroundColor: "rgba(245, 243, 255, 0.5)",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-7xl",
+    },
+    propSchema: techFeaturesBlockSchema,
+  },
+  tech_cta: {
+    type: "tech_cta",
+    label: "Tech CTA",
+    icon: Target,
+    category: "course",
+    component: TechCtaBlock,
+    defaultProps: {
+      title: "Ready to Get Started?",
+      subtitle: "Join the modern approach to postpartum recovery.",
+      ctaText: "Get Access Now",
+      ctaLink: "/checkout",
+      primaryColor: "#8b5cf6",
+      secondaryColor: "#06b6d4",
+      backgroundColor: "#0f0f23",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-4xl",
+    },
+    propSchema: techCtaBlockSchema,
+  },
+
+  //  Cultural Course Blocks 
+  cultural_hero: {
+    type: "cultural_hero",
+    label: "Cultural Hero",
+    icon: Globe,
+    category: "course",
+    component: CulturalHeroBlock,
+    defaultProps: {
+      title: "Rooted in Tradition, Guided by Care",
+      titleHighlight: "Tradition",
+      subtitle: "A culturally grounded postpartum journey that honors heritage while embracing modern wellness.",
+      ctaText: "Begin Your Journey",
+      ctaLink: "/checkout",
+      secondaryCtaText: "Learn More",
+      secondaryCtaLink: "#about",
+      badgeText: "African Heritage",
+      heroImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800",
+      primaryColor: "#b45309",
+      secondaryColor: "#92400e",
+      accentColor: "#f59e0b",
+      backgroundColor: "#fef3c7",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-7xl",
+    },
+    propSchema: culturalHeroBlockSchema,
+  },
+  cultural_features: {
+    type: "cultural_features",
+    label: "Cultural Features",
+    icon: Leaf,
+    category: "course",
+    component: CulturalFeaturesBlock,
+    defaultProps: {
+      title: "Wisdom passed down through generations",
+      subtitle: "Where tradition meets modern care.",
+      features: [
+        { icon: "globe", title: "Cultural Heritage", description: "Rooted in African traditions and wisdom." },
+        { icon: "users", title: "Community Support", description: "Connect with mothers who understand." },
+        { icon: "leaf", title: "Natural Recovery", description: "Holistic approaches to healing." },
+      ],
+      primaryColor: "#b45309",
+      secondaryColor: "#92400e",
+      accentColor: "#f59e0b",
+      backgroundColor: "#ffffff",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-7xl",
+    },
+    propSchema: culturalFeaturesBlockSchema,
+  },
+  cultural_cta: {
+    type: "cultural_cta",
+    label: "Cultural CTA",
+    icon: Target,
+    category: "course",
+    component: CulturalCtaBlock,
+    defaultProps: {
+      title: "Join Our Community of Care",
+      subtitle: "Begin your culturally-rooted postpartum journey today.",
+      ctaText: "Start Your Journey",
+      ctaLink: "/checkout",
+      primaryColor: "#b45309",
+      secondaryColor: "#92400e",
+      accentColor: "#f59e0b",
+      backgroundColor: "#fef3c7",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-4xl",
+    },
+    propSchema: culturalCtaBlockSchema,
+  },
+
+  //  Sales Course Blocks 
+  sales_hero: {
+    type: "sales_hero",
+    label: "Sales Hero",
+    icon: TrendingUp,
+    category: "course",
+    component: SalesHeroBlock,
+    defaultProps: {
+      title: "Enroll in the Postpartum Masterclass",
+      titleHighlight: "Enroll",
+      subtitle: "Limited-time pricing. Start today and feel supported through every step.",
+      ctaText: "Enroll Now",
+      ctaLink: "/checkout",
+      price: "₦49,000",
+      originalPrice: "₦75,000",
+      urgencyText: "Limited Time Offer",
+      urgencyIcon: "flame",
+      heroImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800",
+      primaryColor: "#dc2626",
+      accentColor: "#f59e0b",
+      backgroundColor: "#ffffff",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-7xl",
+    },
+    propSchema: salesHeroBlockSchema,
+  },
+  sales_benefits: {
+    type: "sales_benefits",
+    label: "Sales Benefits",
+    icon: Gift,
+    category: "course",
+    component: SalesBenefitsBlock,
+    defaultProps: {
+      title: "What You'll Get",
+      subtitle: "Everything you need for a complete postpartum recovery.",
+      benefits: [
+        { icon: "check", title: "Complete Course Access", description: "All modules, lessons, and resources included." },
+        { icon: "star", title: "Bonus Templates", description: "Checklists, meal plans, and recovery trackers." },
+        { icon: "gift", title: "Community Access", description: "Private group for ongoing support." },
+        { icon: "award", title: "Certificate", description: "Completion certificate for your records." },
+      ],
+      primaryColor: "#dc2626",
+      accentColor: "#f59e0b",
+      backgroundColor: "#f9fafb",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-7xl",
+    },
+    propSchema: salesBenefitsBlockSchema,
+  },
+  sales_cta: {
+    type: "sales_cta",
+    label: "Sales CTA",
+    icon: Target,
+    category: "course",
+    component: SalesCtaBlock,
+    defaultProps: {
+      title: "Don't Wait - Start Your Recovery Today",
+      subtitle: "Join thousands of mothers who have transformed their postpartum experience.",
+      ctaText: "Enroll Now",
+      ctaLink: "/checkout",
+      price: "₦49,000",
+      originalPrice: "₦75,000",
+      urgencyText: "Price increases soon",
+      primaryColor: "#dc2626",
+      accentColor: "#f59e0b",
+      backgroundColor: "#ffffff",
+      textAlign: "center",
+      paddingY: "py-24",
+      containerSize: "max-w-4xl",
+    },
+    propSchema: salesCtaBlockSchema,
   },
 
   //  Structural Blocks 
@@ -701,10 +1226,25 @@ export const BLOCK_DEFINITIONS: Record<string, BlockDefinition> = {
 // Grouped blocks for sidebar display
 export const BLOCK_CATEGORIES = [
   { id: "hero", label: "Hero Sections", blocks: ["hero", "hero_split"] },
-  { id: "course", label: "Course Blocks", blocks: ["course_grid", "pricing_table", "pricing", "interactive_course_hero", "interactive_course_features", "interactive_course_modules", "cinematic_course_hero", "cinematic_course_body", "minimalist_course_hero", "minimalist_course_philosophy", "minimalist_course_curriculum", "luxury_course_hero", "luxury_course_experience", "luxury_course_curriculum", "luxury_course_investment", "interactive_course_page", "cinematic_course_page", "minimalist_course_page", "luxury_course_page"] },
+  { id: "course", label: "Course Blocks", blocks: ["course_grid", "pricing_table", "pricing", "interactive_course_hero", "interactive_course_features", "interactive_course_modules", "cinematic_course_hero", "cinematic_course_body", "minimalist_course_hero", "minimalist_course_philosophy", "minimalist_course_curriculum", "luxury_course_hero", "luxury_course_experience", "luxury_course_curriculum", "luxury_course_investment", "interactive_course_page", "cinematic_course_page", "minimalist_course_page", "luxury_course_page", "playful_hero", "playful_features", "playful_cta", "scientific_hero", "scientific_stats", "scientific_content", "scientific_cta", "tech_hero", "tech_features", "tech_cta", "cultural_hero", "cultural_features", "cultural_cta", "sales_hero", "sales_benefits", "sales_cta"] },
   { id: "webinar", label: "Webinar Blocks", blocks: ["webinar_registration", "webinar_grid"] },
   { id: "community", label: "Community", blocks: ["community_discussions"] },
   { id: "social_proof", label: "Social Proof", blocks: ["testimonials", "logo_cloud"] },
   { id: "marketing", label: "Marketing", blocks: ["features", "cta", "faq", "stats", "newsletter", "content", "blog_posts", "team", "video", "countdown", "gallery", "campaign_story"] },
   { id: "structural", label: "Structure", blocks: ["navigation", "footer", "contact", "contact_form", "contact_info"] },
 ];
+
+// Get blocks by category
+export const getBlocksByCategory = (categoryId: string): BlockDefinition[] => {
+  const category = BLOCK_CATEGORIES.find(c => c.id === categoryId);
+  if (!category) return [];
+
+  return category.blocks
+    .map(blockType => BLOCK_DEFINITIONS[blockType])
+    .filter((block): block is BlockDefinition => block !== undefined);
+};
+
+// Get all block definitions as array
+export const getAllBlockDefinitions = (): BlockDefinition[] => {
+  return Object.values(BLOCK_DEFINITIONS);
+};

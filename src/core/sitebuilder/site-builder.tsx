@@ -12,6 +12,7 @@ import { SidebarRight } from './sidebar-right';
 import { useEditorStore } from './editor-store';
 import type { GlobalStyles, SitePage } from './types';
 import { TEMPLATES } from './templates';
+import { COURSE_LAYOUT_TEMPLATES } from './course-layout-templates';
 import { toast } from 'react-hot-toast';
 import { VersionHistoryModal } from './version-history-modal';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
@@ -197,8 +198,10 @@ export const SiteBuilder: React.FC = () => {
 
           if (pageRows.length === 0) {
             const tpl =
-              TEMPLATES.find((t) => t.pageType === 'course_sales') ||
-              TEMPLATES.find((t) => t.id === 'course-sales-premium');
+              COURSE_LAYOUT_TEMPLATES.find((t) => t.id === 'course-luxury-layout') ||
+              COURSE_LAYOUT_TEMPLATES.find((t) => t.pageType === 'course_sales') ||
+              TEMPLATES.find((t) => t.id === 'course-sales-premium') ||
+              TEMPLATES.find((t) => t.pageType === 'course_sales');
 
             const { data: createdPage, error: createPageErr } = await supabase
               .from('site_pages')
@@ -235,9 +238,15 @@ export const SiteBuilder: React.FC = () => {
           }
 
           if (publishedHome) {
-            // Load the published home page
-            console.log('Site Builder - Loading published home page:', publishedHome.id);
-            pageRows = [publishedHome];
+            // Load ALL pages, not just the published home page
+            console.log('Site Builder - Found published home page, loading all pages...');
+            const { data: allPages, error: allPagesErr } = await supabase
+              .from('site_pages')
+              .select('*')
+              .eq('site_id', resolvedSiteId as any)
+              .is('course_id', null);
+            if (allPagesErr) throw allPagesErr;
+            pageRows = allPages || [publishedHome];
           } else {
             console.log('Site Builder - No published home page found, checking for existing pages...');
             // Fallback to loading all pages and prioritizing the home page (draft or published)

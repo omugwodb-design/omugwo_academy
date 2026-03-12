@@ -1,0 +1,259 @@
+Jump to Content
+[Guides](https://developer.systeme.io/docs)
+[Recipes](https://developer.systeme.io/recipes)
+[API Reference](https://developer.systeme.io/reference)
+[API Reference](https://developer.systeme.io/reference)
+[API Reference](https://developer.systeme.io/reference)
+[Guides](https://developer.systeme.io/docs)
+[Recipes](https://developer.systeme.io/recipes)
+[API Reference](https://developer.systeme.io/reference)
+
+###### Start typing to search…
+
+## API Basics
+- [API recipes and how to use them](https://developer.systeme.io/docs/api-recipes-and-how-to-use-them)
+[API recipes and how to use them](https://developer.systeme.io/docs/api-recipes-and-how-to-use-them)
+
+## Webhooks
+- WebhooksEventsOptinContact createdContact tag addedContact tag removedNew sale[Sale canceled](https://developer.systeme.io/docs/webhooks-events-sale-canceled)
+- EventsOptinContact createdContact tag addedContact tag removedNew sale[Sale canceled](https://developer.systeme.io/docs/webhooks-events-sale-canceled)
+- [Optin](https://developer.systeme.io/docs/new-optin)
+- [Contact created](https://developer.systeme.io/docs/webhooks-events-contact-created)
+- [Contact tag added](https://developer.systeme.io/docs/webhooks-events-contact-tag-added)
+- [Contact tag removed](https://developer.systeme.io/docs/webhooks-events-contact-tag-removed)
+- [New sale](https://developer.systeme.io/docs/webhooks-events-new-sale)
+- [Sale canceled](https://developer.systeme.io/docs/webhooks-events-sale-canceled)
+[Webhooks](https://developer.systeme.io/docs/webhooks)
+- EventsOptinContact createdContact tag addedContact tag removedNew sale[Sale canceled](https://developer.systeme.io/docs/webhooks-events-sale-canceled)
+- [Optin](https://developer.systeme.io/docs/new-optin)
+- [Contact created](https://developer.systeme.io/docs/webhooks-events-contact-created)
+- [Contact tag added](https://developer.systeme.io/docs/webhooks-events-contact-tag-added)
+- [Contact tag removed](https://developer.systeme.io/docs/webhooks-events-contact-tag-removed)
+- [New sale](https://developer.systeme.io/docs/webhooks-events-new-sale)
+- [Sale canceled](https://developer.systeme.io/docs/webhooks-events-sale-canceled)
+[Events](https://developer.systeme.io/docs/webhooks-events)
+- [Optin](https://developer.systeme.io/docs/new-optin)
+- [Contact created](https://developer.systeme.io/docs/webhooks-events-contact-created)
+- [Contact tag added](https://developer.systeme.io/docs/webhooks-events-contact-tag-added)
+- [Contact tag removed](https://developer.systeme.io/docs/webhooks-events-contact-tag-removed)
+- [New sale](https://developer.systeme.io/docs/webhooks-events-new-sale)
+- [Sale canceled](https://developer.systeme.io/docs/webhooks-events-sale-canceled)
+[Optin](https://developer.systeme.io/docs/new-optin)
+[Contact created](https://developer.systeme.io/docs/webhooks-events-contact-created)
+[Contact tag added](https://developer.systeme.io/docs/webhooks-events-contact-tag-added)
+[Contact tag removed](https://developer.systeme.io/docs/webhooks-events-contact-tag-removed)
+[New sale](https://developer.systeme.io/docs/webhooks-events-new-sale)
+[Sale canceled](https://developer.systeme.io/docs/webhooks-events-sale-canceled)
+
+# API recipes and how to use them
+
+Learn how to use our API through recipes
+
+### Please note
+
+This page, as well as all of our documentation, will be gradually updated to include more information. We strive to provide you with the best experience with our system.
+
+## About the recipes and the stack used
+
+Recipes are a simple way to walk developers through a code sample step by step to help them get started with API.
+Here is an example recipe to help you learn and use our API successfully.
+Currently, we will write recipes in PHP.
+Below are some explanations of the components used in the recipes.
+
+### Composer
+[Composer](https://getcomposer.org/) is a dependency manager for PHP applications. This powerful tool makes working with code easier.
+For example, Composer can be used to install an HTTP client package, which will simplify interaction with our API.
+Here is an example of connecting the Composer autoloader in a recipe:
+
+```
+<?php require_once '/path/to/autoload.php';
+```
+
+
+```
+<?php require_once '/path/to/autoload.php';
+```
+
+Next, Composer will help you [load](https://getcomposer.org/doc/01-basic-usage.md) the classes needed in your scripts.
+
+### HTTP client
+[symfony/http-client](https://symfony.com/doc/current/http_client.html) component is a low-level HTTP client that provides utilities to consume APIs.
+
+```
+symfony/http-client
+```
+
+Here's how we use this client in our recipes:
+
+```
+<?php require_once '/path/to/autoload.php'; // Just instantiate a known client (thanks to Composer autoloading) // by static factory method, with required options $client = \Symfony\Component\HttpClient\HttpClient::create([ 'base_uri' => 'https://api.systeme.io/api/', 'headers' => [ 'X-API-Key' => 'your_secret_api_key', 'Content-Type' => 'application/json', ] ]);
+```
+
+
+```
+<?php require_once '/path/to/autoload.php'; // Just instantiate a known client (thanks to Composer autoloading) // by static factory method, with required options $client = \Symfony\Component\HttpClient\HttpClient::create([ 'base_uri' => 'https://api.systeme.io/api/', 'headers' => [ 'X-API-Key' => 'your_secret_api_key', 'Content-Type' => 'application/json', ] ]);
+```
+
+## How to try a recipe
+
+The approach will be approximately the same, regardless of the programming language used:
+1. Prepare the environment and dependencies (i.e. using packages/libraries);
+2. Modify the recipe according to your needs and configure your API credentials;
+3. Run the prepared recipe and check the result;
+4. Debug (optional).
+Below is a short manual on working with PHP recipes.
+
+### Requirements
+All you need to run the recipe are basic CLI skills, [installed](https://getcomposer.org/doc/00-intro.md) PHP, and installed Composer, and any text or code editor.
+
+### 1. Prepare dependencies
+Create a new directory with two new files with the following content:
+
+```
+{ "type": "project", "require": { "php": "^8.3", "symfony/http-client": "*" } }
+```
+
+
+```
+{ "type": "project", "require": { "php": "^8.3", "symfony/http-client": "*" } }
+```
+
+
+```
+<?php require_once '/path/to/autoload.php'; const API_KEY = 'your_secret_api_key'; $client = \Symfony\Component\HttpClient\HttpClient::create([ 'base_uri' => 'https://api.systeme.io/api/', // Base API URI 'headers' => [ 'X-API-Key' => API_KEY, // Your API key 'Content-Type' => 'application/json', // Default content type ] ]); $contactCreatedResponse = $client->request('POST', 'contacts', [ 'body' => json_encode([ 'email' => '[[email protected]](https://developer.systeme.io/cdn-cgi/l/email-protection)', 'locale' => 'en', 'fields' => [ [ 'slug' => 'country', 'value' => 'FR', ], [ 'slug' => 'phone_number', 'value' => '123456', ], ], ]), ]); $decodedResponse = json_decode($contactCreatedResponse->getContent(), true); $contactId = $decodedResponse['id']; $tagCreatedResponse = $client->request('POST', 'tags', [ 'body' => json_encode([ 'name' => 'my_tag' . uniqid() ]), ]); $decodedResponse = json_decode($tagCreatedResponse->getContent(), true); $tagId = $decodedResponse['id']; $client->request('POST', "contacts/{$contactId}/tags", [ 'body' => json_encode([ 'tagId' => $tagId ]), ]);
+```
+
+
+```
+<?php require_once '/path/to/autoload.php'; const API_KEY = 'your_secret_api_key'; $client = \Symfony\Component\HttpClient\HttpClient::create([ 'base_uri' => 'https://api.systeme.io/api/', // Base API URI 'headers' => [ 'X-API-Key' => API_KEY, // Your API key 'Content-Type' => 'application/json', // Default content type ] ]); $contactCreatedResponse = $client->request('POST', 'contacts', [ 'body' => json_encode([ 'email' => '[[email protected]](https://developer.systeme.io/cdn-cgi/l/email-protection)', 'locale' => 'en', 'fields' => [ [ 'slug' => 'country', 'value' => 'FR', ], [ 'slug' => 'phone_number', 'value' => '123456', ], ], ]), ]); $decodedResponse = json_decode($contactCreatedResponse->getContent(), true); $contactId = $decodedResponse['id']; $tagCreatedResponse = $client->request('POST', 'tags', [ 'body' => json_encode([ 'name' => 'my_tag' . uniqid() ]), ]); $decodedResponse = json_decode($tagCreatedResponse->getContent(), true); $tagId = $decodedResponse['id']; $client->request('POST', "contacts/{$contactId}/tags", [ 'body' => json_encode([ 'tagId' => $tagId ]), ]);
+```
+
+[[email protected]](https://developer.systeme.io/cdn-cgi/l/email-protection)
+If your PHP version differs from those set in the sample composer.json, you can change it. Typically, you can check the installed version of PHP by running php -v in the command line.
+
+```
+composer.json
+```
+
+
+```
+php -v
+```
+
+Two files were created:
+- composer.json - with Composer settings and dependencies for a project;
+- recipe.php - recipe file, which we will modify and run.
+
+```
+composer.json
+```
+
+
+```
+recipe.php
+```
+
+After this, you should install the required composer dependencies (symfony/http-client) by running the following console command in your working directory: composer install.
+
+```
+symfony/http-client
+```
+
+
+```
+composer install
+```
+
+This command will create two new elements in your working directory:
+1. A service composer.lock file (which "locks" a dependency's version);
+2. A vendor directory - with required autoload.php and source code of used dependencies.
+
+```
+composer.lock
+```
+
+
+```
+vendor
+```
+
+
+```
+autoload.php
+```
+
+### 2. Modify the recipe and configure credentials
+Modify some recipe lines:
+
+```
+<?php require_once './vendor/autoload.php'; // Set path to generated autoload.php file const API_KEY = 'your_secret_api_key'; // Substitute you API key here // ... $contactCreatedResponse = $client->request('POST', 'contacts', [ 'body' => json_encode([ 'email' => '[[email protected]](https://developer.systeme.io/cdn-cgi/l/email-protection)', // Set a desired contact's email here ... ]), ]); // ... $tagCreatedResponse = $client->request('POST', 'tags', [ 'body' => json_encode([ 'name' => 'my_tag' // Set a desired tag name here ]), ]); // ...
+```
+
+
+```
+<?php require_once './vendor/autoload.php'; // Set path to generated autoload.php file const API_KEY = 'your_secret_api_key'; // Substitute you API key here // ... $contactCreatedResponse = $client->request('POST', 'contacts', [ 'body' => json_encode([ 'email' => '[[email protected]](https://developer.systeme.io/cdn-cgi/l/email-protection)', // Set a desired contact's email here ... ]), ]); // ... $tagCreatedResponse = $client->request('POST', 'tags', [ 'body' => json_encode([ 'name' => 'my_tag' // Set a desired tag name here ]), ]); // ...
+```
+
+[[email protected]](https://developer.systeme.io/cdn-cgi/l/email-protection)
+That's all the preparation needed to run the recipe.
+
+### 3. Run the recipe and check the result
+To run the prepared recipe script, run the following console command in the working directory: php recipe.php.
+
+```
+php recipe.php
+```
+
+The script used in the example just creates a contact and a tag and then adds the created tag to the created contact.
+Now, you can check the result in the API: find and check this contact and tag.
+
+### 4. Debug the recipe
+You can use a specialized PHP debugger (e.g. [xDebug](https://xdebug.org/)) to debug the recipe script, or just dump the variables at each step (e.g. with a var_dump, var_export, and echo functions).
+
+```
+xDebug
+```
+
+
+```
+var_dump
+```
+
+
+```
+var_export
+```
+
+
+```
+echo
+```
+
+## Summary
+
+Now you know what recipes are, why they are needed, and how to perform and test them yourself.
+If you are unable to run the recipe, please:
+1. Make sure that you have prepared properly:
+
+Environment - installed PHP, Composer, and dependencies;
+Script - copied the right code and set a correct path to autoloader.php and valid credentials;
+
+
+2. Environment - installed PHP, Composer, and dependencies;
+3. Script - copied the right code and set a correct path to autoloader.php and valid credentials;
+4. Make sure that you are sending valid data to the server: using correct identifiers, email addresses, etc.
+If you receive errors from our API, please check them. Usually, they contain useful information;
+5. Check out the [SystemeIO help](https://systeme.io/help).
+1. Environment - installed PHP, Composer, and dependencies;
+2. Script - copied the right code and set a correct path to autoloader.php and valid credentials;
+
+```
+autoloader.php
+```
+
+[SystemeIO help](https://systeme.io/help)
+If you are sure that the error is on our side, please [contact our support team](https://systeme.io/en/support/contact-us).
+Please provide the details of the error that occurred, including the time and context: which recipe you tried to execute (or which request), what data you sent, and what error you received.
+We try to analyze every scenario and help every user.
+Updated 4 months ago
+[Webhooks](https://developer.systeme.io/docs/webhooks)

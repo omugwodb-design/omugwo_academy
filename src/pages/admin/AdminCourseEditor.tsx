@@ -5,7 +5,7 @@ import {
   BookOpen, Save, X, Plus, MoveUp, MoveDown, Trash2,
   ChevronDown, ChevronRight, Video, FileText, HelpCircle,
   ClipboardList, GripVertical, Eye, EyeOff, Globe, Loader2,
-  Image as ImageIcon, Upload, GraduationCap
+  Image as ImageIcon, Upload, GraduationCap, Sparkles, Layers
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -19,6 +19,10 @@ import {
   getQuiz, createQuiz, addQuizQuestion, updateQuizQuestion, deleteQuizQuestion,
 } from '../../core/lms/lms-service';
 import { QuizBuilder } from './QuizBuilder';
+import { LessonEditor as BlockLessonEditor } from '../../core/lms/lesson-blocks/LessonEditor';
+import InteractiveLessonEditor from '../../core/lms/lesson-blocks/components/InteractiveLessonEditor';
+import type { LessonContent } from '../../core/lms/lesson-blocks/types';
+import type { InteractiveLesson } from '../../core/lms/lesson-blocks/scene-types';
 
 const LESSON_TYPES = [
   { value: 'video', label: 'Video', icon: Video },
@@ -72,6 +76,9 @@ export const AdminCourseEditor: React.FC = () => {
   const [editingLesson, setEditingLesson] = useState<string | null>(null);
   const [editingQuiz, setEditingQuiz] = useState<string | null>(null);
   const [quizBuilderLesson, setQuizBuilderLesson] = useState<{ id: string; title: string } | null>(null);
+  const [blockEditorLesson, setBlockEditorLesson] = useState<{ id: string; moduleId: string; title: string; content: any } | null>(null);
+  const [interactiveEditorLesson, setInteractiveEditorLesson] = useState<{ id: string; moduleId: string; title: string; content: any } | null>(null);
+  const [showModeSelector, setShowModeSelector] = useState<{ id: string; moduleId: string; title: string; content: any } | null>(null);
 
   // UI state
   const [isSaving, setIsSaving] = useState(false);
@@ -531,48 +538,89 @@ export const AdminCourseEditor: React.FC = () => {
                                           </div>
                                         )}
                                         {(lesson.type === 'text' || lesson.type === 'reflection') && (
-                                          <div className="space-y-2">
-                                            <div className="flex items-center justify-between">
-                                              <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Content</label>
-                                              <span className="text-[10px] text-gray-400 dark:text-gray-500">Supports Markdown formatting</span>
+                                          <div className="space-y-4">
+                                            {/* Dual-Mode Lesson Editor CTA */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                              {/* Standard Block Editor */}
+                                              <div className="p-6 border border-dashed border-primary-200 dark:border-primary-900/50 rounded-xl bg-primary-50/50 dark:bg-primary-900/10 text-center hover:border-primary-400 dark:hover:border-primary-700 transition-all">
+                                                <Layers className="w-8 h-8 text-primary-400 mx-auto mb-3" />
+                                                <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Standard Editor</h4>
+                                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
+                                                  Text, images, videos, callouts, and more with drag-and-drop.
+                                                </p>
+                                                <Button
+                                                  size="sm"
+                                                  variant="outline"
+                                                  onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setBlockEditorLesson({ id: lesson.id, moduleId: mod.id, title: lesson.title, content: lesson.content });
+                                                  }}
+                                                >
+                                                  Open Block Editor
+                                                </Button>
+                                              </div>
+                                              {/* Interactive Lesson Studio */}
+                                              <div className="p-6 border border-dashed border-purple-200 dark:border-purple-900/50 rounded-xl bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 text-center hover:border-purple-400 dark:hover:border-purple-700 transition-all">
+                                                <Sparkles className="w-8 h-8 text-purple-500 mx-auto mb-3" />
+                                                <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Interactive Studio</h4>
+                                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
+                                                  Scene-based immersive lessons with backgrounds, transitions, and branching.
+                                                </p>
+                                                <Button
+                                                  size="sm"
+                                                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0"
+                                                  onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setInteractiveEditorLesson({ id: lesson.id, moduleId: mod.id, title: lesson.title, content: lesson.content });
+                                                  }}
+                                                >
+                                                  Open Interactive Studio
+                                                </Button>
+                                              </div>
                                             </div>
-                                            <div data-color-mode="light" className="dark:hidden">
-                                              <MDEditor
-                                                value={typeof lesson.content === 'object' ? (lesson.content?.body || lesson.content?.prompt || '') : (lesson.content || '')}
-                                                onChange={(val) => {
-                                                  const content = lesson.type === 'reflection' ? { prompt: val } : { body: val };
-                                                  setModules(modules.map(m =>
-                                                    m.id === mod.id ? { ...m, lessons: m.lessons.map((l: any) => l.id === lesson.id ? { ...l, content } : l) } : m
-                                                  ));
-                                                }}
-                                                onBlur={(e: any) => {
-                                                  const val = typeof lesson.content === 'object' ? (lesson.content?.body || lesson.content?.prompt || '') : (lesson.content || '');
-                                                  const content = lesson.type === 'reflection' ? { prompt: val } : { body: val };
-                                                  handleUpdateLesson(lesson.id, mod.id, { content });
-                                                }}
-                                                height={300}
-                                                preview="edit"
-                                              />
-                                            </div>
-                                            <div data-color-mode="dark" className="hidden dark:block">
-                                              <MDEditor
-                                                value={typeof lesson.content === 'object' ? (lesson.content?.body || lesson.content?.prompt || '') : (lesson.content || '')}
-                                                onChange={(val) => {
-                                                  const content = lesson.type === 'reflection' ? { prompt: val } : { body: val };
-                                                  setModules(modules.map(m =>
-                                                    m.id === mod.id ? { ...m, lessons: m.lessons.map((l: any) => l.id === lesson.id ? { ...l, content } : l) } : m
-                                                  ));
-                                                }}
-                                                onBlur={(e: any) => {
-                                                  const val = typeof lesson.content === 'object' ? (lesson.content?.body || lesson.content?.prompt || '') : (lesson.content || '');
-                                                  const content = lesson.type === 'reflection' ? { prompt: val } : { body: val };
-                                                  handleUpdateLesson(lesson.id, mod.id, { content });
-                                                }}
-                                                height={300}
-                                                preview="edit"
-                                                style={{ backgroundColor: '#09090b' }}
-                                              />
-                                            </div>
+                                            {/* Simple markdown fallback */}
+                                            <details className="group">
+                                              <summary className="cursor-pointer text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                                                Or use simple markdown editor ↓
+                                              </summary>
+                                              <div className="mt-3 space-y-2">
+                                                <div className="flex items-center justify-between">
+                                                  <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Content (Markdown)</label>
+                                                </div>
+                                                <div data-color-mode="light" className="dark:hidden">
+                                                  <MDEditor
+                                                    value={typeof lesson.content === 'object' ? (lesson.content?.body || lesson.content?.prompt || lesson.content?.blocks ? JSON.stringify(lesson.content) : '') : (lesson.content || '')}
+                                                    onChange={(val) => {
+                                                      const content = lesson.type === 'reflection' ? { prompt: val } : { body: val };
+                                                      setModules(modules.map(m =>
+                                                        m.id === mod.id ? { ...m, lessons: m.lessons.map((l: any) => l.id === lesson.id ? { ...l, content } : l) } : m
+                                                      ));
+                                                    }}
+                                                    onBlur={(e: any) => {
+                                                      const val = typeof lesson.content === 'object' ? (lesson.content?.body || lesson.content?.prompt || '') : (lesson.content || '');
+                                                      const content = lesson.type === 'reflection' ? { prompt: val } : { body: val };
+                                                      handleUpdateLesson(lesson.id, mod.id, { content });
+                                                    }}
+                                                    height={200}
+                                                    preview="edit"
+                                                  />
+                                                </div>
+                                                <div data-color-mode="dark" className="hidden dark:block">
+                                                  <MDEditor
+                                                    value={typeof lesson.content === 'object' ? (lesson.content?.body || lesson.content?.prompt || lesson.content?.blocks ? JSON.stringify(lesson.content) : '') : (lesson.content || '')}
+                                                    onChange={(val) => {
+                                                      const content = lesson.type === 'reflection' ? { prompt: val } : { body: val };
+                                                      setModules(modules.map(m =>
+                                                        m.id === mod.id ? { ...m, lessons: m.lessons.map((l: any) => l.id === lesson.id ? { ...l, content } : l) } : m
+                                                      ));
+                                                    }}
+                                                    height={200}
+                                                    preview="edit"
+                                                    style={{ backgroundColor: '#09090b' }}
+                                                  />
+                                                </div>
+                                              </div>
+                                            </details>
                                           </div>
                                         )}
                                         {(lesson.type === 'pdf') && (
@@ -792,7 +840,7 @@ export const AdminCourseEditor: React.FC = () => {
                                               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 max-w-sm mx-auto">
                                                 Build your quiz questions and configure settings like passing score and time limit in the Quiz Builder.
                                               </p>
-                                              <Button 
+                                              <Button
                                                 onClick={(e) => {
                                                   e.preventDefault();
                                                   setQuizBuilderLesson({ id: lesson.id, title: lesson.title });
@@ -878,6 +926,102 @@ export const AdminCourseEditor: React.FC = () => {
           onClose={() => setQuizBuilderLesson(null)}
           onSaved={() => { if (courseId) loadCourse(courseId); }}
         />
+      )}
+
+      {/* Block-based Lesson Editor Modal */}
+      {blockEditorLesson && (
+        <div className="fixed inset-0 z-[100] bg-black/80 flex flex-col">
+          <div className="flex items-center justify-between px-4 py-2 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+              <Layers className="w-4 h-4 inline mr-2" />
+              Standard Editor: {blockEditorLesson.title}
+            </h3>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setBlockEditorLesson(null)}
+              >
+                <X className="w-4 h-4 mr-1" />
+                Close
+              </Button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <BlockLessonEditor
+              initialContent={(() => {
+                // Parse existing content into LessonContent format
+                const content = blockEditorLesson.content;
+                if (!content) return { version: '1.0', blocks: [] };
+                if (typeof content === 'object' && content.blocks) {
+                  return content as LessonContent;
+                }
+                // Convert simple body/prompt string to a text block
+                const textContent = typeof content === 'object'
+                  ? (content.body || content.prompt || '')
+                  : String(content || '');
+                return {
+                  version: '1.0',
+                  blocks: textContent ? [{
+                    id: `block_${Date.now()}`,
+                    type: 'text',
+                    props: { content: textContent, alignment: 'left', fontSize: 'base', color: '' }
+                  }] : []
+                };
+              })()}
+              onSave={async (content: LessonContent) => {
+                // Save the block-based content
+                handleUpdateLesson(blockEditorLesson.id, blockEditorLesson.moduleId, { content });
+                setBlockEditorLesson(null);
+                toast.success('Lesson content saved!');
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Lesson Studio Modal */}
+      {interactiveEditorLesson && (
+        <div className="fixed inset-0 z-[100] bg-black/80 flex flex-col">
+          <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-purple-900 to-pink-900 border-b border-purple-700">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              Interactive Studio: {interactiveEditorLesson.title}
+            </h3>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-purple-400 text-white hover:bg-purple-800"
+                onClick={() => setInteractiveEditorLesson(null)}
+              >
+                <X className="w-4 h-4 mr-1" />
+                Close
+              </Button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <InteractiveLessonEditor
+              initialContent={(() => {
+                const content = interactiveEditorLesson.content;
+                // If already an interactive lesson format, use it directly
+                if (content && typeof content === 'object' && content.scenes) {
+                  return content as InteractiveLesson;
+                }
+                // Return undefined to let the editor create a default interactive lesson
+                return undefined;
+              })()}
+              onSave={async (content: InteractiveLesson) => {
+                // Save the interactive lesson content — mark it with type: 'interactive'
+                handleUpdateLesson(interactiveEditorLesson.id, interactiveEditorLesson.moduleId, {
+                  content: { ...content, type: 'interactive' }
+                });
+                setInteractiveEditorLesson(null);
+                toast.success('Interactive lesson saved!');
+              }}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

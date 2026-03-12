@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard, BookOpen, Users, DollarSign, MessageSquare,
   Video, Award, Mail, Settings, ChevronRight, TrendingUp,
-  TrendingDown, ArrowUpRight, Bell, Search, Menu, X, Heart,
+  TrendingDown, ArrowUpRight, Bell, Search, Menu, X, Workflow,
   LayoutTemplate, Sun, Moon, Ticket, BarChart3
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -12,6 +12,7 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Avatar } from '../../components/ui/Avatar';
 import { Input } from '../../components/ui/Input';
+import { BrandLogo } from '../../components/branding/BrandLogo';
 import { useTheme } from '../../core/theme/theme';
 
 import { supabase } from '../../lib/supabase';
@@ -28,6 +29,7 @@ const sidebarItems = [
   { id: 'webinars', label: 'Webinars', icon: Video, path: '/admin/webinars' },
   { id: 'certificates', label: 'Certificates', icon: Award, path: '/admin/certificates' },
   { id: 'leads', label: 'Leads & Funnels', icon: Mail, path: '/admin/leads' },
+  { id: 'systeme', label: 'Systeme.io', icon: Workflow, path: '/admin/integrations/systeme' },
   { id: 'settings', label: 'Settings', icon: Settings, path: '/admin/settings' },
 ];
 
@@ -106,12 +108,12 @@ export const AdminDashboard: React.FC = () => {
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
             <Link to="/admin" className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-                <Heart className="w-4 h-4 text-white fill-white" />
-              </div>
-              <span className="font-extrabold text-gray-900 dark:text-white hidden sm:block tracking-tight text-lg">
-                Omugwo <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700">Admin</span>
-              </span>
+              <BrandLogo
+                imageClassName="h-9 max-w-[140px]"
+                iconClassName="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 shadow-lg shadow-primary-500/20"
+                nameClassName="font-extrabold text-gray-900 dark:text-white hidden sm:block tracking-tight text-lg"
+                suffix={<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700 hidden sm:inline">Admin</span>}
+              />
             </Link>
           </div>
 

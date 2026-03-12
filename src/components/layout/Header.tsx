@@ -6,6 +6,7 @@ import {
   GraduationCap, MessageCircle, Calendar, User, LogOut
 } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { BrandLogo } from '../branding/BrandLogo';
 import { useAuthStore } from '../../stores/authStore';
 import { supabase } from '../../lib/supabase';
 import { cn } from '../../lib/utils';
@@ -78,12 +79,7 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-200 group-hover:scale-105 transition-transform">
-              <Heart className="w-5 h-5 text-white fill-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">
-              Omugwo<span className="text-primary-600">Academy</span>
-            </span>
+            <BrandLogo className="group-hover:scale-[1.02] transition-transform" />
           </Link>
 
           {/* Desktop Navigation */}

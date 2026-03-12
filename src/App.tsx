@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Layout } from './components/layout';
+import { BrandingProvider } from './components/branding/BrandingProvider';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { SupabaseAuthProvider } from './components/auth/SupabaseAuthProvider';
 
@@ -17,7 +18,7 @@ import { InvitePage } from './pages/InvitePage';
 import {
   AdminDashboard, AdminCourses, AdminUsers, AdminPayments,
   AdminWebinars, AdminCommunity, AdminLeads, AdminCertificates,
-  AdminSettings, AdminCourseEditor, AdminCoupons, AdminFunnels, AdminCourseAnalytics
+  AdminSettings, AdminCourseEditor, AdminCoupons, AdminFunnels, AdminCourseAnalytics, AdminSystemeIntegration
 } from './pages/admin';
 import { SiteBuilder } from './core/sitebuilder/site-builder';
 import { CommunityApp } from './pages/community/CommunityApp';
@@ -47,117 +48,122 @@ const ScrollToTop: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <SupabaseAuthProvider>
-      <Router>
-        <ScrollToTop />
-        <AuthEventHandler />
-        <Layout>
-          <Routes>
-            {/* ââââ Public Routes ââââ */}
-            <Route path="/" element={<SmartHome />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/community" element={<CommunityApp />} />
-            <Route path="/webinars" element={<Webinars />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/podcast" element={<Podcast />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/refund" element={<RefundPolicy />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/certificate/:certificateNumber" element={<Certificate />} />
-            <Route path="/verify-certificate" element={<VerifyCertificate />} />
+      <BrandingProvider>
+        <Router>
+          <ScrollToTop />
+          <AuthEventHandler />
+          <Layout>
+            <Routes>
+              {/* ââââ Public Routes ââââ */}
+              <Route path="/" element={<SmartHome />} />
+              <Route path="/about" element={<DynamicSitePage fallback={<About />} pageType="about" />} />
+              <Route path="/courses" element={<DynamicSitePage fallback={<Courses />} pageType="courses" />} />
+              <Route path="/community" element={<DynamicSitePage fallback={<CommunityApp />} pageType="community" />} />
+              <Route path="/webinars" element={<DynamicSitePage fallback={<Webinars />} pageType="webinars" />} />
+              <Route path="/contact" element={<DynamicSitePage fallback={<Contact />} pageType="contact" />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/podcast" element={<DynamicSitePage fallback={<Podcast />} pageType="podcast" />} />
+              <Route path="/faq" element={<DynamicSitePage pageType="custom" />} />
+              <Route path="/share-your-story" element={<DynamicSitePage pageType="custom" />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/refund" element={<RefundPolicy />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/certificate/:certificateNumber" element={<Certificate />} />
+              <Route path="/verify-certificate" element={<VerifyCertificate />} />
 
-            {/* ââââ Course Showcase Pages ââââ */}
-            <Route path="/showcase/course-cinematic" element={<CinematicCoursePage />} />
-            <Route path="/showcase/course-playful" element={<PlayfulLayout />} />
-            <Route path="/showcase/course-minimalist" element={<MinimalistLayout />} />
-            <Route path="/showcase/course-tech" element={<TechLayout />} />
-            <Route path="/showcase/course-luxury" element={<LuxuryLayout />} />
-            <Route path="/showcase/course-storytelling" element={<StorytellingLayout />} />
-            <Route path="/showcase/course-app" element={<AppDashboardLayout />} />
-            <Route path="/showcase/course-sales-focused" element={<SalesFocusedLayout />} />
-            <Route path="/showcase/course-cultural" element={<CulturalLayout />} />
-            <Route path="/showcase/course-scientific" element={<ScientificLayout />} />
+              {/* ââââ Course Showcase Pages ââââ */}
+              <Route path="/showcase/course-cinematic" element={<CinematicCoursePage />} />
+              <Route path="/showcase/course-playful" element={<PlayfulLayout />} />
+              <Route path="/showcase/course-minimalist" element={<MinimalistLayout />} />
+              <Route path="/showcase/course-tech" element={<TechLayout />} />
+              <Route path="/showcase/course-luxury" element={<LuxuryLayout />} />
+              <Route path="/showcase/course-storytelling" element={<StorytellingLayout />} />
+              <Route path="/showcase/course-app" element={<AppDashboardLayout />} />
+              <Route path="/showcase/course-sales-focused" element={<SalesFocusedLayout />} />
+              <Route path="/showcase/course-cultural" element={<CulturalLayout />} />
+              <Route path="/showcase/course-scientific" element={<ScientificLayout />} />
 
-            {/* ââââ Invite page (no layout) ââââ */}
-            <Route path="/invite" element={<InvitePage />} />
+              {/* ââââ Invite page (no layout) ââââ */}
+              <Route path="/invite" element={<InvitePage />} />
 
-            {/* ââââ Dynamic Site Builder Pages ââââ */}
-            <Route path="/p/:slug" element={<DynamicSitePage />} />
+              {/* ââââ Dynamic Site Builder Pages ââââ */}
+              <Route path="/p/:slug" element={<DynamicSitePage />} />
 
-            {/* Public Course Detail Page */}
-            <Route path="/courses/:courseId" element={<CourseDetail />} />
+              {/* Public Course Detail Page */}
+              <Route path="/courses/:courseId" element={<CourseDetail />} />
 
-            {/* Course Student Preview (Instructor/Admin) */}
-            <Route element={<ProtectedRoute allowedRoles={['instructor', 'admin', 'super_admin']} />}>
-              <Route path="/course-preview/:courseId" element={<PremiumLearningExperience />} />
-              <Route path="/course-preview/:courseId/:lessonId" element={<PremiumLearningExperience />} />
-            </Route>
-
-            {/* ââââ Student / Instructor Dashboard ââââ */}
-            <Route element={<ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'super_admin']} />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/my-courses" element={<MyCourses />} />
-            </Route>
-
-            {/* ââââ Checkout flow ââââ */}
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/checkout/:courseId" element={<Checkout />} />
-            <Route path="/checkout/success" element={<CheckoutSuccess />} />
-
-            {/* ââââ Learning experience ââââ */}
-            <Route element={<ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'super_admin']} />}>
-              <Route path="/learn/:courseId" element={<PremiumLearningExperience />} />
-              <Route path="/learn/:courseId/:lessonId" element={<PremiumLearningExperience />} />
-            </Route>
-
-            {/* ââââ Admin routes ââââ */}
-            <Route element={<ProtectedRoute allowedRoles={['admin', 'super_admin']} />}>
-              <Route path="/admin" element={<AdminDashboard />}>
-                <Route index element={null} />
-                <Route path="courses" element={<AdminCourses />} />
-                <Route path="courses/new" element={<AdminCourseEditor />} />
-                <Route path="courses/:courseId/edit" element={<AdminCourseEditor />} />
-                <Route path="users" element={<AdminUsers />} />
-                <Route path="payments" element={<AdminPayments />} />
-                <Route path="coupons" element={<AdminCoupons />} />
-                <Route path="community" element={<AdminCommunity />} />
-                <Route path="webinars" element={<AdminWebinars />} />
-                <Route path="webinars/new" element={<AdminWebinars />} />
-                <Route path="leads" element={<AdminLeads />} />
-                <Route path="analytics/courses" element={<AdminCourseAnalytics />} />
-                <Route path="funnels" element={<AdminFunnels />} />
-                <Route path="certificates" element={<AdminCertificates />} />
-                <Route path="settings" element={<AdminSettings />} />
+              {/* Course Student Preview (Instructor/Admin) */}
+              <Route element={<ProtectedRoute allowedRoles={['instructor', 'admin', 'super_admin']} />}>
+                <Route path="/course-preview/:courseId" element={<PremiumLearningExperience />} />
+                <Route path="/course-preview/:courseId/:lessonId" element={<PremiumLearningExperience />} />
               </Route>
-            </Route>
 
-            {/* ââââ Site Builder ââââ */}
-            <Route element={<ProtectedRoute allowedRoles={['admin', 'super_admin', 'marketing_admin', 'instructor']} />}>
-              <Route path="/admin/site-builder" element={<SiteBuilder />} />
-              <Route path="/admin/site-builder/:pageId" element={<SiteBuilder />} />
-            </Route>
+              {/* ââââ Student / Instructor Dashboard ââââ */}
+              <Route element={<ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'super_admin']} />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/my-courses" element={<MyCourses />} />
+              </Route>
 
-            {/* ââââ Community ââââ */}
-            <Route path="/community/events" element={<Navigate to="/community?tab=events" replace />} />
-            <Route path="/community/post/:postId" element={<CommunityApp />} />
-            <Route path="/community/*" element={<CommunityApp />} />
+              {/* ââââ Checkout flow ââââ */}
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/checkout/:courseId" element={<Checkout />} />
+              <Route path="/checkout/success" element={<CheckoutSuccess />} />
 
-            {/* ââââ Webinars ââââ */}
-            <Route path="/webinars/*" element={<WebinarSystem />} />
+              {/* ââââ Learning experience ââââ */}
+              <Route element={<ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'super_admin']} />}>
+                <Route path="/learn/:courseId" element={<PremiumLearningExperience />} />
+                <Route path="/learn/:courseId/:lessonId" element={<PremiumLearningExperience />} />
+              </Route>
 
-            {/* ââââ Auth routes ââââ */}
-            <Route path="/login" element={<DynamicSitePage fallback={<Login />} pageType="login" />} />
-            <Route path="/register" element={<DynamicSitePage fallback={<Register />} pageType="register" />} />
-            <Route path="/forgot-password" element={<DynamicSitePage fallback={<ForgotPassword />} pageType="forgot_password" />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-          </Routes>
-        </Layout>
-        <Toaster position="top-right" />
-      </Router>
+              {/* ââââ Admin routes ââââ */}
+              <Route element={<ProtectedRoute allowedRoles={['admin', 'super_admin']} />}>
+                <Route path="/admin" element={<AdminDashboard />}>
+                  <Route index element={null} />
+                  <Route path="courses" element={<AdminCourses />} />
+                  <Route path="courses/new" element={<AdminCourseEditor />} />
+                  <Route path="courses/:courseId/edit" element={<AdminCourseEditor />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="payments" element={<AdminPayments />} />
+                  <Route path="coupons" element={<AdminCoupons />} />
+                  <Route path="community" element={<AdminCommunity />} />
+                  <Route path="webinars" element={<AdminWebinars />} />
+                  <Route path="webinars/new" element={<AdminWebinars />} />
+                  <Route path="leads" element={<AdminLeads />} />
+                  <Route path="analytics/courses" element={<AdminCourseAnalytics />} />
+                  <Route path="funnels" element={<AdminFunnels />} />
+                  <Route path="certificates" element={<AdminCertificates />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                  <Route path="integrations/systeme" element={<AdminSystemeIntegration />} />
+                </Route>
+              </Route>
+
+              {/* ââââ Site Builder ââââ */}
+              <Route element={<ProtectedRoute allowedRoles={['admin', 'super_admin', 'marketing_admin', 'instructor']} />}>
+                <Route path="/admin/site-builder" element={<SiteBuilder />} />
+                <Route path="/admin/site-builder/:pageId" element={<SiteBuilder />} />
+              </Route>
+
+              {/* ââââ Community ââââ */}
+              <Route path="/community/events" element={<Navigate to="/community?tab=events" replace />} />
+              <Route path="/community/post/:postId" element={<CommunityApp />} />
+              <Route path="/community/*" element={<CommunityApp />} />
+
+              {/* ââââ Webinars ââââ */}
+              <Route path="/webinars/*" element={<WebinarSystem />} />
+
+              {/* ââââ Auth routes ââââ */}
+              <Route path="/login" element={<DynamicSitePage fallback={<Login />} pageType="login" />} />
+              <Route path="/register" element={<DynamicSitePage fallback={<Register />} pageType="register" />} />
+              <Route path="/forgot-password" element={<DynamicSitePage fallback={<ForgotPassword />} pageType="forgot_password" />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+            </Routes>
+          </Layout>
+          <Toaster position="top-right" />
+        </Router>
+      </BrandingProvider>
     </SupabaseAuthProvider>
   );
 };

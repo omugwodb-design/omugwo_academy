@@ -148,21 +148,38 @@ export const LessonEditor: React.FC<LessonEditorProps> = ({ lesson, onSave, onCl
 
               {videoUrl && (
                 <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
-                  {videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') ? (
-                    <iframe
-                      src={videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                      className="w-full h-full"
-                      allowFullScreen
-                    />
-                  ) : videoUrl.includes('vimeo.com') ? (
-                    <iframe
-                      src={videoUrl.replace('vimeo.com/', 'player.vimeo.com/video/')}
-                      className="w-full h-full"
-                      allowFullScreen
-                    />
-                  ) : (
-                    <video src={videoUrl} controls className="w-full h-full" />
-                  )}
+                  {(() => {
+                    const isYoutube = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
+                    const isVimeo = videoUrl.includes('vimeo.com');
+
+                    if (isYoutube) {
+                      const videoId = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtu\.be\/)([^&\s?]+)/)?.[1];
+                      const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}` : videoUrl;
+                      return (
+                        <iframe
+                          src={embedUrl}
+                          className="w-full h-full border-0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                          title="Video Preview"
+                        />
+                      );
+                    }
+
+                    if (isVimeo) {
+                      const videoId = videoUrl.match(/vimeo\.com\/(\d+)/)?.[1];
+                      const embedUrl = videoId ? `https://player.vimeo.com/video/${videoId}` : videoUrl;
+                      return (
+                        <iframe
+                          src={embedUrl}
+                          className="w-full h-full border-0"
+                          allow="autoplay; fullscreen; picture-in-picture"
+                          title="Video Preview"
+                        />
+                      );
+                    }
+
+                    return <video src={videoUrl} controls className="w-full h-full" />;
+                  })()}
                 </div>
               )}
             </div>

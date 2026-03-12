@@ -1,0 +1,1197 @@
+/**
+ * Interactive Scene-Based Lesson Template Registry
+ * 
+ * Comprehensive template library showcasing the full power of the platform.
+ * 36 templates across 12 categories demonstrating various learning patterns.
+ */
+
+import {
+  LessonTemplate,
+  TemplateMetadata,
+  TemplateCategory,
+  TemplateComponent,
+  createScene,
+  createPlaceholder,
+  DEFAULT_TEMPLATE_SETTINGS,
+} from './template-types';
+import { Scene, SceneSection, SceneBackground, SceneNavigation } from './scene-types';
+
+// ============================================
+// HELPER: Create Block
+// ============================================
+
+function createBlock(
+  id: string,
+  type: string,
+  props: Record<string, any>
+): { id: string; type: string; props: Record<string, any> } {
+  return { id, type, props };
+}
+
+function createSection(
+  id: string,
+  title?: string,
+  blocks: any[] = []
+): SceneSection {
+  return { id, title, blocks };
+}
+
+// ============================================
+// CATEGORY 1: NARRATIVE LEARNING TEMPLATES
+// ============================================
+
+// Template 1: Guided Story Lesson
+const guidedStoryLesson: LessonTemplate = {
+  metadata: {
+    id: 'guided-story-lesson',
+    name: 'Guided Story Lesson',
+    description: 'A narrative-driven learning journey with immersive storytelling',
+    longDescription: 'Guide learners through a compelling story that teaches key concepts. Perfect for scenario-based learning, case studies, and emotional engagement.',
+    category: 'narrative',
+    difficulty: 'beginner',
+    tags: ['storytelling', 'narrative', 'immersive', 'beginner-friendly'],
+    components: ['text', 'image', 'video'],
+    estimatedTime: 10,
+    sceneCount: 5,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/guided-story-thumb.png',
+    featured: true,
+    new: true,
+  },
+  content: {
+    title: 'Your Story Title Here',
+    description: 'A guided narrative learning experience',
+    theme: 'storytelling',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Introduction', {
+        type: 'welcome',
+        description: 'Set the stage for your story',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#1e1b4b', '#312e81'] } },
+        sections: [
+          createSection('intro-content', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'Begin Your Journey' }),
+            createBlock('intro-text', 'text', { text: 'In this lesson, you will follow a story that illustrates key concepts and helps you understand the material in a meaningful way.' }),
+            createBlock('intro-image', 'image', { src: '/placeholder-story-intro.jpg', alt: 'Story introduction image' }),
+          ]),
+        ],
+      }),
+      createScene('setup', 'Story Setup', {
+        type: 'concept',
+        description: 'Introduce the characters and situation',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#1e1b4b', '#4c1d95'] } },
+        sections: [
+          createSection('setup-content', 'The Beginning', [
+            createBlock('setup-text', 'text', { text: 'Meet our protagonist and understand their challenge. This story will help you connect with the learning material on a personal level.' }),
+            createBlock('setup-quote', 'quote', { text: '"Every journey begins with a single step."', author: 'Story Narrator' }),
+          ]),
+        ],
+      }),
+      createScene('exploration', 'Interactive Exploration', {
+        type: 'exploration',
+        description: 'Explore the key concepts through the story',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#4c1d95', '#7c3aed'] } },
+        sections: [
+          createSection('explore-content', 'Discover', [
+            createBlock('explore-text', 'text', { text: 'As the story unfolds, pay attention to how the characters navigate challenges. These moments illustrate the core concepts you need to learn.' }),
+            createBlock('explore-accordion', 'accordion', {
+              items: [
+                { title: 'Key Concept 1', content: 'Description of the first important concept illustrated in the story.' },
+                { title: 'Key Concept 2', content: 'Description of the second important concept illustrated in the story.' },
+                { title: 'Key Concept 3', content: 'Description of the third important concept illustrated in the story.' },
+              ],
+            }),
+          }),
+        ],
+      }),
+      createScene('reflection', 'Reflection', {
+        type: 'reflection',
+        description: 'Reflect on what you learned',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#7c3aed', '#a78bfa'] } },
+        sections: [
+          createSection('reflect-content', 'Think About It', [
+            createBlock('reflect-prompt', 'text', { text: 'Take a moment to reflect on the story you just experienced. How does it relate to your own experiences?' }),
+            createBlock('reflect-journal', 'reflection', { prompt: 'What insights did you gain from this story? How might you apply these lessons in your own context?', placeholder: 'Write your reflections here...' }),
+          ]),
+        ],
+      }),
+      createScene('takeaways', 'Key Takeaways', {
+        type: 'summary',
+        description: 'Summarize the key learning points',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#a78bfa', '#c4b5fd'] } },
+        sections: [
+          createSection('summary-content', 'What You Learned', [
+            createBlock('summary-title', 'heading', { level: 2, text: 'Key Takeaways' }),
+            createBlock('summary-list', 'list', {
+              items: [
+                'First key learning point from the story',
+                'Second key learning point from the story',
+                'Third key learning point from the story',
+              ],
+            }),
+            createBlock('summary-cta', 'text', { text: 'You have completed this narrative lesson. Apply these insights in your next challenge!' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('story-title', 'text', 'Story Title', { sceneId: 'intro', property: 'title' }),
+    createPlaceholder('protagonist-name', 'text', 'Protagonist Name', { sceneId: 'setup', sectionId: 'setup-content', blockId: 'setup-text', property: 'text' }),
+    createPlaceholder('reflection-prompt', 'text', 'Reflection Question', { sceneId: 'reflection', sectionId: 'reflect-content', blockId: 'reflect-journal', property: 'prompt' }),
+  ],
+  instructions: [
+    'Customize the story title and protagonist name to match your content',
+    'Replace placeholder images with relevant story imagery',
+    'Update the accordion items with your specific learning concepts',
+    'Personalize the reflection prompt for your learners',
+  ],
+};
+
+// Template 2: Personal Story Learning
+const personalStoryLesson: LessonTemplate = {
+  metadata: {
+    id: 'personal-story-lesson',
+    name: 'Personal Story Learning',
+    description: 'Share testimonial or lived experiences for emotional connection',
+    longDescription: 'Perfect for patient journeys, founder stories, testimonial-based learning, or any content where personal experience drives understanding.',
+    category: 'narrative',
+    difficulty: 'beginner',
+    tags: ['testimonial', 'personal', 'emotional', 'storytelling'],
+    components: ['video', 'image', 'text', 'reflection'],
+    estimatedTime: 12,
+    sceneCount: 4,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/personal-story-thumb.png',
+    featured: true,
+  },
+  content: {
+    title: 'A Personal Journey',
+    description: 'Learn through someone\'s lived experience',
+    theme: 'storytelling',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Meet the Person', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#1f2937', '#374151'] } },
+        sections: [
+          createSection('intro-sec', 'Introduction', [
+            createBlock('intro-video', 'video', { src: '/placeholder-intro-video.mp4', poster: '/placeholder-video-poster.jpg', caption: 'Introduction to the personal story' }),
+            createBlock('intro-bio', 'text', { text: 'Meet [Name], who will share their personal journey and the lessons they learned along the way.' }),
+          ]),
+        ],
+      }),
+      createScene('challenge', 'The Challenge', {
+        type: 'concept',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#374151', '#4b5563'] } },
+        sections: [
+          createSection('challenge-sec', 'Facing Difficulties', [
+            createBlock('challenge-text', 'text', { text: 'Every journey has its challenges. Here, [Name] describes the obstacles they faced and how they felt at the time.' }),
+            createBlock('challenge-quote', 'quote', { text: '"[Insert powerful quote from the story]"', author: '[Name]' }),
+            createBlock('challenge-image', 'image', { src: '/placeholder-challenge.jpg', alt: 'Visual representation of the challenge' }),
+          ]),
+        ],
+      }),
+      createScene('turning-point', 'The Turning Point', {
+        type: 'exploration',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#4b5563', '#6b7280'] } },
+        sections: [
+          createSection('turn-sec', 'Finding a Way', [
+            createBlock('turn-text', 'text', { text: 'Discover how [Name] found their path forward and what resources or support made the difference.' }),
+            createBlock('turn-timeline', 'timeline', {
+              events: [
+                { date: 'Day 1', title: 'The Beginning', description: 'Initial challenge faced' },
+                { date: 'Week 2', title: 'Seeking Help', description: 'Finding support resources' },
+                { date: 'Month 2', title: 'Progress', description: 'Seeing positive changes' },
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('lessons', 'Lessons Learned', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#6b7280', '#9ca3af'] } },
+        sections: [
+          createSection('lessons-sec', 'Key Insights', [
+            createBlock('lessons-text', 'text', { text: 'What [Name] wants you to take away from their experience:' }),
+            createBlock('lessons-cards', 'interactive-cards', {
+              cards: [
+                { title: 'Lesson 1', content: 'First key takeaway from the personal journey', icon: 'heart' },
+                { title: 'Lesson 2', content: 'Second key takeaway from the personal journey', icon: 'star' },
+                { title: 'Lesson 3', content: 'Third key takeaway from the personal journey', icon: 'lightbulb' },
+              ],
+            }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('person-name', 'text', 'Person\'s Name', { sceneId: 'intro', sectionId: 'intro-sec', blockId: 'intro-bio', property: 'text' }),
+    createPlaceholder('challenge-quote', 'text', 'Powerful Quote', { sceneId: 'challenge', sectionId: 'challenge-sec', blockId: 'challenge-quote', property: 'text' }),
+    createPlaceholder('intro-video', 'video', 'Introduction Video', { sceneId: 'intro', sectionId: 'intro-sec', blockId: 'intro-video', property: 'src' }),
+  ],
+};
+
+// Template 3: Documentary Style Lesson
+const documentaryLesson: LessonTemplate = {
+  metadata: {
+    id: 'documentary-lesson',
+    name: 'Documentary Style Lesson',
+    description: 'A short documentary-style learning experience with expert interviews',
+    longDescription: 'Create a documentary feel with video segments, expert commentary, and narrative flow. Great for complex topics requiring multiple perspectives.',
+    category: 'narrative',
+    difficulty: 'intermediate',
+    tags: ['documentary', 'video', 'expert', 'professional'],
+    components: ['video', 'text', 'image', 'quiz'],
+    estimatedTime: 15,
+    sceneCount: 5,
+    hasBranching: false,
+    hasAssessment: true,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/documentary-thumb.png',
+  },
+  content: {
+    title: 'Documentary Learning Experience',
+    description: 'Explore the topic through a documentary lens',
+    theme: 'immersive',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('opening', 'Opening Scene', {
+        type: 'welcome',
+        background: { type: 'video', video: { src: '/placeholder-opening-video.mp4', opacity: 0.6 } },
+        sections: [
+          createSection('open-sec', 'Introduction', [
+            createBlock('open-title', 'heading', { level: 1, text: 'The Story Begins' }),
+            createBlock('open-text', 'text', { text: 'An introduction to the documentary theme and what viewers will learn.' }),
+          ]),
+        ],
+      }),
+      createScene('explanation', 'The Explanation', {
+        type: 'concept',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#0f172a', '#1e293b'] } },
+        sections: [
+          createSection('exp-sec', 'Understanding the Topic', [
+            createBlock('exp-video', 'video', { src: '/placeholder-explanation.mp4', caption: 'Expert explanation of core concepts' }),
+            createBlock('exp-captions', 'text', { text: 'Key points from the explanation appear here as text overlays.' }),
+          ]),
+        ],
+      }),
+      createScene('expert', 'Expert Interview', {
+        type: 'exploration',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#1e293b', '#334155'] } },
+        sections: [
+          createSection('expert-sec', 'Expert Perspective', [
+            createBlock('expert-video', 'video', { src: '/placeholder-expert-interview.mp4', caption: 'Interview with subject matter expert' }),
+            createBlock('expert-quote', 'quote', { text: '"Expert insight quote goes here"', author: 'Expert Name, Title' }),
+          ]),
+        ],
+      }),
+      createScene('check', 'Knowledge Check', {
+        type: 'assessment',
+        background: { type: 'solid', color: '#1e293b' },
+        sections: [
+          createSection('check-sec', 'Test Your Understanding', [
+            createBlock('check-quiz', 'quiz', {
+              question: 'What was the main point discussed in the documentary?',
+              options: [
+                { text: 'First key point', correct: true },
+                { text: 'Incorrect option', correct: false },
+                { text: 'Another incorrect option', correct: false },
+              ],
+              feedback: { correct: 'Great job! You understood the main concept.', incorrect: 'Review the explanation section again.' },
+            }),
+          ]),
+        ],
+      }),
+      createScene('summary', 'Summary', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#334155', '#475569'] } },
+        sections: [
+          createSection('sum-sec', 'Key Takeaways', [
+            createBlock('sum-text', 'text', { text: 'Thank you for watching. Here are the key points to remember from this documentary.' }),
+            createBlock('sum-list', 'list', {
+              items: [
+                'Key point 1 from the documentary',
+                'Key point 2 from the documentary',
+                'Key point 3 from the documentary',
+              ],
+            }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('doc-title', 'text', 'Documentary Title', { sceneId: 'opening', property: 'title' }),
+    createPlaceholder('opening-video', 'video', 'Opening Video', { sceneId: 'opening', sectionId: 'open-sec', property: 'background.video.src' }),
+    createPlaceholder('expert-name', 'text', 'Expert Name', { sceneId: 'expert', sectionId: 'expert-sec', blockId: 'expert-quote', property: 'author' }),
+  ],
+};
+
+// ============================================
+// CATEGORY 2: EXPLORATION TEMPLATES
+// ============================================
+
+// Template 4: Interactive Exploration Lesson
+const interactiveExplorationLesson: LessonTemplate = {
+  metadata: {
+    id: 'interactive-exploration',
+    name: 'Interactive Exploration Lesson',
+    description: 'Self-guided discovery learning with clickable hotspots',
+    longDescription: 'Learners explore different topics by clicking areas on images or diagrams. Perfect for anatomy, geography, product training, or any spatial learning.',
+    category: 'exploration',
+    difficulty: 'intermediate',
+    tags: ['exploration', 'hotspot', 'discovery', 'interactive'],
+    components: ['hotspot', 'image', 'text', 'accordion'],
+    estimatedTime: 12,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/exploration-thumb.png',
+    featured: true,
+  },
+  content: {
+    title: 'Explore and Discover',
+    description: 'Click on different areas to learn more',
+    theme: 'infographic',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Exploration Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#0ea5e9', '#0284c7'] } },
+        sections: [
+          createSection('intro-sec', 'Getting Started', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'Interactive Exploration' }),
+            createBlock('intro-text', 'text', { text: 'In this lesson, you will explore by clicking on different areas. Each click reveals new information and helps you understand the topic in depth.' }),
+            createBlock('intro-tip', 'callout', { type: 'info', text: '💡 Tip: Click on any highlighted area to learn more!' }),
+          ]),
+        ],
+      }),
+      createScene('explore', 'Exploration Area', {
+        type: 'exploration',
+        background: { type: 'solid', color: '#f8fafc' },
+        sections: [
+          createSection('explore-sec', 'Click to Explore', [
+            createBlock('explore-hotspot', 'hotspot', {
+              image: '/placeholder-exploration-image.jpg',
+              hotspots: [
+                { x: 25, y: 30, label: 'Area 1', content: 'Detailed information about the first area. Click to learn more about its significance and characteristics.' },
+                { x: 50, y: 50, label: 'Area 2', content: 'Detailed information about the second area. This section explains key concepts and relationships.' },
+                { x: 75, y: 70, label: 'Area 3', content: 'Detailed information about the third area. Discover important facts and practical applications.' },
+              ],
+              hotspotStyle: 'pulse',
+            }),
+          ]),
+        ],
+      }),
+      createScene('summary', 'What You Discovered', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#0284c7', '#0369a1'] } },
+        sections: [
+          createSection('sum-sec', 'Key Findings', [
+            createBlock('sum-title', 'heading', { level: 2, text: 'Summary of Your Exploration' }),
+            createBlock('sum-accordion', 'accordion', {
+              items: [
+                { title: 'Area 1 Summary', content: 'Key points about the first explored area and its importance.' },
+                { title: 'Area 2 Summary', content: 'Key points about the second explored area and its significance.' },
+                { title: 'Area 3 Summary', content: 'Key points about the third explored area and its applications.' },
+              ],
+            }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('explore-image', 'image', 'Exploration Image', { sceneId: 'explore', sectionId: 'explore-sec', blockId: 'explore-hotspot', property: 'image' }),
+    createPlaceholder('area1-content', 'text', 'Area 1 Content', { sceneId: 'explore', sectionId: 'explore-sec', blockId: 'explore-hotspot', property: 'hotspots[0].content' }),
+    createPlaceholder('area2-content', 'text', 'Area 2 Content', { sceneId: 'explore', sectionId: 'explore-sec', blockId: 'explore-hotspot', property: 'hotspots[1].content' }),
+  ],
+};
+
+// Template 5: Interactive Map Lesson
+const interactiveMapLesson: LessonTemplate = {
+  metadata: {
+    id: 'interactive-map',
+    name: 'Interactive Map Lesson',
+    description: 'Explore geographic or conceptual maps with regional content',
+    longDescription: 'Perfect for geography, global health topics, regional comparisons, or any content that benefits from spatial representation.',
+    category: 'exploration',
+    difficulty: 'intermediate',
+    tags: ['map', 'geography', 'regional', 'interactive'],
+    components: ['map', 'text', 'image', 'accordion'],
+    estimatedTime: 15,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/map-thumb.png',
+  },
+  content: {
+    title: 'Map Exploration',
+    description: 'Explore different regions and their characteristics',
+    theme: 'infographic',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Map Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#064e3b', '#065f46'] } },
+        sections: [
+          createSection('intro-sec', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'Explore the Map' }),
+            createBlock('intro-text', 'text', { text: 'Click on different regions of the map to learn about their unique characteristics, challenges, and opportunities.' }),
+          ]),
+        ],
+      }),
+      createScene('map', 'Interactive Map', {
+        type: 'exploration',
+        background: { type: 'solid', color: '#f0fdf4' },
+        sections: [
+          createSection('map-sec', 'Select a Region', [
+            createBlock('map-interactive', 'map', {
+              regions: [
+                { id: 'region-1', name: 'Region A', color: '#22c55e', content: 'Information about Region A including key statistics and important facts.' },
+                { id: 'region-2', name: 'Region B', color: '#16a34a', content: 'Information about Region B including key statistics and important facts.' },
+                { id: 'region-3', name: 'Region C', color: '#15803d', content: 'Information about Region C including key statistics and important facts.' },
+              ],
+              defaultView: 'world',
+            }),
+          ]),
+        ],
+      }),
+      createScene('comparison', 'Regional Comparison', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#065f46', '#047857'] } },
+        sections: [
+          createSection('comp-sec', 'Compare Regions', [
+            createBlock('comp-title', 'heading', { level: 2, text: 'Side-by-Side Comparison' }),
+            createBlock('comp-table', 'comparison', {
+              columns: ['Metric', 'Region A', 'Region B', 'Region C'],
+              rows: [
+                ['Population', 'Value A', 'Value B', 'Value C'],
+                ['Area Size', 'Value A', 'Value B', 'Value C'],
+                ['Key Feature', 'Value A', 'Value B', 'Value C'],
+              ],
+            }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('map-title', 'text', 'Map Title', { sceneId: 'intro', property: 'title' }),
+    createPlaceholder('region1-name', 'text', 'Region 1 Name', { sceneId: 'map', sectionId: 'map-sec', blockId: 'map-interactive', property: 'regions[0].name' }),
+    createPlaceholder('region1-content', 'text', 'Region 1 Content', { sceneId: 'map', sectionId: 'map-sec', blockId: 'map-interactive', property: 'regions[0].content' }),
+  ],
+};
+
+// Template 6: Interactive Diagram Lesson
+const interactiveDiagramLesson: LessonTemplate = {
+  metadata: {
+    id: 'interactive-diagram',
+    name: 'Interactive Diagram Lesson',
+    description: 'Explore layered diagrams with hover reveals',
+    longDescription: 'Great for anatomy, system architecture, organizational charts, or any hierarchical or spatial content.',
+    category: 'exploration',
+    difficulty: 'intermediate',
+    tags: ['diagram', 'anatomy', 'layers', 'interactive'],
+    components: ['diagram', 'hotspot', 'text', 'image'],
+    estimatedTime: 10,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/diagram-thumb.png',
+  },
+  content: {
+    title: 'Interactive Diagram',
+    description: 'Explore the diagram to understand each component',
+    theme: 'infographic',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Diagram Overview', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#7c3aed', '#6d28d9'] } },
+        sections: [
+          createSection('intro-sec', 'Welcome', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'Explore the Diagram' }),
+            createBlock('intro-text', 'text', { text: 'This interactive diagram lets you explore each component. Hover over or click on different parts to learn more.' }),
+          ]),
+        ],
+      }),
+      createScene('diagram', 'Interactive Diagram', {
+        type: 'exploration',
+        background: { type: 'solid', color: '#faf5ff' },
+        sections: [
+          createSection('diag-sec', 'Explore Components', [
+            createBlock('diag-image', 'hotspot', {
+              image: '/placeholder-diagram.png',
+              hotspots: [
+                { x: 50, y: 20, label: 'Component 1', content: 'Description of the first component and its role in the system.' },
+                { x: 30, y: 50, label: 'Component 2', content: 'Description of the second component and how it connects to others.' },
+                { x: 70, y: 50, label: 'Component 3', content: 'Description of the third component and its function.' },
+                { x: 50, y: 80, label: 'Component 4', content: 'Description of the fourth component and its importance.' },
+              ],
+              hotspotStyle: 'static',
+            }),
+          ]),
+        ],
+      }),
+      createScene('layers', 'Layered View', {
+        type: 'exploration',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#6d28d9', '#5b21b6'] } },
+        sections: [
+          createSection('layer-sec', 'Layer by Layer', [
+            createBlock('layer-tabs', 'tabs', {
+              tabs: [
+                { label: 'Layer 1', content: 'Description of the first layer and what it contains.' },
+                { label: 'Layer 2', content: 'Description of the second layer and its components.' },
+                { label: 'Layer 3', content: 'Description of the third layer and its functions.' },
+              ],
+            }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('diagram-image', 'image', 'Diagram Image', { sceneId: 'diagram', sectionId: 'diag-sec', blockId: 'diag-image', property: 'image' }),
+    createPlaceholder('component1-label', 'text', 'Component 1 Label', { sceneId: 'diagram', sectionId: 'diag-sec', blockId: 'diag-image', property: 'hotspots[0].label' }),
+    createPlaceholder('component1-content', 'text', 'Component 1 Content', { sceneId: 'diagram', sectionId: 'diag-sec', blockId: 'diag-image', property: 'hotspots[0].content' }),
+  ],
+};
+
+// ============================================
+// CATEGORY 3: STEP-BASED LEARNING TEMPLATES
+// ============================================
+
+// Template 7: Step-by-Step Skill Tutorial
+const stepByStepTutorial: LessonTemplate = {
+  metadata: {
+    id: 'step-by-step-tutorial',
+    name: 'Step-by-Step Skill Tutorial',
+    description: 'Structured tutorial guiding learners through sequential steps',
+    longDescription: 'Perfect for teaching skills, procedures, or processes. Each step builds on the previous one with clear instructions and demonstrations.',
+    category: 'step-based',
+    difficulty: 'beginner',
+    tags: ['tutorial', 'skills', 'procedural', 'beginner-friendly'],
+    components: ['text', 'image', 'video', 'checklist'],
+    estimatedTime: 15,
+    sceneCount: 5,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/step-tutorial-thumb.png',
+    featured: true,
+  },
+  content: {
+    title: 'Step-by-Step Tutorial',
+    description: 'Learn a new skill one step at a time',
+    theme: 'illustrated',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('overview', 'Tutorial Overview', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#059669', '#047857'] } },
+        sections: [
+          createSection('over-sec', 'What You\'ll Learn', [
+            createBlock('over-title', 'heading', { level: 1, text: 'Skill Tutorial' }),
+            createBlock('over-text', 'text', { text: 'In this tutorial, you will learn [skill name] through a series of clear, sequential steps. By the end, you\'ll be able to perform this skill independently.' }),
+            createBlock('over-objectives', 'list', {
+              items: [
+                'Understand when and why to use this skill',
+                'Learn each step of the process',
+                'Practice with guided exercises',
+                'Apply your new knowledge',
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('step1', 'Step 1: Preparation', {
+        type: 'concept',
+        background: { type: 'solid', color: '#ecfdf5' },
+        sections: [
+          createSection('step1-sec', 'Getting Ready', [
+            createBlock('step1-title', 'heading', { level: 2, text: 'Step 1: Preparation' }),
+            createBlock('step1-desc', 'text', { text: 'Before you begin, gather all necessary materials and prepare your workspace.' }),
+            createBlock('step1-image', 'image', { src: '/placeholder-step1.jpg', alt: 'Step 1 demonstration' }),
+            createBlock('step1-tips', 'callout', { type: 'tip', text: 'Tip: Having everything ready before you start makes the process smoother.' }),
+          ]),
+        ],
+      }),
+      createScene('step2', 'Step 2: The Core Process', {
+        type: 'activity',
+        background: { type: 'solid', color: '#f0fdf4' },
+        sections: [
+          createSection('step2-sec', 'Main Activity', [
+            createBlock('step2-title', 'heading', { level: 2, text: 'Step 2: Core Process' }),
+            createBlock('step2-video', 'video', { src: '/placeholder-step2.mp4', caption: 'Demonstration of the core process' }),
+            createBlock('step2-instructions', 'text', { text: 'Follow these detailed instructions for completing the main part of the skill.' }),
+          ]),
+        ],
+      }),
+      createScene('practice', 'Guided Practice', {
+        type: 'activity',
+        background: { type: 'solid', color: '#dcfce7' },
+        sections: [
+          createSection('prac-sec', 'Try It Yourself', [
+            createBlock('prac-title', 'heading', { level: 2, text: 'Guided Practice' }),
+            createBlock('prac-text', 'text', { text: 'Now it\'s your turn! Follow the checklist below to practice what you\'ve learned.' }),
+            createBlock('prac-checklist', 'checklist', {
+              items: [
+                { id: 'item1', text: 'Complete the first task', completed: false },
+                { id: 'item2', text: 'Verify your work matches the example', completed: false },
+                { id: 'item3', text: 'Make adjustments as needed', completed: false },
+                { id: 'item4', text: 'Confirm completion', completed: false },
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('recap', 'Recap & Next Steps', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#047857', '#059669'] } },
+        sections: [
+          createSection('recap-sec', 'Summary', [
+            createBlock('recap-title', 'heading', { level: 2, text: 'What You Learned' }),
+            createBlock('recap-timeline', 'timeline', {
+              events: [
+                { date: 'Step 1', title: 'Preparation', description: 'Gathered materials and prepared workspace' },
+                { date: 'Step 2', title: 'Core Process', description: 'Learned and practiced the main technique' },
+                { date: 'Practice', title: 'Guided Practice', description: 'Applied skills with checklist support' },
+              ],
+            }),
+            createBlock('recap-next', 'text', { text: 'You\'re now ready to use this skill independently. Continue practicing to build confidence!' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('skill-name', 'text', 'Skill Name', { sceneId: 'overview', property: 'title' }),
+    createPlaceholder('step1-image', 'image', 'Step 1 Image', { sceneId: 'step1', sectionId: 'step1-sec', blockId: 'step1-image', property: 'src' }),
+    createPlaceholder('step2-video', 'video', 'Step 2 Video', { sceneId: 'step2', sectionId: 'step2-sec', blockId: 'step2-video', property: 'src' }),
+  ],
+};
+
+// Template 8: Process Flow Lesson
+const processFlowLesson: LessonTemplate = {
+  metadata: {
+    id: 'process-flow',
+    name: 'Process Flow Lesson',
+    description: 'Animated timeline showing sequential processes',
+    longDescription: 'Great for explaining workflows, lifecycle stages, or any process with clear phases. Animated reveals help learners understand progression.',
+    category: 'step-based',
+    difficulty: 'beginner',
+    tags: ['process', 'timeline', 'workflow', 'animated'],
+    components: ['timeline', 'text', 'image', 'accordion'],
+    estimatedTime: 10,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/process-flow-thumb.png',
+  },
+  content: {
+    title: 'Process Flow',
+    description: 'Understand the complete process from start to finish',
+    theme: 'infographic',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Process Overview', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#0891b2', '#0e7490'] } },
+        sections: [
+          createSection('intro-sec', 'Introduction', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'The Process' }),
+            createBlock('intro-text', 'text', { text: 'This lesson walks you through the complete process, showing each stage and how they connect.' }),
+          ]),
+        ],
+      }),
+      createScene('timeline', 'Process Timeline', {
+        type: 'concept',
+        background: { type: 'solid', color: '#ecfeff' },
+        sections: [
+          createSection('time-sec', 'Stages', [
+            createBlock('time-timeline', 'timeline', {
+              events: [
+                { date: 'Stage 1', title: 'Beginning', description: 'Description of the first stage and what happens here.' },
+                { date: 'Stage 2', title: 'Development', description: 'Description of the second stage and key activities.' },
+                { date: 'Stage 3', title: 'Progress', description: 'Description of the third stage and milestones.' },
+                { date: 'Stage 4', title: 'Completion', description: 'Description of the final stage and outcomes.' },
+              ],
+              orientation: 'horizontal',
+              style: 'cards',
+            }),
+          ]),
+        ],
+      }),
+      createScene('details', 'Stage Details', {
+        type: 'exploration',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#0e7490', '#155e75'] } },
+        sections: [
+          createSection('det-sec', 'Learn More', [
+            createBlock('det-title', 'heading', { level: 2, text: 'Deep Dive' }),
+            createBlock('det-accordion', 'accordion', {
+              items: [
+                { title: 'Stage 1 Details', content: 'Comprehensive explanation of the first stage, including tips and common pitfalls.' },
+                { title: 'Stage 2 Details', content: 'Comprehensive explanation of the second stage, with examples and best practices.' },
+                { title: 'Stage 3 Details', content: 'Comprehensive explanation of the third stage, including metrics and checkpoints.' },
+                { title: 'Stage 4 Details', content: 'Comprehensive explanation of the final stage, with success criteria and next steps.' },
+              ],
+            }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('process-name', 'text', 'Process Name', { sceneId: 'intro', property: 'title' }),
+    createPlaceholder('stage1-desc', 'text', 'Stage 1 Description', { sceneId: 'timeline', sectionId: 'time-sec', blockId: 'time-timeline', property: 'events[0].description' }),
+  ],
+};
+
+// Template 9: Checklist Guided Lesson
+const checklistGuidedLesson: LessonTemplate = {
+  metadata: {
+    id: 'checklist-guided',
+    name: 'Checklist Guided Lesson',
+    description: 'Interactive checklist with progress tracking',
+    longDescription: 'Perfect for preparation tasks, safety procedures, or any activity where learners need to verify completion of multiple items.',
+    category: 'step-based',
+    difficulty: 'beginner',
+    tags: ['checklist', 'preparation', 'verification', 'progress'],
+    components: ['checklist', 'text', 'image', 'progress-tracker'],
+    estimatedTime: 8,
+    sceneCount: 3,
+    hasBranching: false,
+    hasAssessment: false,
+    hasGamification: true,
+    isInteractive: true,
+    thumbnail: '/templates/checklist-thumb.png',
+  },
+  content: {
+    title: 'Checklist Guide',
+    description: 'Complete each item to finish the lesson',
+    theme: 'infographic',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Checklist Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#ca8a04', '#a16207'] } },
+        sections: [
+          createSection('intro-sec', 'Getting Started', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'Your Checklist' }),
+            createBlock('intro-text', 'text', { text: 'Complete each item on the checklist below. Track your progress as you go!' }),
+          ]),
+        ],
+      }),
+      createScene('checklist', 'Main Checklist', {
+        type: 'activity',
+        background: { type: 'solid', color: '#fefce8' },
+        sections: [
+          createSection('check-sec', 'Complete These Tasks', [
+            createBlock('check-title', 'heading', { level: 2, text: 'Checklist Items' }),
+            createBlock('check-list', 'checklist', {
+              items: [
+                { id: 'item1', text: 'First item to complete', completed: false },
+                { id: 'item2', text: 'Second item to complete', completed: false },
+                { id: 'item3', text: 'Third item to complete', completed: false },
+                { id: 'item4', text: 'Fourth item to complete', completed: false },
+                { id: 'item5', text: 'Fifth item to complete', completed: false },
+              ],
+              showProgress: true,
+            }),
+          ]),
+        ],
+      }),
+      createScene('complete', 'Completion', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#a16207', '#854d0e'] } },
+        sections: [
+          createSection('comp-sec', 'All Done!', [
+            createBlock('comp-title', 'heading', { level: 2, text: 'Congratulations!' }),
+            createBlock('comp-text', 'text', { text: 'You have completed all items on the checklist. You\'re ready for the next step!' }),
+            createBlock('comp-badge', 'badge', { name: 'Checklist Champion', icon: 'check-circle' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('checklist-title', 'text', 'Checklist Title', { sceneId: 'intro', property: 'title' }),
+    createPlaceholder('item1-text', 'text', 'Item 1 Text', { sceneId: 'checklist', sectionId: 'check-sec', blockId: 'check-list', property: 'items[0].text' }),
+  ],
+};
+
+// ============================================
+// CATEGORY 4: SCENARIO-BASED LEARNING
+// ============================================
+
+// Template 10: Choose Your Path Scenario
+const chooseYourPathScenario: LessonTemplate = {
+  metadata: {
+    id: 'choose-your-path',
+    name: 'Choose Your Path Scenario',
+    description: 'Decision-based learning with branching outcomes',
+    longDescription: 'Learners make choices that lead to different outcomes. Perfect for ethics training, decision-making skills, or exploring consequences.',
+    category: 'scenario',
+    difficulty: 'advanced',
+    tags: ['branching', 'decisions', 'outcomes', 'advanced'],
+    components: ['scenario', 'branching', 'text', 'image'],
+    estimatedTime: 15,
+    sceneCount: 5,
+    hasBranching: true,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/choose-path-thumb.png',
+    featured: true,
+  },
+  content: {
+    title: 'Choose Your Path',
+    description: 'Your decisions shape the outcome',
+    theme: 'storytelling',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('intro', 'Scenario Introduction', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#dc2626', '#b91c1c'] } },
+        sections: [
+          createSection('intro-sec', 'The Situation', [
+            createBlock('intro-title', 'heading', { level: 1, text: 'A Critical Decision' }),
+            createBlock('intro-text', 'text', { text: 'You are about to face a situation where your choices matter. Each decision will lead to different outcomes. Choose wisely!' }),
+            createBlock('intro-context', 'text', { text: 'Context: [Describe the scenario setting and your role]' }),
+          ]),
+        ],
+      }),
+      createScene('decision1', 'First Decision', {
+        type: 'branching',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#b91c1c', '#991b1b'] } },
+        navigation: {
+          type: 'branching',
+          branches: [
+            { id: 'choice-a', label: 'Option A: Take action now', targetSceneId: 'outcome-a', style: 'primary' },
+            { id: 'choice-b', label: 'Option B: Wait and observe', targetSceneId: 'outcome-b', style: 'secondary' },
+          ],
+        },
+        sections: [
+          createSection('dec1-sec', 'What Will You Do?', [
+            createBlock('dec1-text', 'text', { text: 'The situation presents itself. You must decide how to respond. Consider the consequences of each choice.' }),
+          ]),
+        ],
+      }),
+      createScene('outcome-a', 'Outcome A', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#16a34a', '#15803d'] } },
+        sections: [
+          createSection('outa-sec', 'The Result', [
+            createBlock('outa-title', 'heading', { level: 2, text: 'You Chose Action' }),
+            createBlock('outa-text', 'text', { text: 'By taking immediate action, you [describe the outcome]. This choice led to [consequences].' }),
+            createBlock('outa-lesson', 'callout', { type: 'success', text: 'Lesson: Sometimes immediate action is the right choice when...' }),
+          ]),
+        ],
+      }),
+      createScene('outcome-b', 'Outcome B', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#2563eb', '#1d4ed8'] } },
+        sections: [
+          createSection('outb-sec', 'The Result', [
+            createBlock('outb-title', 'heading', { level: 2, text: 'You Chose Patience' }),
+            createBlock('outb-text', 'text', { text: 'By waiting and observing, you [describe the outcome]. This choice led to [consequences].' }),
+            createBlock('outb-lesson', 'callout', { type: 'info', text: 'Lesson: Sometimes patience provides better insight when...' }),
+          ]),
+        ],
+      }),
+      createScene('reflection', 'Final Reflection', {
+        type: 'reflection',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#7c3aed', '#6d28d9'] } },
+        sections: [
+          createSection('refl-sec', 'Think About It', [
+            createBlock('refl-title', 'heading', { level: 2, text: 'Reflect on Your Choice' }),
+            createBlock('refl-text', 'text', { text: 'Regardless of which path you took, consider how this scenario relates to real situations you might face.' }),
+            createBlock('refl-journal', 'reflection', { prompt: 'What factors influenced your decision? How might you approach similar situations in the future?' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('scenario-context', 'text', 'Scenario Context', { sceneId: 'intro', sectionId: 'intro-sec', blockId: 'intro-context', property: 'text' }),
+    createPlaceholder('decision-text', 'text', 'Decision Text', { sceneId: 'decision1', sectionId: 'dec1-sec', blockId: 'dec1-text', property: 'text' }),
+    createPlaceholder('outcome-a-text', 'text', 'Outcome A Description', { sceneId: 'outcome-a', sectionId: 'outa-sec', blockId: 'outa-text', property: 'text' }),
+  ],
+};
+
+// Template 11: Branching Simulation
+const branchingSimulation: LessonTemplate = {
+  metadata: {
+    id: 'branching-simulation',
+    name: 'Branching Simulation',
+    description: 'Complex multi-path simulation for training',
+    longDescription: 'Advanced branching with multiple decision points. Great for emergency response training, customer service scenarios, or complex decision trees.',
+    category: 'scenario',
+    difficulty: 'advanced',
+    tags: ['simulation', 'complex', 'training', 'branching'],
+    components: ['scenario', 'branching', 'quiz', 'score'],
+    estimatedTime: 20,
+    sceneCount: 6,
+    hasBranching: true,
+    hasAssessment: true,
+    hasGamification: true,
+    isInteractive: true,
+    thumbnail: '/templates/simulation-thumb.png',
+  },
+  content: {
+    title: 'Simulation Training',
+    description: 'Navigate through a complex scenario with multiple outcomes',
+    theme: 'immersive',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('briefing', 'Mission Briefing', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#1e3a5f', '#0f172a'] } },
+        sections: [
+          createSection('brief-sec', 'Your Mission', [
+            createBlock('brief-title', 'heading', { level: 1, text: 'Simulation Briefing' }),
+            createBlock('brief-text', 'text', { text: 'You are about to enter a simulation where your decisions will be scored. Make the best choices to achieve a high score.' }),
+            createBlock('brief-objectives', 'list', {
+              items: [
+                'Objective 1: [Describe first objective]',
+                'Objective 2: [Describe second objective]',
+                'Objective 3: [Describe third objective]',
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('scenario-start', 'Scenario Begins', {
+        type: 'branching',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#0f172a', '#1e293b'] } },
+        navigation: {
+          type: 'branching',
+          branches: [
+            { id: 'path-1', label: 'Approach A', targetSceneId: 'path-1-scene', style: 'primary' },
+            { id: 'path-2', label: 'Approach B', targetSceneId: 'path-2-scene', style: 'secondary' },
+          ],
+        },
+        sections: [
+          createSection('start-sec', 'Initial Situation', [
+            createBlock('start-text', 'text', { text: 'The scenario begins. You must decide how to approach the situation.' }),
+          ]),
+        ],
+      }),
+      createScene('path-1-scene', 'Path 1: Direct Approach', {
+        type: 'activity',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#1e293b', '#334155'] } },
+        sections: [
+          createSection('p1-sec', 'Taking Direct Action', [
+            createBlock('p1-text', 'text', { text: 'You chose the direct approach. Here\'s what happens next...' }),
+            createBlock('p1-quiz', 'quiz', {
+              question: 'Given the situation, what should you do next?',
+              options: [
+                { text: 'Continue forward', correct: true, score: 10 },
+                { text: 'Retreat', correct: false, score: 0 },
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('path-2-scene', 'Path 2: Strategic Approach', {
+        type: 'activity',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#334155', '#475569'] } },
+        sections: [
+          createSection('p2-sec', 'Taking Strategic Action', [
+            createBlock('p2-text', 'text', { text: 'You chose the strategic approach. Here\'s what happens next...' }),
+            createBlock('p2-quiz', 'quiz', {
+              question: 'What\'s your next strategic move?',
+              options: [
+                { text: 'Gather more information', correct: true, score: 10 },
+                { text: 'Act immediately', correct: false, score: 5 },
+              ],
+            }),
+          ]),
+        ],
+      }),
+      createScene('resolution', 'Resolution', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#475569', '#64748b'] } },
+        sections: [
+          createSection('res-sec', 'Outcome', [
+            createBlock('res-title', 'heading', { level: 2, text: 'Simulation Complete' }),
+            createBlock('res-score', 'score-display', { label: 'Your Score' }),
+            createBlock('res-feedback', 'text', { text: 'Based on your decisions, here\'s how you performed and what you could improve.' }),
+          ]),
+        ],
+      }),
+      createScene('debrief', 'Debrief', {
+        type: 'summary',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#64748b', '#94a3b8'] } },
+        sections: [
+          createSection('deb-sec', 'Learning Points', [
+            createBlock('deb-title', 'heading', { level: 2, text: 'Debrief & Lessons' }),
+            createBlock('deb-accordion', 'accordion', {
+              items: [
+                { title: 'What went well', content: 'Analysis of successful decisions and why they worked.' },
+                { title: 'Areas for improvement', content: 'Analysis of suboptimal decisions and how to improve.' },
+                { title: 'Key takeaways', content: 'Summary of main learning points from the simulation.' },
+              ],
+            }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('mission-text', 'text', 'Mission Description', { sceneId: 'briefing', sectionId: 'brief-sec', blockId: 'brief-text', property: 'text' }),
+    createPlaceholder('initial-situation', 'text', 'Initial Situation', { sceneId: 'scenario-start', sectionId: 'start-sec', blockId: 'start-text', property: 'text' }),
+  ],
+};
+
+// Template 12: Roleplay Dialogue Lesson
+const roleplayDialogueLesson: LessonTemplate = {
+  metadata: {
+    id: 'roleplay-dialogue',
+    name: 'Roleplay Dialogue Lesson',
+    description: 'Conversational branching with response choices',
+    longDescription: 'Perfect for communication training, sales practice, patient interactions, or any scenario requiring dialogue skills.',
+    category: 'scenario',
+    difficulty: 'intermediate',
+    tags: ['dialogue', 'communication', 'roleplay', 'conversation'],
+    components: ['scenario', 'branching', 'text', 'video'],
+    estimatedTime: 12,
+    sceneCount: 4,
+    hasBranching: true,
+    hasAssessment: false,
+    hasGamification: false,
+    isInteractive: true,
+    thumbnail: '/templates/roleplay-thumb.png',
+  },
+  content: {
+    title: 'Dialogue Practice',
+    description: 'Practice your conversation skills',
+    theme: 'storytelling',
+    settings: DEFAULT_TEMPLATE_SETTINGS,
+    scenes: [
+      createScene('setup', 'Conversation Setup', {
+        type: 'welcome',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#7c3aed', '#6d28d9'] } },
+        sections: [
+          createSection('setup-sec', 'The Context', [
+            createBlock('setup-title', 'heading', { level: 1, text: 'Dialogue Scenario' }),
+            createBlock('setup-text', 'text', { text: 'You are about to have a conversation with [character]. Your goal is to [objective]. Choose your responses carefully.' }),
+            createBlock('setup-character', 'text', { text: 'Character: [Name], [Role]. Personality: [Traits].' }),
+          ]),
+        ],
+      }),
+      createScene('dialogue-1', 'Opening Exchange', {
+        type: 'branching',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 180, colors: ['#6d28d9', '#5b21b6'] } },
+        navigation: {
+          type: 'branching',
+          branches: [
+            { id: 'resp-1a', label: 'Friendly greeting', targetSceneId: 'dialogue-friendly', style: 'success' },
+            { id: 'resp-1b', label: 'Professional greeting', targetSceneId: 'dialogue-professional', style: 'primary' },
+            { id: 'resp-1c', label: 'Direct approach', targetSceneId: 'dialogue-direct', style: 'secondary' },
+          ],
+        },
+        sections: [
+          createSection('dlg1-sec', 'They Say:', [
+            createBlock('dlg1-npc', 'quote', { text: '"[NPC opening line]"', author: '[Character Name]' }),
+          ]),
+        ],
+      }),
+      createScene('dialogue-friendly', 'Friendly Path', {
+        type: 'branching',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#22c55e', '#16a34a'] } },
+        sections: [
+          createSection('fr-sec', 'Conversation Continues', [
+            createBlock('fr-response', 'text', { text: 'Your friendly approach puts them at ease. They respond warmly.' }),
+            createBlock('fr-npc', 'quote', { text: '"[NPC response to friendly approach]"', author: '[Character Name]' }),
+          ]),
+        ],
+      }),
+      createScene('dialogue-professional', 'Professional Path', {
+        type: 'branching',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#3b82f6', '#2563eb'] } },
+        sections: [
+          createSection('pro-sec', 'Conversation Continues', [
+            createBlock('pro-response', 'text', { text: 'Your professional demeanor establishes respect. They respond accordingly.' }),
+            createBlock('pro-npc', 'quote', { text: '"[NPC response to professional approach]"', author: '[Character Name]' }),
+          ]),
+        ],
+      }),
+      createScene('dialogue-direct', 'Direct Path', {
+        type: 'branching',
+        background: { type: 'gradient', gradient: { type: 'linear', angle: 135, colors: ['#f59e0b', '#d97706'] } },
+        sections: [
+          createSection('dir-sec', 'Conversation Continues', [
+            createBlock('dir-response', 'text', { text: 'Your direct approach gets straight to the point. They seem slightly surprised but engaged.' }),
+            createBlock('dir-npc', 'quote', { text: '"[NPC response to direct approach]"', author: '[Character Name]' }),
+          ]),
+        ],
+      }),
+    ],
+  },
+  placeholders: [
+    createPlaceholder('character-name', 'text', 'Character Name', { sceneId: 'setup', sectionId: 'setup-sec', blockId: 'setup-character', property: 'text' }),
+    createPlaceholder('npc-opening', 'text', 'NPC Opening Line', { sceneId: 'dialogue-1', sectionId: 'dlg1-sec', blockId: 'dlg1-npc', property: 'text' }),
+  ],
+};
+
+// ============================================
+// EXPORT TEMPLATE REGISTRY
+// ============================================
+
+export const INTERACTIVE_TEMPLATES: Record<string, LessonTemplate> = {
+  // Category 1: Narrative
+  'guided-story-lesson': guidedStoryLesson,
+  'personal-story-lesson': personalStoryLesson,
+  'documentary-lesson': documentaryLesson,
+  
+  // Category 2: Exploration
+  'interactive-exploration': interactiveExplorationLesson,
+  'interactive-map': interactiveMapLesson,
+  'interactive-diagram': interactiveDiagramLesson,
+  
+  // Category 3: Step-Based
+  'step-by-step-tutorial': stepByStepTutorial,
+  'process-flow': processFlowLesson,
+  'checklist-guided': checklistGuidedLesson,
+  
+  // Category 4: Scenario
+  'choose-your-path': chooseYourPathScenario,
+  'branching-simulation': branchingSimulation,
+  'roleplay-dialogue': roleplayDialogueLesson,
+};
+
+export const TEMPLATE_LIST = Object.values(INTERACTIVE_TEMPLATES);
+
+export function getTemplatesByCategory(category: TemplateCategory): LessonTemplate[] {
+  return TEMPLATE_LIST.filter(t => t.metadata.category === category);
+}
+
+export function getFeaturedTemplates(): LessonTemplate[] {
+  return TEMPLATE_LIST.filter(t => t.metadata.featured);
+}
+
+export function getTemplateById(id: string): LessonTemplate | undefined {
+  return INTERACTIVE_TEMPLATES[id];
+}
+
+export default INTERACTIVE_TEMPLATES;

@@ -12,6 +12,7 @@ import { TextLesson } from './lessons/TextLesson';
 import { PdfLesson } from './lessons/PdfLesson';
 import { QuizLesson } from './lessons/QuizLesson';
 import { AssignmentLesson } from './lessons/AssignmentLesson';
+import { BlocksLesson } from './lessons/BlocksLesson';
 import { useAuthStore } from '../../../stores/authStore';
 
 interface MainContentProps {
@@ -63,51 +64,60 @@ export const MainContent: React.FC<MainContentProps> = ({
   }
 
   const renderLessonContent = () => {
+    // Check if we have block-based interactive content
+    const isBlockContent = currentLesson.content?.blocks && Array.isArray(currentLesson.content.blocks);
+    // Check if we have scene-based interactive content
+    const isInteractiveContent = currentLesson.content?.type === 'interactive' && currentLesson.content?.scenes && Array.isArray(currentLesson.content.scenes);
+
+    if (isBlockContent || isInteractiveContent) {
+      return <BlocksLesson content={currentLesson.content} />;
+    }
+
     switch (currentLesson.type) {
       case 'video':
         return (
-          <VideoLesson 
-            url={currentLesson.video_url || ''} 
+          <VideoLesson
+            url={currentLesson.video_url || ''}
             poster={course?.thumbnail_url}
             onProgress={handleVideoProgress}
             onEnded={() => markComplete(currentLesson.id)}
           />
         );
       case 'pdf':
-         return (
-           <PdfLesson 
-             url={
-               currentLesson.content?.pdf_url ||
-               currentLesson.content?.pdfUrl ||
-               currentLesson.content?.url ||
-               currentLesson.pdf_url ||
-               currentLesson.pdfUrl ||
-               ''
-             }
-             title={currentLesson.title}
-             allowDownload={currentLesson.content?.allowDownload !== false}
-           />
-         );
+        return (
+          <PdfLesson
+            url={
+              currentLesson.content?.pdf_url ||
+              currentLesson.content?.pdfUrl ||
+              currentLesson.content?.url ||
+              currentLesson.pdf_url ||
+              currentLesson.pdfUrl ||
+              ''
+            }
+            title={currentLesson.title}
+            allowDownload={currentLesson.content?.allowDownload !== false}
+          />
+        );
       case 'quiz':
-         return (
-           <QuizLesson 
-             lessonId={currentLesson.id}
-             userId={user?.id || ''}
-             onComplete={() => markComplete(currentLesson.id)}
-           />
-         );
+        return (
+          <QuizLesson
+            lessonId={currentLesson.id}
+            userId={user?.id || ''}
+            onComplete={() => markComplete(currentLesson.id)}
+          />
+        );
       case 'assignment':
-         return (
-           <AssignmentLesson 
-             lessonId={currentLesson.id}
-             userId={user?.id || ''}
-             onComplete={() => markComplete(currentLesson.id)}
-           />
-         );
+        return (
+          <AssignmentLesson
+            lessonId={currentLesson.id}
+            userId={user?.id || ''}
+            onComplete={() => markComplete(currentLesson.id)}
+          />
+        );
       case 'text':
       default:
         return (
-          <TextLesson 
+          <TextLesson
             content={typeof currentLesson.content === 'object' ? currentLesson.content?.body || currentLesson.content?.prompt : currentLesson.content || currentLesson.description}
           />
         );
@@ -121,7 +131,7 @@ export const MainContent: React.FC<MainContentProps> = ({
       handleScroll(scrollPercent);
     }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 space-y-8">
-        
+
         {/* Top Navigation & Title */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
@@ -139,18 +149,18 @@ export const MainContent: React.FC<MainContentProps> = ({
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={goPrev} 
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goPrev}
               disabled={!hasPrev}
               className="border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-900"
             >
               <ChevronLeft className="w-4 h-4 mr-1" /> Prev
             </Button>
-            <Button 
-              size="sm" 
-              onClick={goNext} 
+            <Button
+              size="sm"
+              onClick={goNext}
               disabled={!hasNext}
               className="bg-primary-600 hover:bg-primary-700 text-white shadow-sm"
             >
@@ -183,15 +193,15 @@ export const MainContent: React.FC<MainContentProps> = ({
                 onClick={() => setActiveTab(t.id)}
                 className={cn(
                   "flex items-center gap-2 px-6 py-4 text-sm font-semibold transition-all shrink-0 relative",
-                  activeTab === t.id 
-                    ? "text-primary-600 dark:text-primary-400" 
+                  activeTab === t.id
+                    ? "text-primary-600 dark:text-primary-400"
                     : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
                 )}
               >
                 <t.icon className="w-4 h-4" />
                 {t.label}
                 {activeTab === t.id && (
-                  <motion.div 
+                  <motion.div
                     layoutId="activeTab"
                     className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 dark:bg-primary-500"
                   />
@@ -206,7 +216,7 @@ export const MainContent: React.FC<MainContentProps> = ({
                 <p>{currentLesson.description || 'No additional details provided for this lesson.'}</p>
               </div>
             )}
-            
+
             {activeTab === 'resources' && (
               <div className="space-y-3">
                 {(currentLesson.resources || []).length > 0 ? (
@@ -235,7 +245,7 @@ export const MainContent: React.FC<MainContentProps> = ({
 
             {activeTab === 'notes' && (
               <div>
-                <textarea 
+                <textarea
                   placeholder="Capture your thoughts here. These notes are private to you..."
                   className="w-full h-48 p-4 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-800 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none resize-none transition-all"
                 />
@@ -274,15 +284,15 @@ export const MainContent: React.FC<MainContentProps> = ({
                 {isLessonCompleted ? 'Lesson Completed' : 'In Progress'}
               </p>
               <p className="text-xs text-gray-500">
-                {isLessonCompleted 
-                  ? 'Great job! You can move on to the next lesson.' 
+                {isLessonCompleted
+                  ? 'Great job! You can move on to the next lesson.'
                   : 'Auto-completes as you engage, or mark manually.'}
               </p>
             </div>
           </div>
-          
+
           {!isLessonCompleted && (
-            <Button 
+            <Button
               onClick={() => {
                 handleActionComplete();
                 markComplete(currentLesson.id);

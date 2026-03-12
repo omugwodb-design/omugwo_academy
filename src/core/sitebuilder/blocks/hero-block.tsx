@@ -5,6 +5,7 @@ import { BlockComponentProps, PropSchema } from "../types";
 import { AnimationWrapper, animationSchemaFields, getAnimationConfig, sizingSchemaFields } from "./animation-wrapper";
 import { Heart, Star, Play, Users, Baby, BookOpen, Shield, Zap, Award, Target, Mic, Calendar } from "lucide-react";
 import { AnimatedBlob } from "../components/AnimatedBlob";
+import { InlineText } from "../components/InlineText";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useCartStore } from "../../../stores/cartStore";
 
@@ -125,7 +126,7 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
   const effectiveVariant = block.props.variant || (block.type === "hero_split" ? "split" : "centered");
   const isSplitLike = effectiveVariant === "split";
   const isPodcastSplit = block.type === "hero_split";
-  
+
   const {
     title = "Empowering Your Postpartum Journey",
     titleHighlight = "",
@@ -309,22 +310,27 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
               {badgeText && (
                 <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-gray-900 text-gray-900 text-[10px] font-bold tracking-widest uppercase rounded-full mb-6">
                   {BadgeIcon && <BadgeIcon className="w-3 h-3 fill-current" />}
-                  {badgeText}
+                  <InlineText
+                    element="span"
+                    value={badgeText}
+                    onChange={(val) => handleChange("badgeText", val)}
+                    selected={selected}
+                  />
                 </span>
               )}
-              <h1
+              <InlineText
+                element="h1"
                 className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tight mb-6 text-gray-900 leading-[1.1]"
-                contentEditable={selected}
-                suppressContentEditableWarning
-                onBlur={onBlurHtml("title")}
-                dangerouslySetInnerHTML={{ __html: titleHighlight ? String(renderTitle() as any) : (title || "") }}
+                value={titleHighlight ? String(renderTitle() as any) : (title || "")}
+                onChange={(val) => handleChange("title", val)}
+                selected={selected}
               />
-              <p
+              <InlineText
+                element="p"
                 className="text-lg md:text-xl mb-8 text-gray-600 max-w-lg leading-relaxed"
-                contentEditable={selected}
-                suppressContentEditableWarning
-                onBlur={onBlurHtml("subtitle")}
-                dangerouslySetInnerHTML={{ __html: subtitle }}
+                value={subtitle}
+                onChange={(val) => handleChange("subtitle", val)}
+                selected={selected}
               />
               <div className={cn(
                 "flex gap-4 flex-wrap",
@@ -337,7 +343,12 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
                     className="inline-flex items-center px-8 py-4 bg-[#a855f7] text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-purple-600 transition-colors shadow-lg shadow-purple-500/30"
                     onClick={(e) => handleSmartNav(e, ctaLink)}
                   >
-                    {ctaText}
+                    <InlineText
+                      element="span"
+                      value={ctaText}
+                      onChange={(val) => handleChange("ctaText", val)}
+                      selected={selected}
+                    />
                   </a>
                 )}
                 {secondaryCtaText && (
@@ -397,22 +408,20 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
               {badgeText}
             </span>
           )}
-          <h1
+          <InlineText
+            element="h1"
             className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tight mb-6 text-gray-900 leading-[1.1]"
-            contentEditable={selected}
-            suppressContentEditableWarning
-            onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}
-          >
-            {renderTitle()}
-          </h1>
-          <p
+            value={titleHighlight ? String(renderTitle() as any) : (title || "")}
+            onChange={(val) => handleChange("title", val)}
+            selected={selected}
+          />
+          <InlineText
+            element="p"
             className="text-lg md:text-xl mb-8 text-gray-500 max-w-2xl mx-auto leading-relaxed"
-            contentEditable={selected}
-            suppressContentEditableWarning
-            onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}
-          >
-            {subtitle}
-          </p>
+            value={subtitle}
+            onChange={(val) => handleChange("subtitle", val)}
+            selected={selected}
+          />
           <div className="flex gap-4 flex-wrap justify-center">
             {ctaText && (
               <a
@@ -462,22 +471,20 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
         )}
         {renderOverlay()}
         <AnimationWrapper animation={animConfig} className={cn("relative z-10 mx-auto px-4 md:px-8", containerSize)}>
-          <h1
+          <InlineText
+            element="h1"
             className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tight mb-6 text-white leading-[1.1]"
-            contentEditable={selected}
-            suppressContentEditableWarning
-            onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}
-          >
-            {renderTitle()}
-          </h1>
-          <p
+            value={titleHighlight ? String(renderTitle() as any) : (title || "")}
+            onChange={(val) => handleChange("title", val)}
+            selected={selected}
+          />
+          <InlineText
+            element="p"
             className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-white/80 leading-relaxed"
-            contentEditable={selected}
-            suppressContentEditableWarning
-            onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}
-          >
-            {subtitle}
-          </p>
+            value={subtitle}
+            onChange={(val) => handleChange("subtitle", val)}
+            selected={selected}
+          />
           <div className="flex gap-4 flex-wrap justify-center">
             {ctaText && (
               <a
@@ -550,21 +557,21 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
           </span>
         )}
 
-        <h1
+        <InlineText
+          element="h1"
           className={cn(
             "text-4xl md:text-6xl font-black tracking-tight mb-6",
             contentAlign === "center" && "text-center",
             contentAlign === "right" && "text-right",
             isDark ? "text-white" : "text-gray-900"
           )}
-          contentEditable={selected}
-          suppressContentEditableWarning
-          onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}
-        >
-          {renderTitle()}
-        </h1>
+          value={titleHighlight ? String(renderTitle() as any) : (title || "")}
+          onChange={(val) => handleChange("title", val)}
+          selected={selected}
+        />
 
-        <p
+        <InlineText
+          element="p"
           className={cn(
             "text-lg md:text-xl mb-8 max-w-2xl leading-relaxed",
             contentAlign === "center" && "mx-auto",
@@ -573,10 +580,9 @@ export const HeroBlock: React.FC<BlockComponentProps> = ({ block, onChange, sele
             contentAlign === "right" && "text-right",
             isDark ? "text-white/80" : "text-gray-600"
           )}
-          contentEditable={selected}
-          suppressContentEditableWarning
-          onBlur={onBlurHtml("subtitle")}
-          dangerouslySetInnerHTML={{ __html: subtitle }}
+          value={subtitle}
+          onChange={(val) => handleChange("subtitle", val)}
+          selected={selected}
         />
 
         <div className={cn(

@@ -3,11 +3,14 @@ import { cn } from "../../lib/utils";
 import { useEditorStore } from "./editor-store";
 import { BLOCK_DEFINITIONS } from "./registry";
 import { PropSchema } from "./types";
-import { ChevronDown, Plus, Trash2, Palette } from "lucide-react";
+import { ChevronDown, Plus, Trash2, Palette, Settings2, Layout, Sparkles, Type, Image as ImageIcon, Layers } from "lucide-react";
 import { MediaUpload } from "../../components/ui/MediaUpload";
 import { RichTextEditor } from "./components/RichTextEditor";
+import { TypographyControl, BorderControl, SpacingControl } from "./components/VisualControls";
 export const SidebarRight: React.FC = () => {
   const { selectedBlockId, getBlocks, updateBlockProps } = useEditorStore();
+  const [activeTab, setActiveTab] = useState<string>("Content");
+
   const blocks = getBlocks();
   const selectedBlock = selectedBlockId
     ? blocks.find((b) => b.id === selectedBlockId) || null
@@ -33,13 +36,23 @@ export const SidebarRight: React.FC = () => {
     updateBlockProps(selectedBlock.id, newProps);
   };
 
-  // Group schemas
-  const groups = def.propSchema.reduce((acc, schema) => {
-    const group = schema.group || "Content";
-    if (!acc[group]) acc[group] = [];
-    acc[group].push(schema);
-    return acc;
-  }, {} as Record<string, PropSchema[]>);
+  // Standardized Tabs
+  const tabs = [
+    { id: "Content", icon: Type },
+    { id: "Layout", icon: Layout },
+    { id: "Style", icon: Palette },
+    { id: "Animation", icon: Sparkles },
+    { id: "Advanced", icon: Settings2 },
+  ];
+
+  // Group schemas for the ACTIVE TAB ONLY
+  const schemasForActiveTab = def.propSchema.filter(s => (s.group || "Content") === activeTab);
+
+  // Further group by sub-groups if any (optional, but keep the PropertyGroup logic)
+  // For now, let's just group them into a "General" group within the tab if they don't have a sub-group
+  // or just render them directly.
+  // Actually, the current PropertyGroup logic expects a group name.
+  // Let's just use the activeTab as the single group for now, or if we want nested groups:
 
   return (
     <div className="w-[300px] border-l border-gray-200 dark:border-gray-800 h-full bg-white dark:bg-gray-950 flex flex-col shrink-0">
@@ -54,11 +67,47 @@ export const SidebarRight: React.FC = () => {
         </div>
       </div>
 
-      {/* Properties */}
-      <div className="flex-1 overflow-y-auto">
-        {Object.entries(groups).map(([groupName, schemas]) => (
-          <PropertyGroup key={groupName} name={groupName}>
-            {schemas.map((schema) => (
+      {/* Tabs Navigation */}
+      <div className="flex items-center border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 p-1 shrink-0">
+        {tabs.map((tab) => {
+          const TabIcon = tab.icon;
+          const isActive = activeTab === tab.id;
+          // Check if this tab has any fields
+          const hasFields = def.propSchema.some(s => (s.group || "Content") === tab.id);
+
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "flex-1 flex flex-col items-center justify-center py-2 rounded-md transition-all relative group",
+                isActive
+                  ? "bg-white dark:bg-gray-800 text-primary-600 shadow-sm"
+                  : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300",
+                !hasFields && tab.id !== "Content" && "opacity-30 grayscale cursor-not-allowed"
+              )}
+              title={tab.id}
+              disabled={!hasFields && tab.id !== "Content"}
+            >
+              <TabIcon className={cn("w-4 h-4", isActive ? "scale-110" : "scale-100")} />
+              {isActive && (
+                <span className="text-[8px] font-bold mt-1 uppercase tracking-tighter">{tab.id}</span>
+              )}
+              {!isActive && (
+                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
+                  {tab.id}
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Properties Area */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
+        {schemasForActiveTab.length > 0 ? (
+          <div className="p-4 space-y-5 animate-in fade-in slide-in-from-right-2 duration-300">
+            {schemasForActiveTab.map((schema) => (
               <PropertyField
                 key={schema.name}
                 schema={schema}
@@ -68,8 +117,13 @@ export const SidebarRight: React.FC = () => {
                 onPropsChange={(props) => updateBlockProps(selectedBlock.id, props)}
               />
             ))}
-          </PropertyGroup>
-        ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full opacity-20 p-8 text-center grayscale">
+            <Settings2 className="w-12 h-12 mb-4" />
+            <p className="text-xs font-medium">No settings available for this category</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -295,17 +349,63 @@ const PropertyField: React.FC<{
         />
       );
 
+    case "padding":
+    case "margin":
+      return (
+        <SpacingControl
+          label={schema.label}
+          type={schema.type as 'padding' | 'margin'}
+          values={value || {}}
+          onChange={onChange}
+        />
+      );
+
+    case "border_radius":
+      return (
+        <BorderControl
+          label={schema.label}
+          values={value || {}}
+          onChange={onChange}
+        />
+      );
+
+    case "shadow":
+      return (
+        <div className="space-y-2 p-3 bg-gray-50/50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-2 mb-1">
+            <Layers className="w-3.5 h-3.5 text-gray-400" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">{schema.label}</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {['none', 'sm', 'md', 'lg', 'xl', '2xl', 'inner'].map((s) => (
+              <button
+                key={s}
+                onClick={() => onChange(s)}
+                className={cn(
+                  "py-1.5 text-[10px] uppercase font-bold rounded-lg border transition-all",
+                  (value || 'none') === s
+                    ? "bg-primary-50 border-primary-200 text-primary-600 dark:bg-primary-900/40 dark:border-primary-800"
+                    : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400 hover:text-gray-600"
+                )}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+
     default:
       return (
         <div>
-          <label className="text-xs font-medium text-gray-600 mb-1 block">
+          <label className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1 block">
             {schema.label}
           </label>
           <input
             type="text"
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
           />
         </div>
       );

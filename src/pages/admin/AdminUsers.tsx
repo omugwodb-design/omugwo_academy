@@ -133,19 +133,6 @@ export const AdminUsers: React.FC = () => {
 
       if (dbError) throw dbError;
 
-      // Also update auth metadata as backup
-      const user = dbUsers.find(u => u.id === userId);
-      if (user) {
-        const { error: authError } = await supabase.auth.admin.updateUserById(
-          userId,
-          { user_metadata: { role: newRole, full_name: user.fullName } }
-        );
-        
-        if (authError) {
-          console.warn('Could not update auth metadata:', authError);
-        }
-      }
-
       // Update local state
       setDbUsers(prev => prev.map(u =>
         u.id === userId ? { ...u, role: newRole } : u

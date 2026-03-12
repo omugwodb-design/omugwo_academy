@@ -9,6 +9,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Avatar } from '../components/ui/Avatar';
+import { ShareStoryForm } from '../components/story/ShareStoryForm';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -454,7 +455,7 @@ export const Home: React.FC = () => {
             >
               <div className="absolute -inset-4 bg-primary-100 rounded-[3rem] -rotate-3 opacity-50" />
               <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800"
+                src="https://images.unsplash.com/photo-1573496359142-b357a9332bbc?auto=format&fit=crop&q=80&w=800"
                 alt="Dr. Megor Ikuenobe"
                 className="relative rounded-[2.5rem] shadow-2xl"
               />
@@ -544,9 +545,11 @@ export const Home: React.FC = () => {
                     </li>
                   ))}
                 </ul>
-                <Button size="lg" className="rounded-full px-8 bg-primary-300 hover:bg-primary-400 text-white border-0">
-                  SHARE YOUR STORY
-                </Button>
+                <ShareStoryForm
+                  source="home_story_section"
+                  triggerLabel="SHARE YOUR STORY"
+                  triggerClassName="rounded-full px-8 bg-primary-300 hover:bg-primary-400 text-white border-0"
+                />
               </div>
             </motion.div>
 

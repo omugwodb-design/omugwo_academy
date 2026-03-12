@@ -22,6 +22,35 @@ export const COURSE_SALES_TEMPLATES: Template[] = [
             },
             {
                 id: id(),
+                type: "udemy_hero",
+                label: "Udemy Hero",
+                props: {
+                    title: "The Complete Postpartum Recovery Masterclass",
+                    subtitle: "Everything you need to know for a healthy, supported postpartum journey. From physical recovery to mental wellness.",
+                    instructorName: "Dr. Megor Ikuenobe",
+                    instructorTitle: "ECD Specialist & Founder",
+                    instructorImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
+                    rating: 4.8,
+                    ratingCount: 2847,
+                    studentCount: "8,432",
+                    lastUpdated: "2/2025",
+                    language: "English",
+                    previewImageUrl: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800",
+                    price: "₦49,000",
+                    originalPrice: "₦129,000",
+                    discountPercent: 62,
+                    ctaText: "Add to Cart",
+                    ctaLink: "/checkout",
+                    includes: [
+                        { icon: "video", text: "12 hours on-demand video" },
+                        { icon: "book", text: "24 downloadable resources" },
+                        { icon: "clock", text: "Full lifetime access" },
+                        { icon: "award", text: "Certificate of completion" }
+                    ]
+                }
+            },
+            {
+                id: id(),
                 type: "hero_split",
                 label: "Emotional Headline",
                 props: {
@@ -169,25 +198,24 @@ export const COURSE_SALES_TEMPLATES: Template[] = [
         blocks: [
             {
                 id: id(),
-                type: "navigation",
-                label: "Navigation",
-                props: { brandName: "Omugwo Academy", variant: "light" }
-            },
-            {
-                id: id(),
-                type: "hero",
-                label: "Course Header",
+                type: "coursera_hero",
+                label: "Coursera Hero",
                 props: {
-                    variant: "minimal",
                     title: "Postpartum Recovery Specialization",
                     subtitle: "Gain expertise in evidence-based postnatal care. Develop skills for physical recovery, mental wellness, and infant care.",
-                    badgeText: "PROFESSIONAL CERTIFICATE",
-                    backgroundColor: "#ffffff",
-                    paddingY: "py-20",
-                    containerSize: "max-w-6xl",
-                    align: "left",
+                    instructorName: "Dr. Megor Ikuenobe",
+                    instructorTitle: "ECD Specialist",
+                    instructorImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
+                    rating: 4.8,
+                    reviewCount: 2847,
+                    level: "Beginner",
+                    duration: "12 weeks at 3 hours/week",
+                    schedule: "Flexible schedule",
+                    language: "English",
+                    enrollmentCount: "15,000+",
                     ctaText: "Enroll for Free",
-                    secondaryCtaText: "Financial aid available"
+                    ctaLink: "/checkout",
+                    previewImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800"
                 }
             },
             {
@@ -262,24 +290,22 @@ export const COURSE_SALES_TEMPLATES: Template[] = [
         blocks: [
             {
                 id: id(),
-                type: "navigation",
-                label: "Navigation",
-                props: BLOCK_DEFINITIONS.navigation.defaultProps
-            },
-            {
-                id: id(),
-                type: "hero",
-                label: "Course Hero",
+                type: "linkedin_hero",
+                label: "LinkedIn Hero",
                 props: {
-                    variant: "video-bg",
                     title: "Essential Postnatal Care Skills",
                     subtitle: "Master the practical skills needed for navigating the postpartum period effectively.",
-                    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", // Placeholder
-                    overlayType: "solid",
-                    overlayOpacity: 70,
+                    instructorName: "Dr. Megor Ikuenobe",
+                    instructorTitle: "ECD Specialist",
+                    instructorImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
+                    skillLevel: "Beginner",
+                    duration: "12h 30m",
+                    learnerCount: "15,243",
+                    releaseDate: "Updated Jan 2026",
+                    skills: ["Postpartum Recovery", "Mental Health", "Infant Care", "Self-Care Strategies"],
                     ctaText: "Start Learning",
-                    secondaryCtaText: "Preview Course",
-                    paddingY: "py-24"
+                    ctaLink: "/checkout",
+                    previewImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800"
                 }
             },
             {
@@ -329,25 +355,21 @@ export const COURSE_SALES_TEMPLATES: Template[] = [
         blocks: [
             {
                 id: id(),
-                type: "navigation",
-                label: "Navigation",
-                props: { brandName: "Omugwo Academy", variant: "dark" }
-            },
-            {
-                id: id(),
-                type: "hero",
-                label: "Cinematic Hero",
+                type: "masterclass_hero",
+                label: "MasterClass Hero",
                 props: {
-                    variant: "video-bg",
                     title: "Dr. Megor Teaches Postpartum Recovery",
                     subtitle: "The founder of Lead Oak Foundation shares her comprehensive framework for healing, mental wellness, and thriving in motherhood.",
+                    instructorName: "Dr. Megor Ikuenobe",
+                    instructorTitle: "Founder & Maternal Health Expert",
+                    instructorImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
                     backgroundImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1920",
-                    overlayType: "gradient-side-dark",
-                    overlayOpacity: 80,
-                    align: "left",
+                    trailerUrl: "",
+                    lessonCount: 24,
+                    duration: "12+ hours",
                     ctaText: "Sign Up",
-                    secondaryCtaText: "Watch Trailer",
-                    paddingY: "py-32"
+                    ctaLink: "/checkout",
+                    price: "₦49,000"
                 }
             },
             {
@@ -445,15 +467,31 @@ export const COURSE_SALES_TEMPLATES: Template[] = [
         blocks: [
             {
                 id: id(),
-                type: "hero",
-                label: "Simple Hero",
+                type: "teachable_hero",
+                label: "Teachable Hero",
                 props: {
-                    variant: "centered",
                     title: "The Postnatal Masterclass",
                     subtitle: "Everything you need to know for a smooth recovery.",
-                    ctaText: "Enroll in Course",
-                    showOverlay: false,
-                    backgroundColor: "#f9fafb"
+                    instructorName: "Dr. Megor Ikuenobe",
+                    instructorTitle: "ECD Specialist",
+                    instructorImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
+                    videoUrl: "",
+                    price: "₦49,000",
+                    originalPrice: "₦129,000",
+                    ctaText: "Enroll Now",
+                    ctaLink: "/checkout",
+                    modules: [
+                        { title: "Module 1: Body Recovery", lessonCount: 5, duration: "2h 15m" },
+                        { title: "Module 2: Mental Health", lessonCount: 4, duration: "1h 45m" },
+                        { title: "Module 3: Cultural Balance", lessonCount: 3, duration: "1h 30m" }
+                    ],
+                    includes: [
+                        { icon: "video", text: "12 Hours on-demand video" },
+                        { icon: "book", text: "24 Lessons downloadable resources" },
+                        { icon: "clock", text: "Full lifetime access" },
+                        { icon: "award", text: "Certificate of completion" }
+                    ],
+                    previewImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800"
                 }
             },
             {
@@ -511,21 +549,28 @@ export const COURSE_SALES_TEMPLATES: Template[] = [
         blocks: [
              {
                 id: id(),
-                type: "navigation",
-                label: "Navigation",
-                props: BLOCK_DEFINITIONS.navigation.defaultProps
-            },
-            {
-                id: id(),
-                type: "hero",
-                label: "Authority Hero",
+                type: "thinkific_hero",
+                label: "Thinkific Hero",
                 props: {
-                    variant: "split",
                     title: "Evidence-Based Postpartum Care",
                     subtitle: "A proven framework developed by medical experts to ensure a safe, healthy recovery.",
+                    instructorName: "Dr. Megor Ikuenobe",
+                    instructorTitle: "Founder & Maternal Health Expert",
+                    instructorImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
+                    instructorBio: "Dr. Megor is a distinguished medical professional and early childhood development specialist on a mission to provide every child in Africa with a promising start.",
+                    price: "₦49,000",
+                    originalPrice: "₦129,000",
                     ctaText: "Buy Now",
-                    heroImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800",
-                    badgeText: "EXPERT LED"
+                    ctaLink: "/checkout",
+                    modules: [
+                        { title: "Module 1: Body Recovery", lessonCount: 5, duration: "2h 15m" },
+                        { title: "Module 2: Mental Health", lessonCount: 4, duration: "1h 45m" },
+                        { title: "Module 3: Cultural Balance", lessonCount: 3, duration: "1h 30m" }
+                    ],
+                    enrollmentCount: "15,000+",
+                    rating: 4.8,
+                    reviewCount: 2847,
+                    previewImage: "https://images.unsplash.com/photo-1531983412531-1f49a365ffed?auto=format&fit=crop&q=80&w=800"
                 }
             },
             {

@@ -4,6 +4,7 @@ import { BlockComponentProps, PropSchema } from "../types";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { getResponsiveGridClasses, useDevice } from "../device-context";
 import { AnimationWrapper, animationSchemaFields, getAnimationConfig, sizingSchemaFields } from "./animation-wrapper";
+import { InlineText } from "../components/InlineText";
 
 export const testimonialsBlockSchema: PropSchema[] = [
   {
@@ -30,6 +31,13 @@ export const testimonialsBlockSchema: PropSchema[] = [
       { label: "2", value: "2" }, { label: "3", value: "3" },
     ], group: "Layout"
   },
+  {
+    name: "textAlign", label: "Text Alignment", type: "select", options: [
+      { label: "Left", value: "left" },
+      { label: "Center", value: "center" },
+      { label: "Right", value: "right" },
+    ], group: "Layout"
+  },
   { name: "backgroundColor", label: "Background", type: "color", group: "Style" },
   { name: "textColor", label: "Text Color", type: "color", group: "Style" },
   ...animationSchemaFields,
@@ -49,6 +57,7 @@ export const TestimonialsBlock: React.FC<BlockComponentProps> = ({ block, onChan
       { name: "Ngozi A.", role: "Mother of Three", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100", text: "Even on my third child, I learned so much. The cultural balance module was eye-opening.", rating: 5 },
     ],
     columns = "3",
+    textAlign = "center",
     backgroundColor,
     textColor,
     paddingY = "py-20",
@@ -79,14 +88,30 @@ export const TestimonialsBlock: React.FC<BlockComponentProps> = ({ block, onChan
       <div className="flex items-center gap-1 mb-4 text-yellow-400">
         {renderStars(t.rating)}
       </div>
-      <p className={cn("mb-6 leading-relaxed", textColor === "#ffffff" ? "text-gray-300" : "text-gray-700")} contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(idx, "text", e.currentTarget.textContent || "")}>
-        "{t.text}"
-      </p>
+      <InlineText
+        element="p"
+        className={cn("mb-6 leading-relaxed italic", textColor === "#ffffff" ? "text-gray-300" : "text-gray-700")}
+        value={t.text}
+        onChange={(val) => updateTestimonial(idx, "text", val)}
+        selected={selected}
+      />
       <div className="flex items-center gap-4">
         {t.avatar && <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-white/20" />}
         <div>
-          <p className={cn("font-bold", textColor === "#ffffff" ? "text-white" : "text-gray-900")} contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(idx, "name", e.currentTarget.textContent || "")}>{t.name}</p>
-          <p className={cn("text-sm", textColor === "#ffffff" ? "text-gray-400" : "text-gray-500")} contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(idx, "role", e.currentTarget.textContent || "")}>{t.role}</p>
+          <InlineText
+            element="p"
+            className={cn("font-bold", textColor === "#ffffff" ? "text-white" : "text-gray-900")}
+            value={t.name}
+            onChange={(val) => updateTestimonial(idx, "name", val)}
+            selected={selected}
+          />
+          <InlineText
+            element="p"
+            className={cn("text-sm", textColor === "#ffffff" ? "text-gray-400" : "text-gray-500")}
+            value={t.role}
+            onChange={(val) => updateTestimonial(idx, "role", val)}
+            selected={selected}
+          />
         </div>
       </div>
     </AnimationWrapper>
@@ -99,22 +124,50 @@ export const TestimonialsBlock: React.FC<BlockComponentProps> = ({ block, onChan
     return (
       <section className={cn(paddingY, "px-6", !backgroundColor && "bg-gray-50")} style={{ backgroundColor: backgroundColor || undefined }}>
         <div className={cn("mx-auto", containerSize)}>
-          <AnimationWrapper animation={animConfig} className="text-center">
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}>{title}</h2>
-            <p className="text-lg text-gray-600 mb-12" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}>{subtitle}</p>
+          <AnimationWrapper animation={animConfig} className={cn(textAlign === "center" && "text-center", textAlign === "right" && "text-right", textAlign === "left" && "text-left")}>
+            <InlineText
+              element="h2"
+              className="text-3xl md:text-4xl font-black text-gray-900 mb-4"
+              value={title}
+              onChange={(val) => handleChange("title", val)}
+              selected={selected}
+            />
+            <InlineText
+              element="p"
+              className="text-lg text-gray-600 mb-12"
+              value={subtitle}
+              onChange={(val) => handleChange("subtitle", val)}
+              selected={selected}
+            />
           </AnimationWrapper>
           <div className="relative max-w-3xl mx-auto">
             <div className="bg-white rounded-2xl p-10 shadow-lg">
               <Quote className="w-10 h-10 text-primary-200 mx-auto mb-4" />
               {renderStars(current.rating)}
-              <p className="text-xl text-gray-700 leading-relaxed mt-4 mb-6" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(carouselIdx, "text", e.currentTarget.textContent || "")}>
-                "{current.text}"
-              </p>
+              <InlineText
+                element="p"
+                className="text-xl text-gray-700 leading-relaxed mt-4 mb-6 italic"
+                value={current.text}
+                onChange={(val) => updateTestimonial(carouselIdx, "text", val)}
+                selected={selected}
+              />
               <div className="flex items-center justify-center gap-3">
                 {current.avatar && <img src={current.avatar} alt={current.name} className="w-12 h-12 rounded-full object-cover" />}
                 <div className="text-left">
-                  <p className="font-bold text-gray-900" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(carouselIdx, "name", e.currentTarget.textContent || "")}>{current.name}</p>
-                  <p className="text-sm text-gray-500" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(carouselIdx, "role", e.currentTarget.textContent || "")}>{current.role}</p>
+                  <InlineText
+                    element="p"
+                    className="font-bold text-gray-900"
+                    value={current.name}
+                    onChange={(val) => updateTestimonial(carouselIdx, "name", val)}
+                    selected={selected}
+                  />
+                  <InlineText
+                    element="p"
+                    className="text-sm text-gray-500"
+                    value={current.role}
+                    onChange={(val) => updateTestimonial(carouselIdx, "role", val)}
+                    selected={selected}
+                  />
                 </div>
               </div>
             </div>
@@ -144,20 +197,48 @@ export const TestimonialsBlock: React.FC<BlockComponentProps> = ({ block, onChan
     return (
       <section className={cn(paddingY, "px-6", !backgroundColor && "bg-gray-50")} style={{ backgroundColor: backgroundColor || undefined }}>
         <div className={cn("mx-auto", containerSize)}>
-          <AnimationWrapper animation={animConfig} className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}>{title}</h2>
-            <p className="text-lg text-gray-600" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}>{subtitle}</p>
+          <AnimationWrapper animation={animConfig} className={cn("max-w-3xl mx-auto mb-16", textAlign === "center" && "text-center", textAlign === "right" && "text-right", textAlign === "left" && "text-left")}>
+            <InlineText
+              element="h2"
+              className="text-3xl md:text-4xl font-black text-gray-900 mb-4"
+              value={title}
+              onChange={(val) => handleChange("title", val)}
+              selected={selected}
+            />
+            <InlineText
+              element="p"
+              className="text-lg text-gray-600"
+              value={subtitle}
+              onChange={(val) => handleChange("subtitle", val)}
+              selected={selected}
+            />
           </AnimationWrapper>
           <AnimationWrapper animation={animConfig} className="bg-primary-600 rounded-2xl p-10 text-white mb-8">
             <Quote className="w-10 h-10 text-white/30 mb-4" />
-            <p className="text-xl leading-relaxed mb-6" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(0, "text", e.currentTarget.textContent || "")}>
-              "{main.text}"
-            </p>
+            <InlineText
+              element="p"
+              className="text-xl leading-relaxed mb-6 italic"
+              value={main.text}
+              onChange={(val) => updateTestimonial(0, "text", val)}
+              selected={selected}
+            />
             <div className="flex items-center gap-3">
               {main.avatar && <img src={main.avatar} alt={main.name} className="w-12 h-12 rounded-full object-cover border-2 border-white/30" />}
               <div>
-                <p className="font-bold" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(0, "name", e.currentTarget.textContent || "")}>{main.name}</p>
-                <p className="text-sm text-white/70" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(0, "role", e.currentTarget.textContent || "")}>{main.role}</p>
+                <InlineText
+                  element="p"
+                  className="font-bold"
+                  value={main.name}
+                  onChange={(val) => updateTestimonial(0, "name", val)}
+                  selected={selected}
+                />
+                <InlineText
+                  element="p"
+                  className="text-sm text-white/70"
+                  value={main.role}
+                  onChange={(val) => updateTestimonial(0, "role", val)}
+                  selected={selected}
+                />
               </div>
             </div>
           </AnimationWrapper>
@@ -176,19 +257,39 @@ export const TestimonialsBlock: React.FC<BlockComponentProps> = ({ block, onChan
     return (
       <section className={cn(paddingY, "px-6")} style={{ backgroundColor: backgroundColor || undefined }}>
         <div className={cn("mx-auto", containerSize)}>
-          <AnimationWrapper animation={animConfig} className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}>{title}</h2>
+          <AnimationWrapper animation={animConfig} className={cn("mb-12", textAlign === "center" && "text-center", textAlign === "right" && "text-right", textAlign === "left" && "text-left")}>
+            <InlineText
+              element="h2"
+              className="text-3xl md:text-4xl font-black text-gray-900 mb-4"
+              value={title}
+              onChange={(val) => handleChange("title", val)}
+              selected={selected}
+            />
           </AnimationWrapper>
           <div className="space-y-8">
             {testimonials.map((t: any, idx: number) => (
               <AnimationWrapper key={idx} animation={animConfig} index={idx} className="border-l-4 border-primary-500 pl-6 py-2">
-                <p className="text-gray-700 text-lg leading-relaxed mb-3" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(idx, "text", e.currentTarget.textContent || "")}>
-                  "{t.text}"
-                </p>
-                <p className="text-sm text-gray-500">
-                  <span className="font-bold text-gray-900" contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(idx, "name", e.currentTarget.textContent || "")}>{t.name}</span>
-                  {"   "}
-                  <span contentEditable={selected} suppressContentEditableWarning onBlur={(e) => updateTestimonial(idx, "role", e.currentTarget.textContent || "")}>{t.role}</span>
+                <InlineText
+                  element="p"
+                  className="text-gray-700 text-lg leading-relaxed mb-3 italic"
+                  value={t.text}
+                  onChange={(val) => updateTestimonial(idx, "text", val)}
+                  selected={selected}
+                />
+                <p className="text-sm text-gray-500 flex items-center gap-2">
+                  <InlineText
+                    element="span"
+                    className="font-bold text-gray-900"
+                    value={t.name}
+                    onChange={(val) => updateTestimonial(idx, "name", val)}
+                    selected={selected}
+                  />
+                  <InlineText
+                    element="span"
+                    value={t.role}
+                    onChange={(val) => updateTestimonial(idx, "role", val)}
+                    selected={selected}
+                  />
                 </p>
               </AnimationWrapper>
             ))}
@@ -202,17 +303,34 @@ export const TestimonialsBlock: React.FC<BlockComponentProps> = ({ block, onChan
   return (
     <section className={cn(paddingY, "px-6", !backgroundColor && "bg-gray-50")} style={{ backgroundColor: backgroundColor || undefined, color: textColor || undefined }}>
       <div className={cn("mx-auto", containerSize)}>
-        <AnimationWrapper animation={animConfig} className="text-center max-w-3xl mx-auto mb-16">
+        <AnimationWrapper animation={animConfig} className={cn("max-w-3xl mx-auto mb-16", textAlign === "center" && "text-center", textAlign === "right" && "text-right", textAlign === "left" && "text-left")}>
           {block.props.badgeText && (
             <span className={cn(
               "inline-flex items-center gap-2 px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full mb-6",
               textColor === "#ffffff" ? "bg-white/10 text-white" : "bg-primary-100 text-primary-700"
             )}>
-              {block.props.badgeText}
+              <InlineText
+                element="span"
+                value={block.props.badgeText}
+                onChange={(val) => handleChange("badgeText", val)}
+                selected={selected}
+              />
             </span>
           )}
-          <h2 className={cn("text-3xl md:text-5xl font-black mb-6", textColor === "#ffffff" ? "text-white" : "text-gray-900")} contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("title", e.currentTarget.textContent || "")}>{title}</h2>
-          <p className={cn("text-xl max-w-2xl mx-auto", textColor === "#ffffff" ? "text-gray-400" : "text-gray-600")} contentEditable={selected} suppressContentEditableWarning onBlur={(e) => handleChange("subtitle", e.currentTarget.textContent || "")}>{subtitle}</p>
+          <InlineText
+            element="h2"
+            className={cn("text-3xl md:text-5xl font-black mb-6", textColor === "#ffffff" ? "text-white" : "text-gray-900")}
+            value={title}
+            onChange={(val) => handleChange("title", val)}
+            selected={selected}
+          />
+          <InlineText
+            element="p"
+            className={cn("text-xl max-w-2xl mx-auto", textColor === "#ffffff" ? "text-gray-400" : "text-gray-600")}
+            value={subtitle}
+            onChange={(val) => handleChange("subtitle", val)}
+            selected={selected}
+          />
         </AnimationWrapper>
         <div className={cn("grid gap-8", getResponsiveGridClasses(Number(columns || 3), device))}>
           {testimonials.map((t: any, idx: number) => renderCard(t, idx))}
