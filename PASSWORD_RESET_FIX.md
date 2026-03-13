@@ -6,7 +6,7 @@
 
 ## Solution
 
-### 1. Configure Supabase Redirect URLs
+### 1. Configure Supabase Redirect URLs.
 
 Go to your Supabase Dashboard:
 1. https://supabase.com/dashboard
